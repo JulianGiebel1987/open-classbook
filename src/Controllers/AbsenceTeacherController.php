@@ -1,0 +1,148 @@
+<?php
+
+namespace OpenClassbook\Controllers;
+
+use OpenClassbook\App;
+use OpenClassbook\View;
+use OpenClassbook\Middleware\CsrfMiddleware;
+use OpenClassbook\Models\AbsenceTeacher;
+use OpenClassbook\Models\Teacher;
+
+class AbsenceTeacherController
+{
+    public function index(): void
+    {
+        $filters = [
+            'type' => $_GET['type'] ?? '',
+            'date_from' => $_GET['date_from'] ?? '',
+            'date_to' => $_GET['date_to'] ?? '',
+        ];
+
+        $absences = AbsenceTeacher::findAll($filters);
+        $teachers = Teacher::findAll();
+
+        View::render('absences/teachers-index', [
+            'title' => 'Lehrer-Abwesenheiten',
+            'absences' => $absences,
+            'teachers' => $teachers,
+            'filters' => $filters,
+        ]);
+    }
+
+    public function createForm(): void
+    {
+        $teachers = Teacher::findAll();
+
+        CsrfMiddleware::generateToken();
+        View::render('absences/teachers-create', [
+            'title' => 'Lehrer-Abwesenheit eintragen',
+            'teachers' => $teachers,
+        ]);
+    }
+
+    public function create(): void
+    {
+        $data = [
+            'teacher_id' => (int) ($_POST['teacher_id'] ?? 0),
+            'date_from' => $_POST['date_from'] ?? '',
+            'date_to' => $_POST['date_to'] ?? '',
+            'type' => $_POST['type'] ?? 'krank',
+            'reason' => trim($_POST['reason'] ?? '') ?: null,
+            'notes' => trim($_POST['notes'] ?? '') ?: null,
+            'created_by' => $_SESSION['user_id'],
+        ];
+
+        if (empty($data['teacher_id']) || empty($data['date_from']) || empty($data['date_to'])) {
+            App::setFlash('error', 'Lehrkraft, Von-Datum und Bis-Datum sind erforderlich.');
+            App::redirect('/absences/teachers/create');
+            return;
+        }
+
+        AbsenceTeacher::create($data);
+        App::setFlash('success', 'Abwesenheit erfolgreich eingetragen.');
+        App::redirect('/absences/teachers');
+    }
+
+    public function selfReportForm(): void
+    {
+        CsrfMiddleware::generateToken();
+        View::render('absences/teachers-self', [
+            'title' => 'Krankmeldung',
+        ]);
+    }
+
+    public function selfReport(): void
+    {
+        $teacherId = Teacher::getTeacherIdByUserId($_SESSION['user_id']);
+        if (!$teacherId) {
+            App::setFlash('error', 'Kein Lehrer-Profil gefunden.');
+            App::redirect('/dashboard');
+            return;
+        }
+
+        $data = [
+            'teacher_id' => $teacherId,
+            'date_from' => $_POST['date_from'] ?? '',
+            'date_to' => $_POST['date_to'] ?? '',
+            'type' => $_POST['type'] ?? 'krank',
+            'reason' => trim($_POST['reason'] ?? '') ?: null,
+            'notes' => trim($_POST['notes'] ?? '') ?: null,
+            'created_by' => $_SESSION['user_id'],
+        ];
+
+        if (empty($data['date_from']) || empty($data['date_to'])) {
+            App::setFlash('error', 'Von-Datum und Bis-Datum sind erforderlich.');
+            App::redirect('/absences/teachers/self');
+            return;
+        }
+
+        AbsenceTeacher::create($data);
+        App::setFlash('success', 'Ihre Krankmeldung wurde erfolgreich eingetragen.');
+        App::redirect('/dashboard');
+    }
+
+    public function editForm(string $id): void
+    {
+        $absence = AbsenceTeacher::findById((int) $id);
+        if (!$absence) {
+            App::setFlash('error', 'Abwesenheit nicht gefunden.');
+            App::redirect('/absences/teachers');
+            return;
+        }
+
+        CsrfMiddleware::generateToken();
+        View::render('absences/teachers-edit', [
+            'title' => 'Abwesenheit bearbeiten',
+            'absence' => $absence,
+        ]);
+    }
+
+    public function update(string $id): void
+    {
+        $absence = AbsenceTeacher::findById((int) $id);
+        if (!$absence) {
+            App::setFlash('error', 'Abwesenheit nicht gefunden.');
+            App::redirect('/absences/teachers');
+            return;
+        }
+
+        $data = [
+            'date_from' => $_POST['date_from'] ?? $absence['date_from'],
+            'date_to' => $_POST['date_to'] ?? $absence['date_to'],
+            'type' => $_POST['type'] ?? $absence['type'],
+            'reason' => trim($_POST['reason'] ?? '') ?: null,
+            'notes' => trim($_POST['notes'] ?? '') ?: null,
+        ];
+
+        AbsenceTeacher::update($absence['id'], $data);
+        App::setFlash('success', 'Abwesenheit aktualisiert.');
+        App::redirect('/absences/teachers');
+    }
+
+    public function delete(string $id): void
+    {
+        AbsenceTeacher::delete((int) $id);
+        App::setFlash('success', 'Abwesenheit geloescht.');
+        App::redirect('/absences/teachers');
+    }
+}

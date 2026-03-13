@@ -11,6 +11,7 @@ return [
         ['label' => 'Klassenbuch', 'url' => '/classbook'],
         ['label' => 'Fehlzeiten', 'url' => '/absences/students'],
         ['label' => 'Lehrer-Abwesenheit', 'url' => '/absences/teachers'],
+        ['label' => 'Import', 'url' => '/import'],
     ],
     'schulleitung' => [
         ['label' => 'Dashboard', 'url' => '/dashboard'],
@@ -27,6 +28,7 @@ return [
         ['label' => 'Klassenbuch', 'url' => '/classbook'],
         ['label' => 'Fehlzeiten', 'url' => '/absences/students'],
         ['label' => 'Lehrer-Abwesenheit', 'url' => '/absences/teachers'],
+        ['label' => 'Import', 'url' => '/import'],
     ],
     'lehrer' => [
         ['label' => 'Dashboard', 'url' => '/dashboard'],
