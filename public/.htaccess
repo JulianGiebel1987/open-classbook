@@ -1,0 +1,12 @@
+RewriteEngine On
+
+# Anfragen auf HTTPS umleiten (in Produktion aktivieren)
+# RewriteCond %{HTTPS} off
+# RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Existierende Dateien und Verzeichnisse nicht umleiten
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Alles auf index.php umleiten
+RewriteRule ^ index.php [L]
