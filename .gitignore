@@ -1,0 +1,12 @@
+/vendor/
+/storage/logs/*
+/storage/uploads/*
+/storage/cache/*
+!storage/logs/.gitkeep
+!storage/uploads/.gitkeep
+!storage/cache/.gitkeep
+.env
+*.log
+.DS_Store
+.idea/
+.vscode/
