@@ -76,12 +76,12 @@
 - [x] Eigene Eintraege bearbeiten (nur innerhalb von 24h, danach nur Admin)
 - [x] Zugriffskontrolle: Lehrer nur eigene Klassen, Admin/Schulleitung/Sekretariat alle
 - [x] Export als CSV
-- [ ] Export als PDF (via TCPDF)
+- [x] Export als PDF (via TCPDF)
 - [x] Filter: Zeitraum, Klasse, Lehrer
 
 ### 2.5 Fehlzeiten-Management Schueler
 - [x] Fehlzeit eintragen: Schueler, Datum von/bis, entschuldigt/unentschuldigt/offen, Grund, Notiz
-- [ ] Mehrtageseintraege automatisch auf einzelne Tage aufschluesseln
+- [x] Mehrtageseintraege automatisch auf einzelne Tage aufschluesseln
 - [x] Fehlzeit bearbeiten und loeschen
 - [x] Fehlzeiten-Uebersicht pro Schueler
 - [x] Fehlzeiten-Uebersicht pro Klasse
@@ -92,7 +92,7 @@
 - [x] Admin/Sekretariat kann Lehrer-Fehlzeiten eintragen
 - [x] Fehlzeiten bearbeiten und loeschen
 - [x] Fehlzeiten-Uebersicht aller Lehrer
-- [ ] E-Mail-Benachrichtigung an Schulleitung/Sekretariat bei Krankmeldung (konfigurierbar)
+- [x] E-Mail-Benachrichtigung an Schulleitung/Sekretariat bei Krankmeldung (konfigurierbar)
 
 ### 2.7 Dashboards
 - [x] Admin-Dashboard: Widgets (Anzahl Lehrer/Schueler/Klassen, heutige Abwesenheiten Lehrer, heutige Abwesenheiten Schueler nach Klasse, offene unentschuldigte Fehlzeiten, Schnellzugriff)

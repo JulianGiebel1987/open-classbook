@@ -52,6 +52,7 @@ $router->get('/classbook/{classId}', [ClassbookController::class, 'show'], [Auth
 $router->get('/classbook/{classId}/create', [ClassbookController::class, 'createForm'], [AuthMiddleware::class]);
 $router->post('/classbook/{classId}', [ClassbookController::class, 'create'], [AuthMiddleware::class, CsrfMiddleware::class]);
 $router->get('/classbook/{classId}/export-csv', [ClassbookController::class, 'exportCsv'], [AuthMiddleware::class]);
+$router->get('/classbook/{classId}/export-pdf', [ClassbookController::class, 'exportPdf'], [AuthMiddleware::class]);
 $router->get('/classbook/entry/{id}/edit', [ClassbookController::class, 'editForm'], [AuthMiddleware::class]);
 $router->post('/classbook/entry/{id}', [ClassbookController::class, 'update'], [AuthMiddleware::class, CsrfMiddleware::class]);
 

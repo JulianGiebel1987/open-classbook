@@ -160,6 +160,87 @@ class ClassbookController
         App::redirect('/classbook/' . $entry['class_id']);
     }
 
+    public function exportPdf(string $classId): void
+    {
+        $class = SchoolClass::findById((int) $classId);
+        if (!$class || !$this->hasAccessToClass((int) $classId)) {
+            App::setFlash('error', 'Kein Zugriff.');
+            App::redirect('/classbook');
+            return;
+        }
+
+        $filters = [
+            'date_from' => $_GET['date_from'] ?? '',
+            'date_to' => $_GET['date_to'] ?? '',
+        ];
+
+        $entries = ClassbookEntry::findByClass($class['id'], $filters);
+
+        $pdf = new \TCPDF('L', 'mm', 'A4', true, 'UTF-8', false);
+        $pdf->SetCreator('Open-Classbook');
+        $pdf->SetAuthor('Open-Classbook');
+        $pdf->SetTitle('Klassenbuch ' . $class['name']);
+        $pdf->SetMargins(10, 15, 10);
+        $pdf->SetAutoPageBreak(true, 15);
+        $pdf->setPrintHeader(false);
+        $pdf->setPrintFooter(false);
+        $pdf->AddPage();
+
+        $pdf->SetFont('helvetica', 'B', 16);
+        $pdf->Cell(0, 10, 'Klassenbuch: ' . $class['name'], 0, 1, 'C');
+
+        $dateRange = '';
+        if (!empty($filters['date_from'])) {
+            $dateRange .= 'Von: ' . date('d.m.Y', strtotime($filters['date_from']));
+        }
+        if (!empty($filters['date_to'])) {
+            $dateRange .= ($dateRange ? '  ' : '') . 'Bis: ' . date('d.m.Y', strtotime($filters['date_to']));
+        }
+        if ($dateRange) {
+            $pdf->SetFont('helvetica', '', 10);
+            $pdf->Cell(0, 6, $dateRange, 0, 1, 'C');
+        }
+
+        $pdf->Ln(5);
+
+        // Tabellenkopf
+        $pdf->SetFont('helvetica', 'B', 10);
+        $pdf->SetFillColor(230, 230, 230);
+        $pdf->Cell(25, 8, 'Datum', 1, 0, 'C', true);
+        $pdf->Cell(15, 8, 'Std.', 1, 0, 'C', true);
+        $pdf->Cell(40, 8, 'Lehrkraft', 1, 0, 'C', true);
+        $pdf->Cell(110, 8, 'Thema', 1, 0, 'C', true);
+        $pdf->Cell(87, 8, 'Notizen', 1, 1, 'C', true);
+
+        // Tabelleninhalt
+        $pdf->SetFont('helvetica', '', 9);
+        foreach ($entries as $e) {
+            $startY = $pdf->GetY();
+            $startPage = $pdf->getPage();
+
+            // Berechne benoetigte Hoehe fuer mehrzeilige Zellen
+            $topicHeight = $pdf->getStringHeight(110, $e['topic']);
+            $notesHeight = $pdf->getStringHeight(87, $e['notes'] ?? '');
+            $rowHeight = max(8, $topicHeight, $notesHeight);
+
+            // Seitenumbruch pruefen
+            if ($pdf->GetY() + $rowHeight > $pdf->getPageHeight() - 15) {
+                $pdf->AddPage();
+            }
+
+            $y = $pdf->GetY();
+            $pdf->MultiCell(25, $rowHeight, date('d.m.Y', strtotime($e['entry_date'])), 1, 'C', false, 0);
+            $pdf->MultiCell(15, $rowHeight, (string) $e['lesson'], 1, 'C', false, 0);
+            $pdf->MultiCell(40, $rowHeight, $e['teacher_lastname'] . ', ' . $e['teacher_firstname'], 1, 'L', false, 0);
+            $pdf->MultiCell(110, $rowHeight, $e['topic'], 1, 'L', false, 0);
+            $pdf->MultiCell(87, $rowHeight, $e['notes'] ?? '', 1, 'L', false, 1);
+        }
+
+        $filename = 'klassenbuch_' . $class['name'] . '_' . date('Y-m-d') . '.pdf';
+        $pdf->Output($filename, 'D');
+        exit;
+    }
+
     public function exportCsv(string $classId): void
     {
         $class = SchoolClass::findById((int) $classId);
