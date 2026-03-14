@@ -133,6 +133,56 @@ abstract class DatabaseTestCase extends TestCase
                 FOREIGN KEY (user_id) REFERENCES users(id)
             )
         ');
+
+        self::$pdo->exec('
+            CREATE TABLE classbook_entries (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                class_id INTEGER NOT NULL,
+                teacher_id INTEGER NOT NULL,
+                entry_date DATE NOT NULL,
+                lesson INTEGER NOT NULL,
+                topic VARCHAR(500) NOT NULL,
+                notes TEXT DEFAULT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (class_id) REFERENCES classes(id),
+                FOREIGN KEY (teacher_id) REFERENCES teachers(id)
+            )
+        ');
+
+        self::$pdo->exec('
+            CREATE TABLE absences_students (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                student_id INTEGER NOT NULL,
+                date_from DATE NOT NULL,
+                date_to DATE NOT NULL,
+                excused VARCHAR(10) NOT NULL DEFAULT "offen",
+                reason VARCHAR(500) DEFAULT NULL,
+                notes TEXT DEFAULT NULL,
+                created_by INTEGER DEFAULT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (student_id) REFERENCES students(id),
+                FOREIGN KEY (created_by) REFERENCES users(id)
+            )
+        ');
+
+        self::$pdo->exec('
+            CREATE TABLE absences_teachers (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                teacher_id INTEGER NOT NULL,
+                date_from DATE NOT NULL,
+                date_to DATE NOT NULL,
+                type VARCHAR(20) NOT NULL DEFAULT "krank",
+                reason VARCHAR(500) DEFAULT NULL,
+                notes TEXT DEFAULT NULL,
+                created_by INTEGER DEFAULT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (teacher_id) REFERENCES teachers(id),
+                FOREIGN KEY (created_by) REFERENCES users(id)
+            )
+        ');
     }
 
     protected function createTestUser(array $overrides = []): int
@@ -202,6 +252,57 @@ abstract class DatabaseTestCase extends TestCase
             $data['name'],
             $data['school_year'],
             $data['head_teacher_id'],
+        ]);
+
+        return (int) self::$pdo->lastInsertId();
+    }
+
+    protected function createTestStudent(int $classId, array $overrides = []): int
+    {
+        $defaults = [
+            'user_id' => null,
+            'firstname' => 'Anna',
+            'lastname' => 'Testschueler',
+            'birthday' => '2010-05-15',
+            'guardian_email' => 'eltern@example.com',
+        ];
+
+        $data = array_merge($defaults, $overrides);
+
+        self::$pdo->prepare(
+            'INSERT INTO students (user_id, firstname, lastname, class_id, birthday, guardian_email) VALUES (?, ?, ?, ?, ?, ?)'
+        )->execute([
+            $data['user_id'],
+            $data['firstname'],
+            $data['lastname'],
+            $classId,
+            $data['birthday'],
+            $data['guardian_email'],
+        ]);
+
+        return (int) self::$pdo->lastInsertId();
+    }
+
+    protected function createTestClassbookEntry(int $classId, int $teacherId, array $overrides = []): int
+    {
+        $defaults = [
+            'entry_date' => date('Y-m-d'),
+            'lesson' => 1,
+            'topic' => 'Testthema',
+            'notes' => null,
+        ];
+
+        $data = array_merge($defaults, $overrides);
+
+        self::$pdo->prepare(
+            'INSERT INTO classbook_entries (class_id, teacher_id, entry_date, lesson, topic, notes) VALUES (?, ?, ?, ?, ?, ?)'
+        )->execute([
+            $classId,
+            $teacherId,
+            $data['entry_date'],
+            $data['lesson'],
+            $data['topic'],
+            $data['notes'],
         ]);
 
         return (int) self::$pdo->lastInsertId();

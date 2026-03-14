@@ -130,11 +130,13 @@
 ## Phase 4: Beta-Test (2-3 Wochen)
 
 ### 4.1 Testvorbereitung
-- [ ] PHPUnit-Tests fuer Auth-System schreiben
-- [ ] PHPUnit-Tests fuer Import-Logik schreiben
-- [ ] PHPUnit-Tests fuer RBAC-Pruefungen schreiben
-- [ ] Testdaten-Seed-Skript erstellen (Demo-Schule mit Beispieldaten)
-- [ ] Manuelle Test-Checkliste erstellen
+- [x] PHPUnit-Tests fuer Auth-System schreiben
+- [x] PHPUnit-Tests fuer Import-Logik schreiben
+- [x] PHPUnit-Tests fuer RBAC-Pruefungen schreiben
+- [x] PHPUnit-Tests fuer alle Models schreiben (User, Teacher, Student, SchoolClass, ClassbookEntry, AbsenceStudent, AbsenceTeacher)
+- [x] PHPUnit-Tests fuer Router und View schreiben
+- [x] Testdaten-Seed-Skript erstellen (Demo-Schule mit Beispieldaten)
+- [x] Manuelle Test-Checkliste erstellen
 
 ### 4.2 Pilotschule
 - [ ] Installation auf Test-Server des Schultraegers
