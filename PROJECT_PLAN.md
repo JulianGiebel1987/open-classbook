@@ -148,16 +148,16 @@
 ## Phase 5: Release (1-2 Wochen)
 
 ### 5.1 Installer & Dokumentation
-- [ ] Installer-Skript erstellen (PHP): Datenbankeinrichtung, Admin-Account, Grundkonfiguration
-- [ ] `INSTALL.md` schreiben (Systemvoraussetzungen, Schritt-fuer-Schritt-Anleitung)
-- [ ] `README.md` erstellen (Projektbeschreibung, Features, Screenshots)
-- [ ] Admin-Handbuch erstellen (PDF oder HTML)
-- [ ] Konfigurationshinweise fuer HTTPS, E-Mail-Server, Backups
+- [x] Installer-Skript erstellen (PHP): Datenbankeinrichtung, Admin-Account, Grundkonfiguration
+- [x] `INSTALL.md` schreiben (Systemvoraussetzungen, Schritt-fuer-Schritt-Anleitung)
+- [x] `README.md` erstellen (Projektbeschreibung, Features, Screenshots)
+- [x] Admin-Handbuch erstellen (PDF oder HTML)
+- [x] Konfigurationshinweise fuer HTTPS, E-Mail-Server, Backups
 
 ### 5.2 Deployment
-- [ ] Release-ZIP-Paket erstellen (ohne Entwicklungsdateien)
-- [ ] Update-Mechanismus dokumentieren (neue Version einspielen + Migrationen)
-- [ ] Changelog schreiben
+- [x] Release-ZIP-Paket erstellen (ohne Entwicklungsdateien)
+- [x] Update-Mechanismus dokumentieren (neue Version einspielen + Migrationen)
+- [x] Changelog schreiben
 - [ ] GitHub-Release erstellen mit ZIP-Download
 
 ---
