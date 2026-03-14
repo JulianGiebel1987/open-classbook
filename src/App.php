@@ -6,6 +6,14 @@ class App
 {
     private static ?array $config = null;
 
+    /**
+     * Set config (for testing)
+     */
+    public static function setConfig(array $config): void
+    {
+        self::$config = $config;
+    }
+
     public static function config(?string $key = null): mixed
     {
         if (self::$config === null) {
