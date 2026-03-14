@@ -1,28 +1,32 @@
-<h1>Import-Vorschau: Schueler/innen</h1>
-<p style="color:var(--color-text-light);">Schuljahr: <?= htmlspecialchars($schoolYear, ENT_QUOTES, 'UTF-8') ?></p>
+<div class="page-header">
+    <h1>Import-Vorschau: Schueler/innen</h1>
+</div>
+<p class="text-muted mb-1">Schuljahr: <?= htmlspecialchars($schoolYear, ENT_QUOTES, 'UTF-8') ?></p>
 
 <?php if (!empty($preview['errors'])): ?>
-<div class="alert alert-warning">
-    <strong>Hinweise:</strong>
-    <ul style="margin:0.5rem 0 0 1rem;">
-        <?php foreach ($preview['errors'] as $err): ?>
-            <li><?= htmlspecialchars($err, ENT_QUOTES, 'UTF-8') ?></li>
-        <?php endforeach; ?>
-    </ul>
+<div class="alert alert-warning" role="alert">
+    <div>
+        <strong>Hinweise:</strong>
+        <ul style="margin:0.5rem 0 0 1rem;">
+            <?php foreach ($preview['errors'] as $err): ?>
+                <li><?= htmlspecialchars($err, ENT_QUOTES, 'UTF-8') ?></li>
+            <?php endforeach; ?>
+        </ul>
+    </div>
 </div>
 <?php endif; ?>
 
 <div class="card">
     <div class="table-responsive">
-        <table>
+        <table aria-label="Import-Vorschau Schueler">
             <thead>
                 <tr>
-                    <th>Zeile</th>
-                    <th>Vorname</th>
-                    <th>Nachname</th>
-                    <th>Klasse</th>
-                    <th>Geburtsdatum</th>
-                    <th>Status</th>
+                    <th scope="col">Zeile</th>
+                    <th scope="col">Vorname</th>
+                    <th scope="col">Nachname</th>
+                    <th scope="col">Klasse</th>
+                    <th scope="col">Geburtsdatum</th>
+                    <th scope="col">Status</th>
                 </tr>
             </thead>
             <tbody>
@@ -47,8 +51,8 @@
     </div>
 </div>
 
-<div class="mt-1" style="display:flex; gap:0.5rem;">
-    <form method="post" action="/import/students/confirm">
+<div class="mt-1 btn-group">
+    <form method="post" action="/import/students/confirm" class="d-inline">
         <?= \OpenClassbook\View::csrfField() ?>
         <input type="hidden" name="stored_file" value="<?= htmlspecialchars($storedFile, ENT_QUOTES, 'UTF-8') ?>">
         <input type="hidden" name="school_year" value="<?= htmlspecialchars($schoolYear, ENT_QUOTES, 'UTF-8') ?>">

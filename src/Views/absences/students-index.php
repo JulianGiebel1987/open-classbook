@@ -1,12 +1,14 @@
-<h1>Schueler-Fehlzeiten</h1>
+<div class="page-header">
+    <h1>Schueler-Fehlzeiten</h1>
+    <a href="/absences/students/create" class="btn">Fehlzeit eintragen</a>
+</div>
 
 <div class="card">
     <div class="card-header">
         <h2>Filter</h2>
-        <a href="/absences/students/create" class="btn">Fehlzeit eintragen</a>
     </div>
-    <form method="get" action="/absences/students" style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:end;">
-        <div class="form-group" style="margin-bottom:0;">
+    <form method="get" action="/absences/students" class="filter-form">
+        <div class="form-group">
             <label for="class_id">Klasse</label>
             <select name="class_id" id="class_id" class="form-control">
                 <option value="">Alle</option>
@@ -17,7 +19,7 @@
                 <?php endforeach; ?>
             </select>
         </div>
-        <div class="form-group" style="margin-bottom:0;">
+        <div class="form-group">
             <label for="excused">Status</label>
             <select name="excused" id="excused" class="form-control">
                 <option value="">Alle</option>
@@ -26,11 +28,11 @@
                 <option value="offen" <?= ($filters['excused'] ?? '') === 'offen' ? 'selected' : '' ?>>Offen</option>
             </select>
         </div>
-        <div class="form-group" style="margin-bottom:0;">
+        <div class="form-group">
             <label for="date_from">Von</label>
             <input type="date" name="date_from" id="date_from" class="form-control" value="<?= htmlspecialchars($filters['date_from'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
         </div>
-        <div class="form-group" style="margin-bottom:0;">
+        <div class="form-group">
             <label for="date_to">Bis</label>
             <input type="date" name="date_to" id="date_to" class="form-control" value="<?= htmlspecialchars($filters['date_to'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
         </div>
@@ -40,16 +42,16 @@
 
 <div class="card mt-1">
     <div class="table-responsive">
-        <table>
+        <table aria-label="Schueler-Fehlzeiten">
             <thead>
                 <tr>
-                    <th>Schueler/in</th>
-                    <th>Klasse</th>
-                    <th>Von</th>
-                    <th>Bis</th>
-                    <th>Status</th>
-                    <th>Grund</th>
-                    <th>Aktionen</th>
+                    <th scope="col">Schueler/in</th>
+                    <th scope="col">Klasse</th>
+                    <th scope="col">Von</th>
+                    <th scope="col">Bis</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Grund</th>
+                    <th scope="col">Aktionen</th>
                 </tr>
             </thead>
             <tbody>
@@ -72,12 +74,14 @@
                         <?php endif; ?>
                     </td>
                     <td><?= htmlspecialchars($a['reason'] ?? '-', ENT_QUOTES, 'UTF-8') ?></td>
-                    <td style="white-space:nowrap;">
-                        <a href="/absences/students/<?= $a['id'] ?>/edit" class="btn btn-sm btn-secondary">Bearbeiten</a>
-                        <form method="post" action="/absences/students/<?= $a['id'] ?>/delete" style="display:inline;">
-                            <?= \OpenClassbook\View::csrfField() ?>
-                            <button type="submit" class="btn btn-sm btn-danger" data-confirm="Fehlzeit wirklich loeschen?">Loeschen</button>
-                        </form>
+                    <td>
+                        <div class="btn-group">
+                            <a href="/absences/students/<?= $a['id'] ?>/edit" class="btn btn-sm btn-secondary">Bearbeiten</a>
+                            <form method="post" action="/absences/students/<?= $a['id'] ?>/delete" class="d-inline">
+                                <?= \OpenClassbook\View::csrfField() ?>
+                                <button type="submit" class="btn btn-sm btn-danger" data-confirm="Fehlzeit wirklich loeschen?">Loeschen</button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
                 <?php endforeach; ?>

@@ -1,4 +1,6 @@
-<h1>Dashboard</h1>
+<div class="page-header">
+    <h1>Dashboard</h1>
+</div>
 
 <div class="dashboard-grid">
     <div class="widget">
@@ -31,7 +33,7 @@
     <div class="card-header">
         <h2>Schnellzugriff</h2>
     </div>
-    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+    <div class="btn-group flex-wrap">
         <a href="/users" class="btn">Benutzerverwaltung</a>
         <a href="/classes" class="btn btn-secondary">Klassenverwaltung</a>
         <a href="/classbook" class="btn btn-secondary">Klassenbuecher</a>

@@ -102,30 +102,30 @@
 ## Phase 3: UI & Polish (2 Wochen)
 
 ### 3.1 Responsive Design
-- [ ] CSS-Grundgeruest mit CSS-Variablen (Farben, Schriften, Abstaende)
-- [ ] Mobile-First-Layout mit CSS Grid/Flexbox
-- [ ] Navigation: Hamburger-Menue auf mobilen Geraeten
-- [ ] Tabellen responsive gestalten (horizontales Scrollen oder Card-Layout)
-- [ ] Formulare fuer Touch-Eingabe optimieren
+- [x] CSS-Grundgeruest mit CSS-Variablen (Farben, Schriften, Abstaende)
+- [x] Mobile-First-Layout mit CSS Grid/Flexbox
+- [x] Navigation: Hamburger-Menue auf mobilen Geraeten
+- [x] Tabellen responsive gestalten (horizontales Scrollen oder Card-Layout)
+- [x] Formulare fuer Touch-Eingabe optimieren
 
 ### 3.2 Barrierefreiheit
-- [ ] Kontrastverhältnisse pruefen (WCAG 2.1 AA)
-- [ ] ARIA-Labels fuer interaktive Elemente
-- [ ] Tastaturnavigation sicherstellen
-- [ ] Fokus-Indikatoren sichtbar gestalten
+- [x] Kontrastverhältnisse pruefen (WCAG 2.1 AA)
+- [x] ARIA-Labels fuer interaktive Elemente
+- [x] Tastaturnavigation sicherstellen
+- [x] Fokus-Indikatoren sichtbar gestalten
 
 ### 3.3 UX-Verbesserungen
-- [ ] Erfolgsmeldungen und Fehlermeldungen einheitlich gestalten (Flash Messages)
-- [ ] Bestaetigungsdialoge fuer kritische Aktionen (Loeschen, Deaktivieren)
-- [ ] Ladeanimation fuer laengere Vorgaenge (Import, Export)
-- [ ] Breadcrumb-Navigation
-- [ ] Suchfunktion in Listen (clientseitig)
+- [x] Erfolgsmeldungen und Fehlermeldungen einheitlich gestalten (Flash Messages)
+- [x] Bestaetigungsdialoge fuer kritische Aktionen (Loeschen, Deaktivieren)
+- [x] Ladeanimation fuer laengere Vorgaenge (Import, Export)
+- [x] Breadcrumb-Navigation
+- [x] Suchfunktion in Listen (clientseitig)
 
 ### 3.4 Fehlerbehebung & Optimierung
-- [ ] SQL-Abfragen optimieren (Indizes auf Fremdschluessel und Datumsspalten)
-- [ ] Input-Validierung vollstaendig pruefen (alle Formulare)
-- [ ] Error-Handling vereinheitlichen (404, 403, 500 Fehlerseiten)
-- [ ] Logging implementieren (Fehler, Login-Versuche, Datenaenderungen)
+- [x] SQL-Abfragen optimieren (Indizes auf Fremdschluessel und Datumsspalten)
+- [x] Input-Validierung vollstaendig pruefen (alle Formulare)
+- [x] Error-Handling vereinheitlichen (404, 403, 500 Fehlerseiten)
+- [x] Logging implementieren (Fehler, Login-Versuche, Datenaenderungen)
 
 ## Phase 4: Beta-Test (2-3 Wochen)
 

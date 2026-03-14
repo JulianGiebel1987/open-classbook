@@ -5,12 +5,12 @@
 
         <div class="form-group">
             <label for="username">Benutzername oder E-Mail</label>
-            <input type="text" id="username" name="username" class="form-control" required autofocus>
+            <input type="text" id="username" name="username" class="form-control" required autofocus autocomplete="username">
         </div>
 
         <div class="form-group">
             <label for="password">Passwort</label>
-            <input type="password" id="password" name="password" class="form-control" required>
+            <input type="password" id="password" name="password" class="form-control" required autocomplete="current-password">
         </div>
 
         <div class="form-group">

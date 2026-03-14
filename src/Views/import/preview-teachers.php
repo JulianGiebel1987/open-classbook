@@ -1,28 +1,32 @@
-<h1>Import-Vorschau: Lehrkraefte</h1>
+<div class="page-header">
+    <h1>Import-Vorschau: Lehrkraefte</h1>
+</div>
 
 <?php if (!empty($preview['errors'])): ?>
-<div class="alert alert-warning">
-    <strong>Hinweise:</strong>
-    <ul style="margin:0.5rem 0 0 1rem;">
-        <?php foreach ($preview['errors'] as $err): ?>
-            <li><?= htmlspecialchars($err, ENT_QUOTES, 'UTF-8') ?></li>
-        <?php endforeach; ?>
-    </ul>
+<div class="alert alert-warning" role="alert">
+    <div>
+        <strong>Hinweise:</strong>
+        <ul style="margin:0.5rem 0 0 1rem;">
+            <?php foreach ($preview['errors'] as $err): ?>
+                <li><?= htmlspecialchars($err, ENT_QUOTES, 'UTF-8') ?></li>
+            <?php endforeach; ?>
+        </ul>
+    </div>
 </div>
 <?php endif; ?>
 
 <div class="card">
     <div class="table-responsive">
-        <table>
+        <table aria-label="Import-Vorschau Lehrkraefte">
             <thead>
                 <tr>
-                    <th>Zeile</th>
-                    <th>Vorname</th>
-                    <th>Nachname</th>
-                    <th>Kuerzel</th>
-                    <th>E-Mail</th>
-                    <th>Faecher</th>
-                    <th>Status</th>
+                    <th scope="col">Zeile</th>
+                    <th scope="col">Vorname</th>
+                    <th scope="col">Nachname</th>
+                    <th scope="col">Kuerzel</th>
+                    <th scope="col">E-Mail</th>
+                    <th scope="col">Faecher</th>
+                    <th scope="col">Status</th>
                 </tr>
             </thead>
             <tbody>
@@ -48,8 +52,8 @@
     </div>
 </div>
 
-<div class="mt-1" style="display:flex; gap:0.5rem;">
-    <form method="post" action="/import/teachers/confirm">
+<div class="mt-1 btn-group">
+    <form method="post" action="/import/teachers/confirm" class="d-inline">
         <?= \OpenClassbook\View::csrfField() ?>
         <input type="hidden" name="stored_file" value="<?= htmlspecialchars($storedFile, ENT_QUOTES, 'UTF-8') ?>">
         <button type="submit" class="btn" data-confirm="Import jetzt durchfuehren? Fehlerhafte Zeilen werden uebersprungen.">Import durchfuehren</button>
