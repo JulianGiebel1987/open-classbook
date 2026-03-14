@@ -7,16 +7,18 @@
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body class="auth-page">
-    <div class="auth-container">
+    <main class="auth-container" role="main">
         <div class="auth-header">
             <h1>Open-Classbook</h1>
         </div>
         <?= \OpenClassbook\View::flash() ?>
         <?= $content ?>
-    </div>
+    </main>
 
-    <footer class="footer">
+    <footer class="footer" role="contentinfo">
         <p>&copy; <?= date('Y') ?> Open-Classbook</p>
     </footer>
+
+    <script src="/js/app.js"></script>
 </body>
 </html>

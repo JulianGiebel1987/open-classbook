@@ -9,6 +9,22 @@ class Database
 {
     private static ?PDO $instance = null;
 
+    /**
+     * Set a PDO connection (for testing)
+     */
+    public static function setConnection(PDO $pdo): void
+    {
+        self::$instance = $pdo;
+    }
+
+    /**
+     * Reset the connection (for testing)
+     */
+    public static function resetConnection(): void
+    {
+        self::$instance = null;
+    }
+
     public static function getConnection(): PDO
     {
         if (self::$instance === null) {

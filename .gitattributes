@@ -1,0 +1,30 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# PHP files
+*.php text eol=lf
+
+# SQL migrations
+*.sql text eol=lf
+
+# Web assets
+*.css text eol=lf
+*.js text eol=lf
+*.html text eol=lf
+
+# Documentation
+*.md text eol=lf
+
+# Shell scripts
+*.sh text eol=lf
+
+# Git export ignore (fuer `git archive`)
+.gitignore export-ignore
+.gitattributes export-ignore
+tests/ export-ignore
+phpunit.xml.dist export-ignore
+CLAUDE.md export-ignore
+PROJECT_PLAN.md export-ignore
+TESTING_CHECKLIST.md export-ignore
+Open-Classbook-PRD.docx export-ignore
+build-release.sh export-ignore

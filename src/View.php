@@ -57,7 +57,7 @@ class View
     }
 
     /**
-     * Flash-Nachricht anzeigen
+     * Flash-Nachricht anzeigen (mit Dismiss-Button)
      */
     public static function flash(): string
     {
@@ -65,9 +65,24 @@ class View
         if (isset($_SESSION['flash'])) {
             $type = $_SESSION['flash']['type'] ?? 'info';
             $message = htmlspecialchars($_SESSION['flash']['message'] ?? '', ENT_QUOTES, 'UTF-8');
-            $html = '<div class="alert alert-' . $type . '">' . $message . '</div>';
+            $html = '<div class="alert alert-' . $type . '" role="alert">'
+                   . '<span>' . $message . '</span>'
+                   . '<button type="button" class="alert-dismiss" aria-label="Meldung schliessen">&times;</button>'
+                   . '</div>';
             unset($_SESSION['flash']);
         }
         return $html;
+    }
+
+    /**
+     * Breadcrumb-Daten generieren
+     */
+    public static function breadcrumbs(array $items): array
+    {
+        $crumbs = [['label' => 'Dashboard', 'url' => '/dashboard']];
+        foreach ($items as $item) {
+            $crumbs[] = $item;
+        }
+        return $crumbs;
     }
 }

@@ -1,5 +1,5 @@
-<div class="error-page">
+<div class="error-page" role="alert">
     <h1>404</h1>
-    <p>Seite nicht gefunden.</p>
+    <p>Die angeforderte Seite wurde nicht gefunden.</p>
     <a href="/dashboard" class="btn">Zur Startseite</a>
 </div>

@@ -1,12 +1,20 @@
-<h1>Klasse <?= htmlspecialchars($class['name'], ENT_QUOTES, 'UTF-8') ?></h1>
-<p style="color:var(--color-text-light);">Schuljahr: <?= htmlspecialchars($class['school_year'], ENT_QUOTES, 'UTF-8') ?></p>
+<div class="page-header">
+    <h1>Klasse <?= htmlspecialchars($class['name'], ENT_QUOTES, 'UTF-8') ?></h1>
+    <div class="btn-group">
+        <a href="/classbook/<?= $class['id'] ?>" class="btn">Klassenbuch</a>
+        <a href="/classes/<?= $class['id'] ?>/edit" class="btn btn-secondary">Bearbeiten</a>
+        <a href="/classes" class="btn btn-secondary">Zurueck</a>
+    </div>
+</div>
 
-<div class="card mt-1">
+<p class="text-muted mb-1">Schuljahr: <?= htmlspecialchars($class['school_year'], ENT_QUOTES, 'UTF-8') ?></p>
+
+<div class="card">
     <div class="card-header">
         <h2>Lehrkraefte</h2>
     </div>
     <?php if (empty($teachers)): ?>
-        <p style="color:var(--color-text-light);">Keine Lehrkraefte zugewiesen.</p>
+        <p class="text-muted">Keine Lehrkraefte zugewiesen.</p>
     <?php else: ?>
         <ul style="list-style:none;">
             <?php foreach ($teachers as $t): ?>
@@ -21,15 +29,15 @@
         <h2>Schueler/innen (<?= count($students) ?>)</h2>
     </div>
     <?php if (empty($students)): ?>
-        <p style="color:var(--color-text-light);">Keine Schueler in dieser Klasse.</p>
+        <p class="text-muted">Keine Schueler in dieser Klasse.</p>
     <?php else: ?>
         <div class="table-responsive">
-            <table>
+            <table aria-label="Schuelerliste">
                 <thead>
                     <tr>
-                        <th>Nachname</th>
-                        <th>Vorname</th>
-                        <th>Geburtsdatum</th>
+                        <th scope="col">Nachname</th>
+                        <th scope="col">Vorname</th>
+                        <th scope="col">Geburtsdatum</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -44,10 +52,4 @@
             </table>
         </div>
     <?php endif; ?>
-</div>
-
-<div class="mt-1" style="display:flex; gap:0.5rem;">
-    <a href="/classbook/<?= $class['id'] ?>" class="btn">Klassenbuch</a>
-    <a href="/classes/<?= $class['id'] ?>/edit" class="btn btn-secondary">Bearbeiten</a>
-    <a href="/classes" class="btn btn-secondary">Zurueck</a>
 </div>

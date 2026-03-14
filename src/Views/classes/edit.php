@@ -1,17 +1,19 @@
-<h1>Klasse bearbeiten</h1>
+<div class="page-header">
+    <h1>Klasse bearbeiten</h1>
+</div>
 
 <div class="card">
     <form method="post" action="/classes/<?= $class['id'] ?>">
         <?= \OpenClassbook\View::csrfField() ?>
 
         <div class="form-group">
-            <label for="name">Klassenbezeichnung *</label>
+            <label for="name">Klassenbezeichnung <span aria-hidden="true">*</span><span class="sr-only">(Pflichtfeld)</span></label>
             <input type="text" id="name" name="name" class="form-control" required value="<?= htmlspecialchars($class['name'], ENT_QUOTES, 'UTF-8') ?>">
         </div>
 
         <div class="form-group">
-            <label for="school_year">Schuljahr *</label>
-            <input type="text" id="school_year" name="school_year" class="form-control" required value="<?= htmlspecialchars($class['school_year'], ENT_QUOTES, 'UTF-8') ?>">
+            <label for="school_year">Schuljahr <span aria-hidden="true">*</span><span class="sr-only">(Pflichtfeld)</span></label>
+            <input type="text" id="school_year" name="school_year" class="form-control" required value="<?= htmlspecialchars($class['school_year'], ENT_QUOTES, 'UTF-8') ?>" pattern="\d{4}/\d{4}">
         </div>
 
         <div class="form-group">
@@ -26,19 +28,19 @@
             </select>
         </div>
 
-        <div class="form-group">
-            <label>Fachlehrer zuweisen</label>
+        <fieldset class="form-group">
+            <legend style="font-weight:500; font-size:var(--font-size-sm); margin-bottom:var(--spacing-xs);">Fachlehrer zuweisen</legend>
             <div style="max-height:200px; overflow-y:auto; border:1px solid var(--color-border); border-radius:var(--radius); padding:0.5rem;">
                 <?php foreach ($teachers as $t): ?>
-                <label style="display:block; padding:2px 0; cursor:pointer;">
+                <label style="display:block; padding:4px 0; cursor:pointer;">
                     <input type="checkbox" name="teacher_ids[]" value="<?= $t['id'] ?>" <?= in_array($t['id'], $assignedTeacherIds ?? []) ? 'checked' : '' ?>>
                     <?= htmlspecialchars($t['lastname'] . ', ' . $t['firstname'] . ' (' . $t['abbreviation'] . ')', ENT_QUOTES, 'UTF-8') ?>
                 </label>
                 <?php endforeach; ?>
             </div>
-        </div>
+        </fieldset>
 
-        <div class="form-group" style="display:flex; gap:0.5rem;">
+        <div class="btn-group">
             <button type="submit" class="btn">Speichern</button>
             <a href="/classes" class="btn btn-secondary">Abbrechen</a>
         </div>

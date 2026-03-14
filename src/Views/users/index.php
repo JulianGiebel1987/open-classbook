@@ -1,12 +1,14 @@
-<h1>Benutzerverwaltung</h1>
+<div class="page-header">
+    <h1>Benutzerverwaltung</h1>
+    <a href="/users/create" class="btn">Neuer Benutzer</a>
+</div>
 
 <div class="card">
     <div class="card-header">
         <h2>Filter</h2>
-        <a href="/users/create" class="btn">Neuer Benutzer</a>
     </div>
-    <form method="get" action="/users" style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:end;">
-        <div class="form-group" style="margin-bottom:0;">
+    <form method="get" action="/users" class="filter-form">
+        <div class="form-group">
             <label for="role">Rolle</label>
             <select name="role" id="role" class="form-control">
                 <option value="">Alle Rollen</option>
@@ -15,7 +17,7 @@
                 <?php endforeach; ?>
             </select>
         </div>
-        <div class="form-group" style="margin-bottom:0;">
+        <div class="form-group">
             <label for="search">Suche</label>
             <input type="text" name="search" id="search" class="form-control" value="<?= htmlspecialchars($filters['search'] ?? '', ENT_QUOTES, 'UTF-8') ?>" placeholder="Benutzername oder E-Mail">
         </div>
@@ -24,16 +26,23 @@
 </div>
 
 <div class="card mt-1">
+    <div class="card-header">
+        <h2>Benutzer</h2>
+        <div class="form-group" style="margin-bottom:0;">
+            <label for="tableSearchUsers" class="sr-only">Tabelle durchsuchen</label>
+            <input type="text" id="tableSearchUsers" class="form-control" placeholder="Tabelle durchsuchen..." data-table-search="usersTable">
+        </div>
+    </div>
     <div class="table-responsive">
-        <table>
+        <table id="usersTable" aria-label="Benutzerliste">
             <thead>
                 <tr>
-                    <th>Benutzername</th>
-                    <th>E-Mail</th>
-                    <th>Rolle</th>
-                    <th>Status</th>
-                    <th>Letzter Login</th>
-                    <th>Aktionen</th>
+                    <th scope="col">Benutzername</th>
+                    <th scope="col">E-Mail</th>
+                    <th scope="col">Rolle</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Letzter Login</th>
+                    <th scope="col">Aktionen</th>
                 </tr>
             </thead>
             <tbody>
@@ -53,18 +62,20 @@
                         <?php endif; ?>
                     </td>
                     <td><?= $u['last_login'] ? date('d.m.Y H:i', strtotime($u['last_login'])) : 'Nie' ?></td>
-                    <td style="white-space:nowrap;">
-                        <a href="/users/<?= $u['id'] ?>/edit" class="btn btn-sm btn-secondary">Bearbeiten</a>
-                        <form method="post" action="/users/<?= $u['id'] ?>/toggle" style="display:inline;">
-                            <?= \OpenClassbook\View::csrfField() ?>
-                            <button type="submit" class="btn btn-sm <?= $u['active'] ? 'btn-danger' : 'btn-success' ?>" data-confirm="<?= $u['active'] ? 'Benutzer wirklich deaktivieren?' : 'Benutzer wieder aktivieren?' ?>">
-                                <?= $u['active'] ? 'Deaktivieren' : 'Aktivieren' ?>
-                            </button>
-                        </form>
-                        <form method="post" action="/users/<?= $u['id'] ?>/reset-password" style="display:inline;">
-                            <?= \OpenClassbook\View::csrfField() ?>
-                            <button type="submit" class="btn btn-sm btn-secondary" data-confirm="Passwort wirklich zuruecksetzen?">PW Reset</button>
-                        </form>
+                    <td>
+                        <div class="btn-group">
+                            <a href="/users/<?= $u['id'] ?>/edit" class="btn btn-sm btn-secondary">Bearbeiten</a>
+                            <form method="post" action="/users/<?= $u['id'] ?>/toggle" class="d-inline">
+                                <?= \OpenClassbook\View::csrfField() ?>
+                                <button type="submit" class="btn btn-sm <?= $u['active'] ? 'btn-danger' : 'btn-success' ?>" data-confirm="<?= $u['active'] ? 'Benutzer wirklich deaktivieren?' : 'Benutzer wieder aktivieren?' ?>">
+                                    <?= $u['active'] ? 'Deaktivieren' : 'Aktivieren' ?>
+                                </button>
+                            </form>
+                            <form method="post" action="/users/<?= $u['id'] ?>/reset-password" class="d-inline">
+                                <?= \OpenClassbook\View::csrfField() ?>
+                                <button type="submit" class="btn btn-sm btn-secondary" data-confirm="Passwort wirklich zuruecksetzen?">PW Reset</button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
                 <?php endforeach; ?>

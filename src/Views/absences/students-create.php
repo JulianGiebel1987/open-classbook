@@ -1,4 +1,6 @@
-<h1>Schueler-Fehlzeit eintragen</h1>
+<div class="page-header">
+    <h1>Schueler-Fehlzeit eintragen</h1>
+</div>
 
 <div class="card">
     <form method="get" action="/absences/students/create" style="margin-bottom:1rem;">
@@ -20,7 +22,7 @@
         <?= \OpenClassbook\View::csrfField() ?>
 
         <div class="form-group">
-            <label for="student_id">Schueler/in *</label>
+            <label for="student_id">Schueler/in <span aria-hidden="true">*</span><span class="sr-only">(Pflichtfeld)</span></label>
             <select name="student_id" id="student_id" class="form-control" required>
                 <option value="">- Waehlen -</option>
                 <?php foreach ($students as $s): ?>
@@ -29,19 +31,19 @@
             </select>
         </div>
 
-        <div style="display:flex; gap:0.5rem;">
+        <div class="filter-form">
             <div class="form-group" style="flex:1;">
-                <label for="date_from">Von *</label>
+                <label for="date_from">Von <span aria-hidden="true">*</span><span class="sr-only">(Pflichtfeld)</span></label>
                 <input type="date" id="date_from" name="date_from" class="form-control" required value="<?= date('Y-m-d') ?>">
             </div>
             <div class="form-group" style="flex:1;">
-                <label for="date_to">Bis *</label>
+                <label for="date_to">Bis <span aria-hidden="true">*</span><span class="sr-only">(Pflichtfeld)</span></label>
                 <input type="date" id="date_to" name="date_to" class="form-control" required value="<?= date('Y-m-d') ?>">
             </div>
         </div>
 
         <div class="form-group">
-            <label for="excused">Status *</label>
+            <label for="excused">Status <span aria-hidden="true">*</span><span class="sr-only">(Pflichtfeld)</span></label>
             <select name="excused" id="excused" class="form-control" required>
                 <option value="offen">Offen</option>
                 <option value="ja">Entschuldigt</option>
@@ -59,7 +61,7 @@
             <textarea id="notes" name="notes" class="form-control" rows="2"></textarea>
         </div>
 
-        <div class="form-group" style="display:flex; gap:0.5rem;">
+        <div class="btn-group">
             <button type="submit" class="btn">Eintragen</button>
             <a href="/absences/students" class="btn btn-secondary">Abbrechen</a>
         </div>

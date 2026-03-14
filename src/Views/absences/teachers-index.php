@@ -1,12 +1,14 @@
-<h1>Lehrer-Abwesenheiten</h1>
+<div class="page-header">
+    <h1>Lehrer-Abwesenheiten</h1>
+    <a href="/absences/teachers/create" class="btn">Abwesenheit eintragen</a>
+</div>
 
 <div class="card">
     <div class="card-header">
         <h2>Filter</h2>
-        <a href="/absences/teachers/create" class="btn">Abwesenheit eintragen</a>
     </div>
-    <form method="get" action="/absences/teachers" style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:end;">
-        <div class="form-group" style="margin-bottom:0;">
+    <form method="get" action="/absences/teachers" class="filter-form">
+        <div class="form-group">
             <label for="type">Typ</label>
             <select name="type" id="type" class="form-control">
                 <option value="">Alle</option>
@@ -15,11 +17,11 @@
                 <option value="sonstiges" <?= ($filters['type'] ?? '') === 'sonstiges' ? 'selected' : '' ?>>Sonstiges</option>
             </select>
         </div>
-        <div class="form-group" style="margin-bottom:0;">
+        <div class="form-group">
             <label for="date_from">Von</label>
             <input type="date" name="date_from" id="date_from" class="form-control" value="<?= htmlspecialchars($filters['date_from'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
         </div>
-        <div class="form-group" style="margin-bottom:0;">
+        <div class="form-group">
             <label for="date_to">Bis</label>
             <input type="date" name="date_to" id="date_to" class="form-control" value="<?= htmlspecialchars($filters['date_to'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
         </div>
@@ -29,16 +31,16 @@
 
 <div class="card mt-1">
     <div class="table-responsive">
-        <table>
+        <table aria-label="Lehrer-Abwesenheiten">
             <thead>
                 <tr>
-                    <th>Lehrkraft</th>
-                    <th>Kuerzel</th>
-                    <th>Von</th>
-                    <th>Bis</th>
-                    <th>Typ</th>
-                    <th>Grund</th>
-                    <th>Aktionen</th>
+                    <th scope="col">Lehrkraft</th>
+                    <th scope="col">Kuerzel</th>
+                    <th scope="col">Von</th>
+                    <th scope="col">Bis</th>
+                    <th scope="col">Typ</th>
+                    <th scope="col">Grund</th>
+                    <th scope="col">Aktionen</th>
                 </tr>
             </thead>
             <tbody>
@@ -61,12 +63,14 @@
                         <?php endif; ?>
                     </td>
                     <td><?= htmlspecialchars($a['reason'] ?? '-', ENT_QUOTES, 'UTF-8') ?></td>
-                    <td style="white-space:nowrap;">
-                        <a href="/absences/teachers/<?= $a['id'] ?>/edit" class="btn btn-sm btn-secondary">Bearbeiten</a>
-                        <form method="post" action="/absences/teachers/<?= $a['id'] ?>/delete" style="display:inline;">
-                            <?= \OpenClassbook\View::csrfField() ?>
-                            <button type="submit" class="btn btn-sm btn-danger" data-confirm="Abwesenheit wirklich loeschen?">Loeschen</button>
-                        </form>
+                    <td>
+                        <div class="btn-group">
+                            <a href="/absences/teachers/<?= $a['id'] ?>/edit" class="btn btn-sm btn-secondary">Bearbeiten</a>
+                            <form method="post" action="/absences/teachers/<?= $a['id'] ?>/delete" class="d-inline">
+                                <?= \OpenClassbook\View::csrfField() ?>
+                                <button type="submit" class="btn btn-sm btn-danger" data-confirm="Abwesenheit wirklich loeschen?">Loeschen</button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
                 <?php endforeach; ?>

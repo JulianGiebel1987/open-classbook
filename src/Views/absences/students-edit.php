@@ -1,26 +1,28 @@
-<h1>Fehlzeit bearbeiten</h1>
-<p style="color:var(--color-text-light);">
+<div class="page-header">
+    <h1>Fehlzeit bearbeiten</h1>
+</div>
+<p class="text-muted mb-1">
     <?= htmlspecialchars($absence['lastname'] . ', ' . $absence['firstname'], ENT_QUOTES, 'UTF-8') ?>
     (<?= htmlspecialchars($absence['class_name'], ENT_QUOTES, 'UTF-8') ?>)
 </p>
 
-<div class="card mt-1">
+<div class="card">
     <form method="post" action="/absences/students/<?= $absence['id'] ?>">
         <?= \OpenClassbook\View::csrfField() ?>
 
-        <div style="display:flex; gap:0.5rem;">
+        <div class="filter-form">
             <div class="form-group" style="flex:1;">
-                <label for="date_from">Von *</label>
+                <label for="date_from">Von <span aria-hidden="true">*</span><span class="sr-only">(Pflichtfeld)</span></label>
                 <input type="date" id="date_from" name="date_from" class="form-control" required value="<?= $absence['date_from'] ?>">
             </div>
             <div class="form-group" style="flex:1;">
-                <label for="date_to">Bis *</label>
+                <label for="date_to">Bis <span aria-hidden="true">*</span><span class="sr-only">(Pflichtfeld)</span></label>
                 <input type="date" id="date_to" name="date_to" class="form-control" required value="<?= $absence['date_to'] ?>">
             </div>
         </div>
 
         <div class="form-group">
-            <label for="excused">Status *</label>
+            <label for="excused">Status <span aria-hidden="true">*</span><span class="sr-only">(Pflichtfeld)</span></label>
             <select name="excused" id="excused" class="form-control" required>
                 <option value="offen" <?= $absence['excused'] === 'offen' ? 'selected' : '' ?>>Offen</option>
                 <option value="ja" <?= $absence['excused'] === 'ja' ? 'selected' : '' ?>>Entschuldigt</option>
@@ -38,7 +40,7 @@
             <textarea id="notes" name="notes" class="form-control" rows="2"><?= htmlspecialchars($absence['notes'] ?? '', ENT_QUOTES, 'UTF-8') ?></textarea>
         </div>
 
-        <div class="form-group" style="display:flex; gap:0.5rem;">
+        <div class="btn-group">
             <button type="submit" class="btn">Speichern</button>
             <a href="/absences/students" class="btn btn-secondary">Abbrechen</a>
         </div>

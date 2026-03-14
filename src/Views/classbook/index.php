@@ -1,15 +1,17 @@
-<h1>Klassenbuch</h1>
+<div class="page-header">
+    <h1>Klassenbuch</h1>
+</div>
 
 <div class="card">
     <div class="card-header">
         <h2>Klasse waehlen</h2>
     </div>
     <?php if (empty($classes)): ?>
-        <p style="color:var(--color-text-light);">Keine Klassen verfuegbar.</p>
+        <p class="text-muted">Keine Klassen verfuegbar.</p>
     <?php else: ?>
         <div class="dashboard-grid">
             <?php foreach ($classes as $c): ?>
-            <a href="/classbook/<?= $c['id'] ?>" class="widget" style="text-decoration:none; color:inherit;">
+            <a href="/classbook/<?= $c['id'] ?>" class="widget" aria-label="Klassenbuch <?= htmlspecialchars($c['name'], ENT_QUOTES, 'UTF-8') ?> oeffnen">
                 <div class="widget-value"><?= htmlspecialchars($c['name'], ENT_QUOTES, 'UTF-8') ?></div>
                 <div class="widget-label"><?= htmlspecialchars($c['school_year'] ?? '', ENT_QUOTES, 'UTF-8') ?></div>
             </a>
