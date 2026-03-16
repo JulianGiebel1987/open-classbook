@@ -10,6 +10,7 @@
     <main class="auth-container" role="main">
         <div class="auth-header">
             <h1>Open-Classbook</h1>
+            <p>Digitale Schulverwaltung</p>
         </div>
         <?= \OpenClassbook\View::flash() ?>
         <?= $content ?>

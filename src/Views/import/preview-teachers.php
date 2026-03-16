@@ -6,7 +6,7 @@
 <div class="alert alert-warning" role="alert">
     <div>
         <strong>Hinweise:</strong>
-        <ul style="margin:0.5rem 0 0 1rem;">
+        <ul class="preview-errors">
             <?php foreach ($preview['errors'] as $err): ?>
                 <li><?= htmlspecialchars($err, ENT_QUOTES, 'UTF-8') ?></li>
             <?php endforeach; ?>

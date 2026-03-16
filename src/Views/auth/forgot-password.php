@@ -1,6 +1,6 @@
 <div class="auth-form">
     <h2>Passwort zuruecksetzen</h2>
-    <p class="text-muted" style="margin-bottom: 1rem; font-size: var(--font-size-sm);">
+    <p class="text-muted auth-hint">
         Geben Sie Ihre E-Mail-Adresse ein. Sie erhalten einen Link zum Zuruecksetzen Ihres Passworts.
     </p>
     <form method="post" action="/forgot-password">
@@ -12,7 +12,7 @@
         </div>
 
         <div class="form-group">
-            <button type="submit" class="btn" style="width:100%">Link senden</button>
+            <button type="submit" class="btn btn-login">Link senden</button>
         </div>
 
         <div class="text-center">

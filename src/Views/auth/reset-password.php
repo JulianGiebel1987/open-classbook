@@ -16,7 +16,7 @@
         </div>
 
         <div class="form-group">
-            <button type="submit" class="btn" style="width:100%">Passwort setzen</button>
+            <button type="submit" class="btn btn-login">Passwort setzen</button>
         </div>
     </form>
 </div>

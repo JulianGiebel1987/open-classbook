@@ -6,12 +6,12 @@
     <form method="post" action="/absences/teachers/self">
         <?= \OpenClassbook\View::csrfField() ?>
 
-        <div class="filter-form">
-            <div class="form-group" style="flex:1;">
+        <div class="date-range-group">
+            <div class="form-group flex-1">
                 <label for="date_from">Von <span aria-hidden="true">*</span><span class="sr-only">(Pflichtfeld)</span></label>
                 <input type="date" id="date_from" name="date_from" class="form-control" required value="<?= date('Y-m-d') ?>">
             </div>
-            <div class="form-group" style="flex:1;">
+            <div class="form-group flex-1">
                 <label for="date_to">Bis <span aria-hidden="true">*</span><span class="sr-only">(Pflichtfeld)</span></label>
                 <input type="date" id="date_to" name="date_to" class="form-control" required value="<?= date('Y-m-d') ?>">
             </div>

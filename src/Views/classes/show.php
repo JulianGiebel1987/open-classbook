@@ -16,9 +16,9 @@
     <?php if (empty($teachers)): ?>
         <p class="text-muted">Keine Lehrkraefte zugewiesen.</p>
     <?php else: ?>
-        <ul style="list-style:none;">
+        <ul class="list-unstyled">
             <?php foreach ($teachers as $t): ?>
-                <li style="padding:4px 0;"><?= htmlspecialchars($t['lastname'] . ', ' . $t['firstname'] . ' (' . $t['abbreviation'] . ')', ENT_QUOTES, 'UTF-8') ?></li>
+                <li><?= htmlspecialchars($t['lastname'] . ', ' . $t['firstname'] . ' (' . $t['abbreviation'] . ')', ENT_QUOTES, 'UTF-8') ?></li>
             <?php endforeach; ?>
         </ul>
     <?php endif; ?>
