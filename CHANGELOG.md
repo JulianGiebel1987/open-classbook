@@ -5,6 +5,18 @@ Alle wesentlichen Aenderungen an Open-Classbook werden in dieser Datei dokumenti
 Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.1.0/)
 und dieses Projekt verwendet [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.1.0] - 2026-03-16
+
+### Hinzugefuegt
+
+**Sicherheitshaertung**
+- Session-Haertung: HttpOnly, Secure, SameSite=Lax, Strict Mode, use_only_cookies (konfigurierbar fuer Entwicklung)
+- Security-Headers-Middleware: X-Content-Type-Options, X-Frame-Options, X-XSS-Protection, Referrer-Policy, Permissions-Policy, HSTS
+- Content Security Policy (CSP) mit Report-Only-Modus fuer Test-Deployments (`security.csp_report_only`)
+- Rate-Limiting-Middleware: Datenbankbasiert, per IP, konfigurierbare Schwellwerte (`security.rate_limit_requests`, `security.rate_limit_window`)
+- Neue Datenbankmigration `012_create_rate_limits.sql`
+- Fehlerseite 429 (Zu viele Anfragen)
+
 ## [1.0.0] - 2026-03-14
 
 ### Hinzugefuegt

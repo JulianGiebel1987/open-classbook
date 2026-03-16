@@ -58,6 +58,32 @@ class AbsenceStudent
 
     public static function create(array $data): int
     {
+        $dateFrom = new \DateTime($data['date_from']);
+        $dateTo = new \DateTime($data['date_to']);
+
+        // Mehrtageseintraege auf einzelne Tage aufschluesseln
+        if ($dateFrom < $dateTo) {
+            $lastId = 0;
+            $period = new \DatePeriod($dateFrom, new \DateInterval('P1D'), (clone $dateTo)->modify('+1 day'));
+            foreach ($period as $day) {
+                $dayStr = $day->format('Y-m-d');
+                Database::execute(
+                    'INSERT INTO absences_students (student_id, date_from, date_to, excused, reason, notes, created_by) VALUES (?, ?, ?, ?, ?, ?, ?)',
+                    [
+                        $data['student_id'],
+                        $dayStr,
+                        $dayStr,
+                        $data['excused'] ?? 'offen',
+                        $data['reason'] ?? null,
+                        $data['notes'] ?? null,
+                        $data['created_by'] ?? null,
+                    ]
+                );
+                $lastId = (int) Database::lastInsertId();
+            }
+            return $lastId;
+        }
+
         Database::execute(
             'INSERT INTO absences_students (student_id, date_from, date_to, excused, reason, notes, created_by) VALUES (?, ?, ?, ?, ?, ?, ?)',
             [

@@ -7,6 +7,7 @@ use OpenClassbook\View;
 use OpenClassbook\Middleware\CsrfMiddleware;
 use OpenClassbook\Models\AbsenceTeacher;
 use OpenClassbook\Models\Teacher;
+use OpenClassbook\Services\NotificationService;
 
 class AbsenceTeacherController
 {
@@ -59,6 +60,15 @@ class AbsenceTeacherController
         }
 
         AbsenceTeacher::create($data);
+
+        // E-Mail-Benachrichtigung bei Krankmeldung
+        if ($data['type'] === 'krank') {
+            $teacher = Teacher::findById($data['teacher_id']);
+            if ($teacher) {
+                NotificationService::notifyTeacherAbsence($teacher, $data);
+            }
+        }
+
         App::setFlash('success', 'Abwesenheit erfolgreich eingetragen.');
         App::redirect('/absences/teachers');
     }
@@ -97,6 +107,15 @@ class AbsenceTeacherController
         }
 
         AbsenceTeacher::create($data);
+
+        // E-Mail-Benachrichtigung bei Krankmeldung
+        if ($data['type'] === 'krank') {
+            $teacher = Teacher::findById($teacherId);
+            if ($teacher) {
+                NotificationService::notifyTeacherAbsence($teacher, $data);
+            }
+        }
+
         App::setFlash('success', 'Ihre Krankmeldung wurde erfolgreich eingetragen.');
         App::redirect('/dashboard');
     }
