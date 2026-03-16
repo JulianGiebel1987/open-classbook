@@ -83,8 +83,9 @@ foreach ($optionalExtensions as $ext => $label) {
 if (file_exists(__DIR__ . '/vendor/autoload.php')) {
     echo "  [OK] Composer-Abhaengigkeiten installiert\n";
 } else {
-    $errors[] = "Composer-Abhaengigkeiten nicht installiert. Bitte 'composer install' ausfuehren.";
+    $errors[] = "Composer-Abhaengigkeiten nicht installiert. Bitte 'composer install' ausfuehren (Composer installieren: apt install composer)";
     echo "  [FEHLER] vendor/ nicht gefunden - bitte 'composer install' ausfuehren\n";
+    echo "           (Composer nicht installiert? -> apt install composer)\n";
 }
 
 // Schreibbare Verzeichnisse
@@ -109,6 +110,27 @@ if (!empty($errors)) {
     foreach ($errors as $err) {
         echo "  - {$err}\n";
     }
+
+    // Hilfreiche apt-Befehle anzeigen
+    $phpMajorMinor = PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION;
+    $missingExts = [];
+    $extPackageMap = [
+        'pdo_mysql' => "php{$phpMajorMinor}-mysql",
+        'mbstring' => "php{$phpMajorMinor}-mbstring",
+        'xml' => "php{$phpMajorMinor}-xml",
+        'zip' => "php{$phpMajorMinor}-zip",
+        'gd' => "php{$phpMajorMinor}-gd",
+    ];
+    foreach ($extPackageMap as $ext => $pkg) {
+        if (!extension_loaded($ext)) {
+            $missingExts[] = $pkg;
+        }
+    }
+    if (!empty($missingExts)) {
+        echo "\nFehlende PHP-Extensions installieren (Ubuntu/Debian):\n";
+        echo "  sudo apt install " . implode(' ', $missingExts) . "\n";
+    }
+
     echo "\nBitte beheben Sie die Fehler und fuehren Sie den Installer erneut aus.\n";
     exit(1);
 }
