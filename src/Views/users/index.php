@@ -28,7 +28,7 @@
 <div class="card mt-1">
     <div class="card-header">
         <h2>Benutzer</h2>
-        <div class="form-group" style="margin-bottom:0;">
+        <div class="form-group mb-0">
             <label for="tableSearchUsers" class="sr-only">Tabelle durchsuchen</label>
             <input type="text" id="tableSearchUsers" class="form-control" placeholder="Tabelle durchsuchen..." data-table-search="usersTable">
         </div>

@@ -6,7 +6,7 @@
     <div class="card-header">
         <h2>Lehrkraefte importieren</h2>
     </div>
-    <p style="margin-bottom:0.5rem;">
+    <p class="mb-sm">
         <a href="/import/template/lehrer" class="btn btn-sm btn-secondary">Vorlage herunterladen</a>
     </p>
     <form method="post" action="/import/teachers" enctype="multipart/form-data">
@@ -24,7 +24,7 @@
     <div class="card-header">
         <h2>Schueler/innen importieren</h2>
     </div>
-    <p style="margin-bottom:0.5rem;">
+    <p class="mb-sm">
         <a href="/import/template/schueler" class="btn btn-sm btn-secondary">Vorlage herunterladen</a>
     </p>
     <form method="post" action="/import/students" enctype="multipart/form-data">

@@ -28,11 +28,11 @@
             </select>
         </div>
 
-        <fieldset class="form-group">
-            <legend style="font-weight:500; font-size:var(--font-size-sm); margin-bottom:var(--spacing-xs);">Fachlehrer zuweisen</legend>
-            <div style="max-height:200px; overflow-y:auto; border:1px solid var(--color-border); border-radius:var(--radius); padding:0.5rem;">
+        <fieldset class="form-group fieldset-clean">
+            <legend>Fachlehrer zuweisen</legend>
+            <div class="checkbox-scroll">
                 <?php foreach ($teachers as $t): ?>
-                <label style="display:block; padding:4px 0; cursor:pointer;">
+                <label>
                     <input type="checkbox" name="teacher_ids[]" value="<?= $t['id'] ?>" <?= in_array($t['id'], $assignedTeacherIds ?? []) ? 'checked' : '' ?>>
                     <?= htmlspecialchars($t['lastname'] . ', ' . $t['firstname'] . ' (' . $t['abbreviation'] . ')', ENT_QUOTES, 'UTF-8') ?>
                 </label>

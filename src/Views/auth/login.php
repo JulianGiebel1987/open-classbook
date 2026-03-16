@@ -14,7 +14,7 @@
         </div>
 
         <div class="form-group">
-            <button type="submit" class="btn" style="width:100%">Anmelden</button>
+            <button type="submit" class="btn btn-login">Anmelden</button>
         </div>
 
         <div class="text-center">
