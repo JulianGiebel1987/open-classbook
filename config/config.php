@@ -20,6 +20,8 @@ return [
     'session' => [
         'timeout' => 3600, // 60 Minuten in Sekunden
         'name' => 'open_classbook_session',
+        'cookie_secure' => true,
+        'cookie_samesite' => 'Lax',
     ],
 
     'security' => [
@@ -27,6 +29,10 @@ return [
         'lockout_duration' => 900, // 15 Minuten in Sekunden
         'password_min_length' => 10,
         'password_reset_token_lifetime' => 3600, // 1 Stunde
+        'csp_enabled' => true,
+        'csp_report_only' => false,
+        'rate_limit_requests' => 120,
+        'rate_limit_window' => 60, // Sekunden
     ],
 
     'mail' => [

@@ -10,10 +10,20 @@ use OpenClassbook\App;
 use OpenClassbook\Router;
 use OpenClassbook\View;
 use OpenClassbook\Middleware\CsrfMiddleware;
+use OpenClassbook\Middleware\SecurityHeadersMiddleware;
+use OpenClassbook\Middleware\RateLimitMiddleware;
 use OpenClassbook\Services\Logger;
 
 // Zeitzone setzen
 date_default_timezone_set(App::config('app.timezone') ?? 'Europe/Berlin');
+
+// Session-Sicherheit konfigurieren (vor session_start)
+ini_set('session.cookie_httponly', '1');
+ini_set('session.cookie_secure', App::config('session.cookie_secure') ?? true ? '1' : '0');
+ini_set('session.use_strict_mode', '1');
+ini_set('session.cookie_samesite', App::config('session.cookie_samesite') ?? 'Lax');
+ini_set('session.use_only_cookies', '1');
+ini_set('session.use_trans_sid', '0');
 
 // Session starten
 $sessionName = App::config('session.name') ?? 'open_classbook_session';
@@ -22,6 +32,19 @@ session_start();
 
 // CSRF-Token sicherstellen
 CsrfMiddleware::generateToken();
+
+// Sicherheits-Header setzen (inkl. CSP)
+$securityHeaders = new SecurityHeadersMiddleware();
+$securityHeaders->handle();
+
+// Rate Limiting pruefen
+$rateLimiter = new RateLimitMiddleware(
+    App::config('security.rate_limit_requests') ?? 120,
+    App::config('security.rate_limit_window') ?? 60
+);
+if ($rateLimiter->handle() === false) {
+    exit;
+}
 
 // Error-Handler
 set_exception_handler(function (\Throwable $e) {
