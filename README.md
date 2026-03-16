@@ -77,7 +77,7 @@ open-classbook/
 │   ├── Controllers/     # Request-Handler (8 Controller)
 │   ├── Models/          # Datenbank-Modelle (7 Models)
 │   ├── Views/           # PHP-Templates (9 Bereiche)
-│   ├── Middleware/       # Auth, CSRF, RBAC
+│   ├── Middleware/       # Auth, CSRF, RBAC, Security Headers, Rate Limiting
 │   └── Services/        # Business-Logik (Import, Auth, Logger)
 ├── config/              # Konfiguration
 ├── database/            # Migrationen und Seed-Skript
@@ -94,6 +94,10 @@ open-classbook/
 - Passwort-Hashing mit bcrypt
 - Brute-Force-Schutz (5 Versuche, 15 Min. Sperre)
 - Session-Timeout nach 60 Minuten
+- Session-Haertung (HttpOnly, Secure, SameSite, Strict Mode)
+- Sicherheits-Header (X-Content-Type-Options, X-Frame-Options, HSTS, Referrer-Policy, Permissions-Policy)
+- Content Security Policy (CSP)
+- Rate Limiting (datenbankbasiert, per IP)
 - Rollenbasierte Zugriffskontrolle auf jeder Route
 
 ## Tests

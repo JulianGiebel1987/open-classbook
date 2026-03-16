@@ -272,8 +272,14 @@ Die Konfiguration befindet sich in `config/config.php`. Aenderungen erfordern ei
 **Wichtige Einstellungen:**
 - `app.debug` - Debug-Modus (im Produktivbetrieb auf `false`)
 - `session.timeout` - Session-Timeout in Sekunden (Standard: 3600)
+- `session.cookie_secure` - Session-Cookie nur ueber HTTPS senden (Standard: `true`, fuer lokale Entwicklung auf `false` setzen)
+- `session.cookie_samesite` - SameSite-Attribut des Session-Cookies (Standard: `'Lax'`)
 - `security.max_login_attempts` - Maximale Login-Versuche (Standard: 5)
 - `security.lockout_duration` - Sperrdauer in Sekunden (Standard: 900)
+- `security.csp_enabled` - Content Security Policy aktivieren (Standard: `true`)
+- `security.csp_report_only` - CSP nur im Report-Only-Modus (Standard: `false`, fuer initiales Deployment auf `true` setzen)
+- `security.rate_limit_requests` - Maximale Anfragen pro Zeitfenster und IP (Standard: 120)
+- `security.rate_limit_window` - Zeitfenster fuer Rate Limiting in Sekunden (Standard: 60)
 
 ### 8.2 Logs
 
