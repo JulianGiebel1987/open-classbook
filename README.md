@@ -29,7 +29,12 @@ Open-Classbook ist eine Open-Source-Loesung fuer digitale Klassenbuchfuehrung, F
 
 ## Schnellstart
 
+**Voraussetzungen:** PHP 8.2+, MariaDB 10.6+, Composer (siehe [INSTALL.md](INSTALL.md) fuer Details)
+
 ```bash
+# Auf Ubuntu/Debian: fehlende Pakete installieren (PHP-Version anpassen!)
+apt install composer php8.3-mysql php8.3-mbstring php8.3-xml php8.3-zip
+
 # Repository klonen
 git clone https://github.com/JulianGiebel1987/open-classbook.git
 cd open-classbook

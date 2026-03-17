@@ -11,6 +11,40 @@
 | Webserver   | Apache 2.4    | Nginx 1.24+    |
 | Composer    | 2.0           | 2.7+           |
 
+### Vorbereitung: Pakete installieren (Ubuntu/Debian)
+
+Die folgende Anleitung gilt fuer Ubuntu 22.04+ / Debian 12+. Passen Sie die PHP-Versionsnummer (z.B. `8.3`) an Ihre installierte PHP-Version an.
+
+**PHP-Version pruefen:**
+```bash
+php -v
+```
+
+**Composer installieren** (falls `composer` nicht gefunden wird):
+```bash
+apt install composer
+```
+
+Alternativ manuell (empfohlen fuer aktuelle Version):
+```bash
+curl -sS https://getcomposer.org/installer | php
+mv composer.phar /usr/local/bin/composer
+```
+
+**Erforderliche PHP-Extensions installieren:**
+```bash
+# Ersetzen Sie 8.3 durch Ihre PHP-Version (z.B. 8.2, 8.4)
+apt install php8.3-mysql php8.3-mbstring php8.3-xml php8.3-zip php8.3-gd php8.3-curl
+```
+
+Bereits standardmaessig enthalten (kein separates Paket noetig): `json`, `session`, `openssl`, `pdo`.
+
+Nach der Installation der Extensions PHP-FPM bzw. den Webserver neu starten:
+```bash
+systemctl restart php8.3-fpm   # bei Nginx
+systemctl restart apache2       # bei Apache
+```
+
 ### PHP-Extensions (erforderlich)
 
 - `pdo` und `pdo_mysql` - Datenbankzugriff
