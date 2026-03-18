@@ -19,7 +19,9 @@ date_default_timezone_set(App::config('app.timezone') ?? 'Europe/Berlin');
 
 // Session-Sicherheit konfigurieren (vor session_start)
 ini_set('session.cookie_httponly', '1');
-ini_set('session.cookie_secure', App::config('session.cookie_secure') ?? true ? '1' : '0');
+$isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || ($_SERVER['SERVER_PORT'] ?? 0) == 443;
+$cookieSecure = App::config('session.cookie_secure') ?? $isHttps;
+ini_set('session.cookie_secure', $cookieSecure ? '1' : '0');
 ini_set('session.use_strict_mode', '1');
 ini_set('session.cookie_samesite', App::config('session.cookie_samesite') ?? 'Lax');
 ini_set('session.use_only_cookies', '1');
