@@ -32,8 +32,19 @@ Open-Classbook ist eine Open-Source-Loesung fuer digitale Klassenbuchfuehrung, F
 **Voraussetzungen:** PHP 8.2+, MariaDB 10.6+, Composer (siehe [INSTALL.md](INSTALL.md) fuer Details)
 
 ```bash
-# Auf Ubuntu/Debian: fehlende Pakete installieren (PHP-Version anpassen!)
-apt install composer php8.3-mysql php8.3-mbstring php8.3-xml php8.3-zip
+# Auf Ubuntu/Debian: Pakete installieren (PHP-Version anpassen!)
+apt update
+apt install php php-cli mariadb-server composer
+apt install php8.3-mysql php8.3-mbstring php8.3-xml php8.3-zip
+
+# MariaDB-Benutzer und Datenbank anlegen
+systemctl start mariadb
+mariadb -u root <<'SQL'
+CREATE DATABASE open_classbook CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER 'classbook'@'localhost' IDENTIFIED BY 'IhrSicheresPasswort';
+GRANT ALL PRIVILEGES ON open_classbook.* TO 'classbook'@'localhost';
+FLUSH PRIVILEGES;
+SQL
 
 # Repository klonen
 git clone https://github.com/JulianGiebel1987/open-classbook.git
@@ -43,6 +54,7 @@ cd open-classbook
 composer install
 
 # Installer ausfuehren (interaktiv)
+# Hinweis: Als DB-Benutzer 'classbook' verwenden, nicht 'root'!
 php install.php
 
 # Entwicklungsserver starten
@@ -53,7 +65,8 @@ Alternativ fuer eine schnelle Demo mit Testdaten:
 
 ```bash
 composer install
-# config/config.php mit Datenbankzugangsdaten anpassen
+cp config/config.example.php config/config.php
+# config/config.php: DB-Benutzer 'classbook' + Passwort eintragen
 php database/migrate.php
 php database/seed.php
 php -S localhost:8080 -t public/
