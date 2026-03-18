@@ -153,7 +153,7 @@ echo "=== Schritt 2: Datenbank konfigurieren ===\n\n";
 $dbHost = prompt('Datenbank-Host', '127.0.0.1');
 $dbPort = prompt('Datenbank-Port', '3306');
 $dbName = prompt('Datenbank-Name', 'open_classbook');
-$dbUser = prompt('Datenbank-Benutzer', 'root');
+$dbUser = prompt('Datenbank-Benutzer', 'classbook');
 $dbPassword = promptPassword('Datenbank-Passwort');
 
 echo "\nVerbindung wird getestet... ";

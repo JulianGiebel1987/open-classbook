@@ -15,6 +15,12 @@
 
 Die folgende Anleitung gilt fuer Ubuntu 22.04+ / Debian 12+. Passen Sie die PHP-Versionsnummer (z.B. `8.3`) an Ihre installierte PHP-Version an.
 
+**PHP und MariaDB installieren:**
+```bash
+apt update
+apt install php php-cli php-fpm mariadb-server composer
+```
+
 **PHP-Version pruefen:**
 ```bash
 php -v
@@ -44,6 +50,43 @@ Nach der Installation der Extensions PHP-FPM bzw. den Webserver neu starten:
 systemctl restart php8.3-fpm   # bei Nginx
 systemctl restart apache2       # bei Apache
 ```
+
+### MariaDB einrichten
+
+Nach der Installation von MariaDB muss ein Datenbank-Benutzer fuer Open-Classbook angelegt werden.
+
+> **Wichtig:** Unter Ubuntu/Debian verwendet MariaDB fuer den `root`-Benutzer standardmaessig Socket-Authentifizierung (`unix_socket`). Eine Verbindung per Passwort (z.B. ueber `127.0.0.1`) schlaegt daher fehl mit der Meldung: `Access denied for user 'root'@'localhost'`. Erstellen Sie stattdessen einen eigenen Datenbank-Benutzer.
+
+**1. MariaDB-Dienst starten und aktivieren:**
+```bash
+systemctl start mariadb
+systemctl enable mariadb
+```
+
+**2. Datenbank und Benutzer anlegen:**
+
+Melden Sie sich als System-Root an der MariaDB-Konsole an:
+```bash
+mariadb -u root
+```
+
+Fuehren Sie dann folgende SQL-Befehle aus:
+```sql
+CREATE DATABASE open_classbook CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER 'classbook'@'localhost' IDENTIFIED BY 'IhrSicheresPasswort';
+GRANT ALL PRIVILEGES ON open_classbook.* TO 'classbook'@'localhost';
+FLUSH PRIVILEGES;
+EXIT;
+```
+
+> Ersetzen Sie `IhrSicheresPasswort` durch ein sicheres Passwort Ihrer Wahl. Merken Sie sich die Zugangsdaten fuer den Installer (Schritt 3).
+
+**3. Verbindung testen:**
+```bash
+mariadb -u classbook -p open_classbook
+```
+
+Geben Sie das zuvor gesetzte Passwort ein. Wenn die Verbindung steht, war die Einrichtung erfolgreich. Verlassen Sie die Konsole mit `EXIT;`.
 
 ### PHP-Extensions (erforderlich)
 
@@ -97,6 +140,16 @@ Der interaktive Installer fuehrt Sie durch die komplette Einrichtung:
 php install.php
 ```
 
+Der Installer fragt nach den Datenbank-Zugangsdaten. Verwenden Sie den zuvor angelegten Benutzer (nicht `root`):
+
+| Abfrage              | Eingabe                              |
+|----------------------|--------------------------------------|
+| Datenbank-Host       | `127.0.0.1` (Enter fuer Standard)    |
+| Datenbank-Port       | `3306` (Enter fuer Standard)         |
+| Datenbank-Name       | `open_classbook` (Enter fuer Standard) |
+| Datenbank-Benutzer   | `classbook` (oder Ihr gewaehlter Benutzername) |
+| Datenbank-Passwort   | Das bei der MariaDB-Einrichtung vergebene Passwort |
+
 Der Installer prueft:
 - Systemvoraussetzungen (PHP-Version, Extensions)
 - Datenbank-Verbindung
@@ -113,9 +166,9 @@ Falls der Installer nicht verwendet werden soll:
 ```bash
 cp config/config.example.php config/config.php
 ```
-Passen Sie die Datenbankzugangsdaten in `config/config.php` an.
+Passen Sie die Datenbankzugangsdaten in `config/config.php` an. Verwenden Sie den zuvor angelegten Datenbank-Benutzer (z.B. `classbook`), nicht `root`.
 
-**b) Datenbank erstellen:**
+**b) Datenbank erstellen** (falls noch nicht im MariaDB-Einrichtungsschritt geschehen):
 ```sql
 CREATE DATABASE open_classbook CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
@@ -265,12 +318,12 @@ Passen Sie die Mail-Einstellungen in `config/config.php` an:
 
 ```bash
 # Taegliches Backup (als Cronjob einrichten)
-mysqldump -u root -p open_classbook > /backup/classbook_$(date +%Y%m%d).sql
+mariadb-dump -u classbook -p open_classbook > /backup/classbook_$(date +%Y%m%d).sql
 ```
 
 Cronjob-Eintrag (`crontab -e`):
 ```
-0 2 * * * mysqldump -u root -p'passwort' open_classbook | gzip > /backup/classbook_$(date +\%Y\%m\%d).sql.gz
+0 2 * * * mariadb-dump -u classbook -p'passwort' open_classbook | gzip > /backup/classbook_$(date +\%Y\%m\%d).sql.gz
 ```
 
 ### Dateien sichern
@@ -297,7 +350,11 @@ tar -czf /backup/classbook_files_$(date +%Y%m%d).tar.gz \
 
 1. MariaDB-Service pruefen: `systemctl status mariadb`
 2. Zugangsdaten in `config/config.php` pruefen
-3. Datenbank existiert: `mysql -u root -p -e "SHOW DATABASES;"`
+3. Datenbank existiert: `mariadb -u classbook -p -e "SHOW DATABASES;"`
+
+**"Access denied for user 'root'@'localhost'":**
+
+MariaDB unter Ubuntu/Debian verwendet fuer `root` standardmaessig Socket-Authentifizierung. Der Installer kann sich daher nicht mit `root` per Passwort verbinden. Loesung: Eigenen Datenbank-Benutzer anlegen (siehe Abschnitt "MariaDB einrichten" oben).
 
 ### Berechtigungsfehler
 
