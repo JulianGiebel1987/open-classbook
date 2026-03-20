@@ -6,7 +6,7 @@
 
 | Komponente   | Mindestversion | Empfohlen      |
 |-------------|---------------|----------------|
-| PHP         | 8.2           | 8.3+           |
+| PHP         | 8.3           | 8.4+           |
 | MariaDB     | 10.6          | 10.11+         |
 | Webserver   | Apache 2.4    | Nginx 1.24+    |
 | Composer    | 2.0           | 2.7+           |
@@ -39,15 +39,21 @@ mv composer.phar /usr/local/bin/composer
 
 **Erforderliche PHP-Extensions installieren:**
 ```bash
-# Ersetzen Sie 8.3 durch Ihre PHP-Version (z.B. 8.2, 8.4)
-apt install php8.3-mysql php8.3-mbstring php8.3-xml php8.3-zip php8.3-gd php8.3-curl
+# Ersetzen Sie 8.4 durch Ihre PHP-Version (z.B. 8.3)
+apt install php8.4-mysql php8.4-mbstring php8.4-xml php8.4-zip php8.4-gd php8.4-curl
 ```
 
 Bereits standardmaessig enthalten (kein separates Paket noetig): `json`, `session`, `openssl`, `pdo`.
 
+> **Haeufiger Fehler:** Wenn die CLI-PHP-Version (z.B. 8.4) nicht mit der PHP-FPM-Version (z.B. 8.2) uebereinstimmt, kann `composer install` funktionieren, aber die Webseite bleibt weiss. Stellen Sie sicher, dass PHP-FPM in derselben Version laeuft wie die CLI. Pruefen Sie mit:
+> ```bash
+> php -v                    # CLI-Version
+> systemctl list-units | grep php.*fpm   # Laufende FPM-Version
+> ```
+
 Nach der Installation der Extensions PHP-FPM bzw. den Webserver neu starten:
 ```bash
-systemctl restart php8.3-fpm   # bei Nginx
+systemctl restart php8.4-fpm   # bei Nginx
 systemctl restart apache2       # bei Apache
 ```
 
@@ -95,12 +101,11 @@ Geben Sie das zuvor gesetzte Passwort ein. Wenn die Verbindung steht, war die Ei
 - `json` - JSON-Verarbeitung
 - `session` - Session-Management
 - `openssl` - Passwortsicherheit
-
-### PHP-Extensions (empfohlen)
-
+- `xml` / `dom` - Excel-Import (PhpSpreadsheet)
+- `gd` - Bildverarbeitung (PhpSpreadsheet)
 - `zip` - Excel-Import/Export
-- `xml` - Excel-Import (PhpSpreadsheet)
-- `gd` - Bildverarbeitung
+
+> **Wichtig:** Alle Extensions muessen fuer die gleiche PHP-Version installiert sein, die auch PHP-FPM nutzt. Pruefen Sie mit `php -v` (CLI) und `php-fpmX.Y -v` ob die Versionen uebereinstimmen. Falls nicht, installieren Sie die Extensions fuer beide Versionen (z.B. `php8.4-gd` und `php8.2-gd`).
 
 ## Installation
 
@@ -125,6 +130,11 @@ cd open-classbook
 ```bash
 composer install --no-dev --optimize-autoloader
 ```
+
+> **Hinweis fuer Root-Benutzer:** Composer verweigert die Ausfuehrung als Root. Setzen Sie die Umgebungsvariable:
+> ```bash
+> COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev --optimize-autoloader
+> ```
 
 Fuer Entwicklungsumgebungen (mit PHPUnit):
 
@@ -244,10 +254,10 @@ server {
         try_files $uri $uri/ /index.php?$query_string;
     }
 
-    # PHP-Verarbeitung
+    # PHP-Verarbeitung (Version im Socket-Pfad anpassen!)
     location ~ \.php$ {
-        fastcgi_pass unix:/var/run/php/php8.2-fpm.sock;
-        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_pass unix:/run/php/php8.4-fpm.sock;
+        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
         include fastcgi_params;
     }
 
@@ -339,12 +349,24 @@ tar -czf /backup/classbook_files_$(date +%Y%m%d).tar.gz \
 
 ### Weisse Seite / 500-Fehler
 
-1. Debug-Modus aktivieren in `config/config.php`:
+1. **Webserver-Fehlerlog pruefen** - hier steht meistens die Ursache:
+   ```bash
+   tail -20 /var/log/nginx/error.log      # Nginx
+   tail -20 /var/log/apache2/error.log    # Apache
+   ```
+2. **PHP direkt testen** (zeigt Fehler ohne Webserver):
+   ```bash
+   cd /var/www/open-classbook
+   php -d display_errors=1 public/index.php
+   ```
+3. **Haeufigste Ursachen:**
+   - `vendor/autoload.php` fehlt → `composer install` ausfuehren
+   - PHP-Extension fehlt (z.B. `ext-dom`, `ext-gd`) → fehlende Extension installieren
+   - PHP-FPM-Version stimmt nicht mit Composer-Anforderungen ueberein → Socket-Pfad in Nginx/Apache anpassen
+4. Debug-Modus aktivieren in `config/config.php`:
    ```php
    'debug' => true,
    ```
-2. PHP-Fehlerlog pruefen: `storage/logs/`
-3. Webserver-Fehlerlog pruefen
 
 ### Datenbank-Verbindungsfehler
 
@@ -361,6 +383,35 @@ MariaDB unter Ubuntu/Debian verwendet fuer `root` standardmaessig Socket-Authent
 ```bash
 chown -R www-data:www-data /var/www/open-classbook/storage/
 chmod -R 755 /var/www/open-classbook/storage/
+```
+
+### Admin-Passwort zuruecksetzen
+
+Falls Sie sich ausgesperrt haben, koennen Sie das Admin-Passwort per Kommandozeile zuruecksetzen:
+
+```bash
+HASH=$(php -r 'echo password_hash("NeuesPasswort2026", PASSWORD_BCRYPT);') && \
+mariadb -u classbook -p open_classbook -e "UPDATE users SET password_hash = '$HASH' WHERE username = 'admin';"
+```
+
+> **Hinweis:** Vermeiden Sie Sonderzeichen wie `!` im Passwort innerhalb des Befehls, da Bash diese interpretiert. Aendern Sie das Passwort anschliessend ueber die Weboberflaeche.
+
+### PHP-FPM-Version stimmt nicht
+
+Symptom: `composer install` laeuft erfolgreich, aber die Webseite zeigt "Composer detected issues in your platform: Your Composer dependencies require a PHP version >= 8.3.0".
+
+Ursache: Nginx/Apache nutzt eine aeltere PHP-FPM-Version als die CLI.
+
+Loesung fuer Nginx - Socket-Pfad anpassen:
+```bash
+# Aktuelle PHP-FPM-Versionen anzeigen
+ls /run/php/php*-fpm.sock
+
+# In der Nginx-Siteconfig den Socket-Pfad aendern, z.B.:
+# fastcgi_pass unix:/run/php/php8.4-fpm.sock;
+
+# Danach Nginx neu laden
+nginx -t && systemctl reload nginx
 ```
 
 ### Session-Probleme
