@@ -135,8 +135,12 @@ $studentNames = [
 ];
 
 $studentIds = [];
+$studentUserIds = [];
+$userStmt = $pdo->prepare(
+    'INSERT INTO users (username, email, password_hash, role, active, must_change_password) VALUES (?, ?, ?, ?, 1, 1)'
+);
 $stmt = $pdo->prepare(
-    'INSERT INTO students (firstname, lastname, class_id, birthday, guardian_email) VALUES (?, ?, ?, ?, ?)'
+    'INSERT INTO students (user_id, firstname, lastname, class_id, birthday, guardian_email) VALUES (?, ?, ?, ?, ?, ?)'
 );
 
 $nameIndex = 0;
@@ -146,12 +150,20 @@ foreach ($classIds as $className => $classId) {
         $n = $studentNames[$nameIndex];
         $birthday = sprintf('20%02d-%02d-%02d', rand(10, 15), rand(1, 12), rand(1, 28));
         $email = strtolower($n[0]) . '.' . strtolower($n[1]) . '.eltern@example.com';
-        $stmt->execute([$n[0], $n[1], $classId, $birthday, $email]);
+
+        // User-Account fuer Schueler anlegen
+        $username = strtolower(mb_substr($n[0], 0, 1)) . '.' . strtolower($n[1]);
+        $password = 'Schueler2026!';
+        $userStmt->execute([$username, $email, password_hash($password, PASSWORD_BCRYPT), 'schueler']);
+        $sUserId = (int) $pdo->lastInsertId();
+        $studentUserIds[$username] = $sUserId;
+
+        $stmt->execute([$sUserId, $n[0], $n[1], $classId, $birthday, $email]);
         $studentIds[] = (int) $pdo->lastInsertId();
         $nameIndex++;
     }
 }
-echo "  " . count($studentIds) . " Schueler angelegt.\n";
+echo "  " . count($studentIds) . " Schueler angelegt (mit User-Accounts).\n";
 
 // ==========================================
 // 6. Klassenbucheintraege
@@ -276,3 +288,5 @@ echo "  Schulleitung: k.schmidt / Leitung2026!\n";
 echo "  Sekretariat:  s.meyer / Sekret2026!!\n";
 echo "  Lehrer:       m.mueller / Lehrer2026!a\n";
 echo "  (weitere Lehrer: a.fischer, h.weber, l.becker, t.hoffmann)\n";
+echo "  Schueler:     m.braun / Schueler2026!\n";
+echo "  (weitere Schueler: s.klein, l.wolf, e.schroeder, p.neumann, ...)\n";

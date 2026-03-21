@@ -5,6 +5,8 @@ namespace OpenClassbook\Controllers;
 use OpenClassbook\App;
 use OpenClassbook\View;
 use OpenClassbook\Database;
+use OpenClassbook\Models\Student;
+use OpenClassbook\Models\AbsenceStudent;
 
 class DashboardController
 {
@@ -20,6 +22,9 @@ class DashboardController
                 break;
             case 'lehrer':
                 $this->teacherDashboard();
+                break;
+            case 'schueler':
+                $this->studentDashboard();
                 break;
             default:
                 View::render('dashboard/index', ['title' => 'Dashboard']);
@@ -77,6 +82,18 @@ class DashboardController
         View::render('dashboard/teacher', [
             'title' => 'Mein Dashboard',
             'classes' => array_values($allClasses),
+        ]);
+    }
+
+    private function studentDashboard(): void
+    {
+        $student = Student::findByUserId($_SESSION['user_id']);
+        $absences = $student ? AbsenceStudent::findAll(['student_id' => $student['id']]) : [];
+
+        View::render('dashboard/student', [
+            'title' => 'Mein Dashboard',
+            'student' => $student,
+            'absences' => $absences,
         ]);
     }
 }

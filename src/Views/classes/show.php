@@ -38,6 +38,9 @@
                         <th scope="col">Nachname</th>
                         <th scope="col">Vorname</th>
                         <th scope="col">Geburtsdatum</th>
+                        <?php if ($canTransfer): ?>
+                            <th scope="col">Aktionen</th>
+                        <?php endif; ?>
                     </tr>
                 </thead>
                 <tbody>
@@ -46,6 +49,22 @@
                         <td><?= htmlspecialchars($s['lastname'], ENT_QUOTES, 'UTF-8') ?></td>
                         <td><?= htmlspecialchars($s['firstname'], ENT_QUOTES, 'UTF-8') ?></td>
                         <td><?= $s['birthday'] ? date('d.m.Y', strtotime($s['birthday'])) : '-' ?></td>
+                        <?php if ($canTransfer): ?>
+                            <td>
+                                <form method="post" action="/classes/<?= $class['id'] ?>/transfer" class="form-inline">
+                                    <?= \OpenClassbook\View::csrfField() ?>
+                                    <input type="hidden" name="student_id" value="<?= $s['id'] ?>">
+                                    <label for="new_class_<?= $s['id'] ?>" class="sr-only">Neue Klasse fuer <?= htmlspecialchars($s['firstname'] . ' ' . $s['lastname'], ENT_QUOTES, 'UTF-8') ?></label>
+                                    <select name="new_class_id" id="new_class_<?= $s['id'] ?>" class="form-control form-control-sm" required>
+                                        <option value="">Klasse waehlen...</option>
+                                        <?php foreach ($otherClasses as $c): ?>
+                                            <option value="<?= $c['id'] ?>"><?= htmlspecialchars($c['name'] . ' (' . $c['school_year'] . ')', ENT_QUOTES, 'UTF-8') ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <button type="submit" class="btn btn-sm btn-secondary" data-confirm="<?= htmlspecialchars($s['firstname'] . ' ' . $s['lastname'], ENT_QUOTES, 'UTF-8') ?> wirklich in eine andere Klasse versetzen?">Versetzen</button>
+                                </form>
+                            </td>
+                        <?php endif; ?>
                     </tr>
                     <?php endforeach; ?>
                 </tbody>

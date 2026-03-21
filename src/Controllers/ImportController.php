@@ -137,8 +137,30 @@ class ImportController
             $msg .= " {$result['skipped']} Zeile(n) uebersprungen.";
         }
 
+        // Zugangsdaten in Session speichern fuer Anzeige
+        if (!empty($result['credentials'])) {
+            $_SESSION['import_credentials'] = $result['credentials'];
+            $msg .= ' Zugangsdaten werden unten angezeigt - bitte notieren!';
+        }
+
         App::setFlash('success', $msg);
-        App::redirect('/classes');
+        App::redirect('/import/students/credentials');
+    }
+
+    public function studentCredentials(): void
+    {
+        $credentials = $_SESSION['import_credentials'] ?? [];
+        unset($_SESSION['import_credentials']);
+
+        if (empty($credentials)) {
+            App::redirect('/users');
+            return;
+        }
+
+        View::render('import/student-credentials', [
+            'title' => 'Schueler-Zugangsdaten',
+            'credentials' => $credentials,
+        ]);
     }
 
     public function downloadTemplate(string $type): void

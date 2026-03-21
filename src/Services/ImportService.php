@@ -185,6 +185,7 @@ class ImportService
         $preview = self::previewStudents($filePath, $schoolYear);
         $imported = 0;
         $skipped = 0;
+        $credentials = [];
 
         foreach ($preview['rows'] as $row) {
             if (!empty($row['errors'])) {
@@ -194,7 +195,30 @@ class ImportService
 
             $class = SchoolClass::findByName($row['class_name'], $schoolYear);
 
+            // User-Account erstellen (analog zum Lehrer-Import)
+            $password = bin2hex(random_bytes(5));
+            $username = strtolower(
+                mb_substr($row['firstname'], 0, 1) . '.' . self::sanitizeUsername($row['lastname'])
+            );
+
+            // Sicherstellen, dass Username eindeutig ist
+            $baseUsername = $username;
+            $counter = 1;
+            while (User::usernameExists($username)) {
+                $username = $baseUsername . $counter;
+                $counter++;
+            }
+
+            $userId = User::create([
+                'username' => $username,
+                'email' => $row['guardian_email'] ?: null,
+                'password' => $password,
+                'role' => 'schueler',
+                'must_change_password' => 1,
+            ]);
+
             Student::create([
+                'user_id' => $userId,
                 'firstname' => $row['firstname'],
                 'lastname' => $row['lastname'],
                 'class_id' => $class['id'],
@@ -202,9 +226,35 @@ class ImportService
                 'guardian_email' => $row['guardian_email'] ?: null,
             ]);
 
+            $credentials[] = [
+                'name' => $row['firstname'] . ' ' . $row['lastname'],
+                'username' => $username,
+                'password' => $password,
+            ];
+
             $imported++;
         }
 
-        return ['imported' => $imported, 'skipped' => $skipped, 'errors' => $preview['errors']];
+        return [
+            'imported' => $imported,
+            'skipped' => $skipped,
+            'errors' => $preview['errors'],
+            'credentials' => $credentials,
+        ];
+    }
+
+    /**
+     * Username-sicheren String aus Namen erzeugen (Umlaute ersetzen, Sonderzeichen entfernen)
+     */
+    private static function sanitizeUsername(string $name): string
+    {
+        $replacements = [
+            'ae' => 'ae', 'oe' => 'oe', 'ue' => 'ue', 'ss' => 'ss',
+            'ä' => 'ae', 'ö' => 'oe', 'ü' => 'ue', 'ß' => 'ss',
+            'Ä' => 'ae', 'Ö' => 'oe', 'Ü' => 'ue',
+        ];
+        $name = str_replace(array_keys($replacements), array_values($replacements), $name);
+        $name = preg_replace('/[^a-z0-9]/', '', strtolower($name));
+        return $name;
     }
 }

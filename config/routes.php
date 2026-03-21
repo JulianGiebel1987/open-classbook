@@ -45,6 +45,7 @@ $router->post('/classes', [ClassController::class, 'create'], [AuthMiddleware::c
 $router->get('/classes/{id}', [ClassController::class, 'show'], [AuthMiddleware::class]);
 $router->get('/classes/{id}/edit', [ClassController::class, 'editForm'], [AuthMiddleware::class]);
 $router->post('/classes/{id}', [ClassController::class, 'update'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/classes/{id}/transfer', [ClassController::class, 'transferStudent'], [AuthMiddleware::class, CsrfMiddleware::class]);
 
 // === Klassenbuch ===
 $router->get('/classbook', [ClassbookController::class, 'index'], [AuthMiddleware::class]);
@@ -58,6 +59,9 @@ $router->post('/classbook/entry/{id}', [ClassbookController::class, 'update'], [
 
 // === Schueler-Fehlzeiten ===
 $router->get('/absences/students', [AbsenceStudentController::class, 'index'], [AuthMiddleware::class]);
+$router->get('/absences/students/self', [AbsenceStudentController::class, 'selfReportForm'], [AuthMiddleware::class]);
+$router->post('/absences/students/self', [AbsenceStudentController::class, 'selfReport'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->get('/absences/students/mine', [AbsenceStudentController::class, 'myAbsences'], [AuthMiddleware::class]);
 $router->get('/absences/students/create', [AbsenceStudentController::class, 'createForm'], [AuthMiddleware::class]);
 $router->post('/absences/students', [AbsenceStudentController::class, 'create'], [AuthMiddleware::class, CsrfMiddleware::class]);
 $router->get('/absences/students/{id}/edit', [AbsenceStudentController::class, 'editForm'], [AuthMiddleware::class]);
@@ -80,4 +84,5 @@ $router->post('/import/teachers', [ImportController::class, 'uploadTeachers'], [
 $router->post('/import/teachers/confirm', [ImportController::class, 'confirmTeachers'], [AuthMiddleware::class, CsrfMiddleware::class]);
 $router->post('/import/students', [ImportController::class, 'uploadStudents'], [AuthMiddleware::class, CsrfMiddleware::class]);
 $router->post('/import/students/confirm', [ImportController::class, 'confirmStudents'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->get('/import/students/credentials', [ImportController::class, 'studentCredentials'], [AuthMiddleware::class]);
 $router->get('/import/template/{type}', [ImportController::class, 'downloadTemplate'], [AuthMiddleware::class]);
