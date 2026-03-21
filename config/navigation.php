@@ -33,9 +33,12 @@ return [
     'lehrer' => [
         ['label' => 'Dashboard', 'url' => '/dashboard'],
         ['label' => 'Meine Klassen', 'url' => '/classbook'],
+        ['label' => 'Fehlzeiten', 'url' => '/absences/students'],
         ['label' => 'Krankmeldung', 'url' => '/absences/teachers/self'],
     ],
     'schueler' => [
         ['label' => 'Dashboard', 'url' => '/dashboard'],
+        ['label' => 'Krankmeldung', 'url' => '/absences/students/self'],
+        ['label' => 'Meine Fehlzeiten', 'url' => '/absences/students/mine'],
     ],
 ];

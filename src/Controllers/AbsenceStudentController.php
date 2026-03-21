@@ -140,4 +140,83 @@ class AbsenceStudentController
         App::setFlash('success', 'Fehlzeit geloescht.');
         App::redirect('/absences/students');
     }
+
+    /**
+     * Schueler-Selbst-Krankmeldung: Formular anzeigen
+     */
+    public function selfReportForm(): void
+    {
+        $student = Student::findByUserId($_SESSION['user_id']);
+        if (!$student) {
+            App::setFlash('error', 'Kein Schueler-Profil gefunden. Bitte wenden Sie sich an das Sekretariat.');
+            App::redirect('/dashboard');
+            return;
+        }
+
+        CsrfMiddleware::generateToken();
+        View::render('absences/students-self', [
+            'title' => 'Krankmeldung',
+            'student' => $student,
+        ]);
+    }
+
+    /**
+     * Schueler-Selbst-Krankmeldung: absenden
+     */
+    public function selfReport(): void
+    {
+        $student = Student::findByUserId($_SESSION['user_id']);
+        if (!$student) {
+            App::setFlash('error', 'Kein Schueler-Profil gefunden.');
+            App::redirect('/dashboard');
+            return;
+        }
+
+        $data = [
+            'student_id' => $student['id'],
+            'date_from' => $_POST['date_from'] ?? '',
+            'date_to' => $_POST['date_to'] ?? '',
+            'excused' => 'offen',
+            'reason' => trim($_POST['reason'] ?? '') ?: null,
+            'notes' => trim($_POST['notes'] ?? '') ?: null,
+            'created_by' => $_SESSION['user_id'],
+        ];
+
+        if (empty($data['date_from']) || empty($data['date_to'])) {
+            App::setFlash('error', 'Von-Datum und Bis-Datum sind erforderlich.');
+            App::redirect('/absences/students/self');
+            return;
+        }
+
+        if ($data['date_to'] < $data['date_from']) {
+            App::setFlash('error', 'Das Bis-Datum darf nicht vor dem Von-Datum liegen.');
+            App::redirect('/absences/students/self');
+            return;
+        }
+
+        AbsenceStudent::create($data);
+        App::setFlash('success', 'Krankmeldung erfolgreich eingereicht.');
+        App::redirect('/absences/students/mine');
+    }
+
+    /**
+     * Eigene Fehlzeiten anzeigen (fuer Schueler)
+     */
+    public function myAbsences(): void
+    {
+        $student = Student::findByUserId($_SESSION['user_id']);
+        if (!$student) {
+            App::setFlash('error', 'Kein Schueler-Profil gefunden.');
+            App::redirect('/dashboard');
+            return;
+        }
+
+        $absences = AbsenceStudent::findAll(['student_id' => $student['id']]);
+
+        View::render('absences/students-mine', [
+            'title' => 'Meine Fehlzeiten',
+            'absences' => $absences,
+            'student' => $student,
+        ]);
+    }
 }

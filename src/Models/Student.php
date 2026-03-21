@@ -11,6 +11,14 @@ class Student
         return Database::queryOne('SELECT * FROM students WHERE id = ?', [$id]);
     }
 
+    public static function findByUserId(int $userId): ?array
+    {
+        return Database::queryOne(
+            'SELECT s.*, c.name as class_name FROM students s JOIN classes c ON c.id = s.class_id WHERE s.user_id = ?',
+            [$userId]
+        );
+    }
+
     public static function findAll(array $filters = []): array
     {
         $sql = 'SELECT s.*, c.name as class_name FROM students s JOIN classes c ON c.id = s.class_id WHERE 1=1';

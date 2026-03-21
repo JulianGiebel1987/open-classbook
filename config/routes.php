@@ -59,6 +59,9 @@ $router->post('/classbook/entry/{id}', [ClassbookController::class, 'update'], [
 
 // === Schueler-Fehlzeiten ===
 $router->get('/absences/students', [AbsenceStudentController::class, 'index'], [AuthMiddleware::class]);
+$router->get('/absences/students/self', [AbsenceStudentController::class, 'selfReportForm'], [AuthMiddleware::class]);
+$router->post('/absences/students/self', [AbsenceStudentController::class, 'selfReport'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->get('/absences/students/mine', [AbsenceStudentController::class, 'myAbsences'], [AuthMiddleware::class]);
 $router->get('/absences/students/create', [AbsenceStudentController::class, 'createForm'], [AuthMiddleware::class]);
 $router->post('/absences/students', [AbsenceStudentController::class, 'create'], [AuthMiddleware::class, CsrfMiddleware::class]);
 $router->get('/absences/students/{id}/edit', [AbsenceStudentController::class, 'editForm'], [AuthMiddleware::class]);
