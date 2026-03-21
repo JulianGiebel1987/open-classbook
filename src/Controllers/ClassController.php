@@ -123,11 +123,54 @@ class ClassController
         $students = Student::findByClassId($class['id']);
         $teachers = SchoolClass::getTeachers($class['id']);
 
+        // Alle Klassen fuer Versetzungs-Dropdown laden (ausser aktuelle)
+        $allClasses = SchoolClass::findAll();
+        $otherClasses = array_filter($allClasses, fn($c) => $c['id'] !== $class['id']);
+
+        $canTransfer = in_array(App::currentUserRole(), ['admin', 'sekretariat', 'schulleitung']);
+
+        CsrfMiddleware::generateToken();
         View::render('classes/show', [
             'title' => 'Klasse ' . $class['name'],
             'class' => $class,
             'students' => $students,
             'teachers' => $teachers,
+            'otherClasses' => $otherClasses,
+            'canTransfer' => $canTransfer,
         ]);
+    }
+
+    public function transferStudent(string $classId): void
+    {
+        // Rollenprüfung
+        $role = App::currentUserRole();
+        if (!in_array($role, ['admin', 'sekretariat', 'schulleitung'])) {
+            App::setFlash('error', 'Keine Berechtigung fuer diese Aktion.');
+            App::redirect('/classes/' . $classId);
+            return;
+        }
+
+        $studentId = (int) ($_POST['student_id'] ?? 0);
+        $newClassId = (int) ($_POST['new_class_id'] ?? 0);
+
+        $student = Student::findById($studentId);
+        if (!$student || $student['class_id'] !== (int) $classId) {
+            App::setFlash('error', 'Schueler/in nicht gefunden.');
+            App::redirect('/classes/' . $classId);
+            return;
+        }
+
+        $newClass = SchoolClass::findById($newClassId);
+        if (!$newClass) {
+            App::setFlash('error', 'Zielklasse nicht gefunden.');
+            App::redirect('/classes/' . $classId);
+            return;
+        }
+
+        Student::changeClass($studentId, $newClassId);
+
+        $name = $student['firstname'] . ' ' . $student['lastname'];
+        App::setFlash('success', htmlspecialchars($name) . ' wurde in Klasse ' . htmlspecialchars($newClass['name']) . ' versetzt.');
+        App::redirect('/classes/' . $classId);
     }
 }

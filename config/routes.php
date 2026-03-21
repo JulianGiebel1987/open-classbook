@@ -45,6 +45,7 @@ $router->post('/classes', [ClassController::class, 'create'], [AuthMiddleware::c
 $router->get('/classes/{id}', [ClassController::class, 'show'], [AuthMiddleware::class]);
 $router->get('/classes/{id}/edit', [ClassController::class, 'editForm'], [AuthMiddleware::class]);
 $router->post('/classes/{id}', [ClassController::class, 'update'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/classes/{id}/transfer', [ClassController::class, 'transferStudent'], [AuthMiddleware::class, CsrfMiddleware::class]);
 
 // === Klassenbuch ===
 $router->get('/classbook', [ClassbookController::class, 'index'], [AuthMiddleware::class]);

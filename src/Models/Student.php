@@ -68,6 +68,11 @@ class Student
         Database::execute('DELETE FROM students WHERE id = ?', [$id]);
     }
 
+    public static function changeClass(int $id, int $newClassId): void
+    {
+        Database::execute('UPDATE students SET class_id = ? WHERE id = ?', [$newClassId, $id]);
+    }
+
     public static function countByClassId(int $classId): int
     {
         $result = Database::queryOne('SELECT COUNT(*) as cnt FROM students WHERE class_id = ?', [$classId]);
