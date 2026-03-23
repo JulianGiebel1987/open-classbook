@@ -55,15 +55,11 @@ class AbsenceStudentController
             $classes = SchoolClass::findAll();
         }
 
-        $classId = $_GET['class_id'] ?? '';
-        $students = $classId ? Student::findByClassId((int) $classId) : [];
-
         CsrfMiddleware::generateToken();
         View::render('absences/students-create', [
             'title' => 'Fehlzeit eintragen',
             'classes' => $classes,
-            'students' => $students,
-            'selectedClassId' => $classId,
+            'selectedClassId' => $_GET['class_id'] ?? '',
         ]);
     }
 
@@ -139,6 +135,30 @@ class AbsenceStudentController
         AbsenceStudent::delete((int) $id);
         App::setFlash('success', 'Fehlzeit geloescht.');
         App::redirect('/absences/students');
+    }
+
+    /**
+     * API: Schueler einer Klasse als JSON zurueckgeben
+     */
+    public function studentsByClass(string $classId): void
+    {
+        $role = App::currentUserRole();
+
+        // Lehrer: nur eigene Klassen erlauben
+        if ($role === 'lehrer') {
+            $teacherId = Teacher::getTeacherIdByUserId($_SESSION['user_id']);
+            $allowed = $teacherId ? array_column(Teacher::getClassesForTeacher($teacherId), 'id') : [];
+            if (!in_array((int) $classId, $allowed)) {
+                http_response_code(403);
+                header('Content-Type: application/json');
+                echo json_encode(['error' => 'Zugriff verweigert']);
+                return;
+            }
+        }
+
+        $students = Student::findByClassId((int) $classId);
+        header('Content-Type: application/json');
+        echo json_encode($students);
     }
 
     /**
