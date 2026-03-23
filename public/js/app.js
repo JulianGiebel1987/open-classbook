@@ -42,6 +42,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // === Aktive Navigation markieren ===
     markActiveNavItem();
+
+    // === Chat-Funktionen ===
+    initChat();
 });
 
 /**
@@ -217,4 +220,108 @@ function markActiveNavItem() {
             link.setAttribute('aria-current', 'page');
         }
     });
+}
+
+/**
+ * Chat-Funktionen: Scroll, aeltere Nachrichten laden, Enter-Senden
+ */
+function initChat() {
+    var chatContainer = document.getElementById('chatContainer');
+    if (!chatContainer) return;
+
+    var conversationId = chatContainer.dataset.conversationId;
+    var currentUser = parseInt(chatContainer.dataset.currentUser, 10);
+
+    // Zum Ende scrollen
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+
+    // Enter = Senden, Shift+Enter = Zeilenumbruch
+    var chatInput = document.getElementById('chatInput');
+    var chatForm = document.getElementById('chatForm');
+    if (chatInput && chatForm) {
+        chatInput.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                if (chatInput.value.trim() !== '') {
+                    chatForm.submit();
+                }
+            }
+        });
+    }
+
+    // Aeltere Nachrichten laden
+    var loadMoreBtn = document.getElementById('loadMoreBtn');
+    if (loadMoreBtn) {
+        loadMoreBtn.addEventListener('click', function () {
+            var offset = parseInt(loadMoreBtn.dataset.offset, 10);
+            loadMoreBtn.textContent = 'Laden...';
+            loadMoreBtn.disabled = true;
+
+            fetch('/messages/' + conversationId + '/older?offset=' + offset)
+                .then(function (res) { return res.json(); })
+                .then(function (data) {
+                    if (!data.messages || data.messages.length === 0) {
+                        loadMoreBtn.textContent = 'Keine weiteren Nachrichten';
+                        return;
+                    }
+
+                    var fragment = document.createDocumentFragment();
+                    data.messages.reverse().forEach(function (m) {
+                        var bubble = document.createElement('div');
+                        var isMine = parseInt(m.sender_id, 10) === currentUser;
+                        bubble.className = 'chat-bubble ' + (isMine ? 'chat-bubble--mine' : 'chat-bubble--theirs');
+
+                        var bodyDiv = document.createElement('div');
+                        bodyDiv.className = 'chat-bubble-body';
+                        bodyDiv.textContent = m.body;
+                        bubble.appendChild(bodyDiv);
+
+                        var metaDiv = document.createElement('div');
+                        metaDiv.className = 'chat-bubble-meta';
+                        var date = new Date(m.created_at);
+                        metaDiv.textContent = date.toLocaleDateString('de-DE', {day: '2-digit', month: '2-digit'}) + ' ' + date.toLocaleTimeString('de-DE', {hour: '2-digit', minute: '2-digit'});
+                        bubble.appendChild(metaDiv);
+
+                        fragment.appendChild(bubble);
+                    });
+
+                    // Vor dem ersten Chat-Bubble einfuegen (nach dem Button)
+                    var firstBubble = chatContainer.querySelector('.chat-bubble');
+                    if (firstBubble) {
+                        chatContainer.insertBefore(fragment, firstBubble);
+                    } else {
+                        chatContainer.appendChild(fragment);
+                    }
+
+                    loadMoreBtn.dataset.offset = offset + data.messages.length;
+                    loadMoreBtn.textContent = 'Aeltere Nachrichten laden';
+                    loadMoreBtn.disabled = false;
+
+                    if (data.messages.length < 50) {
+                        loadMoreBtn.textContent = 'Keine weiteren Nachrichten';
+                        loadMoreBtn.disabled = true;
+                    }
+                })
+                .catch(function () {
+                    loadMoreBtn.textContent = 'Fehler beim Laden';
+                    loadMoreBtn.disabled = false;
+                });
+        });
+    }
+
+    // Polling: alle 15 Sekunden neue Nachrichten pruefen
+    var messageCount = parseInt(chatContainer.dataset.messageCount, 10) || 0;
+    setInterval(function () {
+        fetch('/messages/' + conversationId + '/older?offset=0')
+            .then(function (res) { return res.json(); })
+            .then(function (data) {
+                if (!data.messages) return;
+                var newCount = data.messages.length;
+                if (newCount > messageCount) {
+                    // Neue Nachrichten vorhanden - Seite neu laden
+                    window.location.reload();
+                }
+            })
+            .catch(function () { /* ignore */ });
+    }, 15000);
 }
