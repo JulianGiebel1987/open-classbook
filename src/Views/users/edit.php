@@ -25,9 +25,79 @@
             </select>
         </div>
 
+        <div id="profile-fields" style="display: none;">
+            <div class="form-group">
+                <label for="firstname">Vorname <span aria-hidden="true">*</span><span class="sr-only">(Pflichtfeld)</span></label>
+                <input type="text" id="firstname" name="firstname" class="form-control" value="<?= htmlspecialchars($profile['firstname'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+            </div>
+
+            <div class="form-group">
+                <label for="lastname">Nachname <span aria-hidden="true">*</span><span class="sr-only">(Pflichtfeld)</span></label>
+                <input type="text" id="lastname" name="lastname" class="form-control" value="<?= htmlspecialchars($profile['lastname'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+            </div>
+        </div>
+
+        <div id="teacher-fields" style="display: none;">
+            <div class="form-group">
+                <label for="abbreviation">Kuerzel <span aria-hidden="true">*</span><span class="sr-only">(Pflichtfeld)</span></label>
+                <input type="text" id="abbreviation" name="abbreviation" class="form-control" maxlength="10" value="<?= htmlspecialchars($profile['abbreviation'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+            </div>
+
+            <div class="form-group">
+                <label for="subjects">Faecher</label>
+                <input type="text" id="subjects" name="subjects" class="form-control" value="<?= htmlspecialchars($profile['subjects'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+            </div>
+        </div>
+
+        <div id="student-fields" style="display: none;">
+            <div class="form-group">
+                <label for="class_id">Klasse <span aria-hidden="true">*</span><span class="sr-only">(Pflichtfeld)</span></label>
+                <select name="class_id" id="class_id" class="form-control">
+                    <option value="">- Klasse waehlen -</option>
+                    <?php foreach ($classes ?? [] as $c): ?>
+                        <option value="<?= $c['id'] ?>" <?= ($profile['class_id'] ?? '') == $c['id'] ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($c['name'], ENT_QUOTES, 'UTF-8') ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+        </div>
+
         <div class="btn-group">
             <button type="submit" class="btn">Speichern</button>
             <a href="/users" class="btn btn-secondary">Abbrechen</a>
         </div>
     </form>
 </div>
+
+<script>
+(function() {
+    var roleSelect = document.getElementById('role');
+    var profileFields = document.getElementById('profile-fields');
+    var teacherFields = document.getElementById('teacher-fields');
+    var studentFields = document.getElementById('student-fields');
+    var firstname = document.getElementById('firstname');
+    var lastname = document.getElementById('lastname');
+    var abbreviation = document.getElementById('abbreviation');
+    var classId = document.getElementById('class_id');
+
+    function toggleFields() {
+        var role = roleSelect.value;
+        var isTeacher = (role === 'lehrer');
+        var isStudent = (role === 'schueler');
+        var needsProfile = isTeacher || isStudent;
+
+        profileFields.style.display = needsProfile ? '' : 'none';
+        teacherFields.style.display = isTeacher ? '' : 'none';
+        studentFields.style.display = isStudent ? '' : 'none';
+
+        firstname.required = needsProfile;
+        lastname.required = needsProfile;
+        abbreviation.required = isTeacher;
+        if (classId) classId.required = isStudent;
+    }
+
+    roleSelect.addEventListener('change', toggleFields);
+    toggleFields();
+})();
+</script>

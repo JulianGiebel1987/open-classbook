@@ -63,6 +63,7 @@ $router->get('/absences/students/self', [AbsenceStudentController::class, 'selfR
 $router->post('/absences/students/self', [AbsenceStudentController::class, 'selfReport'], [AuthMiddleware::class, CsrfMiddleware::class]);
 $router->get('/absences/students/mine', [AbsenceStudentController::class, 'myAbsences'], [AuthMiddleware::class]);
 $router->get('/absences/students/create', [AbsenceStudentController::class, 'createForm'], [AuthMiddleware::class]);
+$router->get('/absences/students/by-class/{classId}', [AbsenceStudentController::class, 'studentsByClass'], [AuthMiddleware::class]);
 $router->post('/absences/students', [AbsenceStudentController::class, 'create'], [AuthMiddleware::class, CsrfMiddleware::class]);
 $router->get('/absences/students/{id}/edit', [AbsenceStudentController::class, 'editForm'], [AuthMiddleware::class]);
 $router->post('/absences/students/{id}', [AbsenceStudentController::class, 'update'], [AuthMiddleware::class, CsrfMiddleware::class]);

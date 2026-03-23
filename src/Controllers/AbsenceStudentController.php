@@ -14,6 +14,12 @@ class AbsenceStudentController
 {
     public function index(): void
     {
+        // Schueler: nur eigene Fehlzeiten anzeigen
+        if (App::currentUserRole() === 'schueler') {
+            App::redirect('/absences/students/mine');
+            return;
+        }
+
         $filters = [
             'class_id' => $_GET['class_id'] ?? '',
             'excused' => $_GET['excused'] ?? '',
@@ -48,6 +54,10 @@ class AbsenceStudentController
     public function createForm(): void
     {
         $role = App::currentUserRole();
+        if ($role === 'schueler') {
+            App::redirect('/absences/students/self');
+            return;
+        }
         if ($role === 'lehrer') {
             $teacherId = Teacher::getTeacherIdByUserId($_SESSION['user_id']);
             $classes = $teacherId ? Teacher::getClassesForTeacher($teacherId) : [];
@@ -55,20 +65,21 @@ class AbsenceStudentController
             $classes = SchoolClass::findAll();
         }
 
-        $classId = $_GET['class_id'] ?? '';
-        $students = $classId ? Student::findByClassId((int) $classId) : [];
-
         CsrfMiddleware::generateToken();
         View::render('absences/students-create', [
             'title' => 'Fehlzeit eintragen',
             'classes' => $classes,
-            'students' => $students,
-            'selectedClassId' => $classId,
+            'selectedClassId' => $_GET['class_id'] ?? '',
         ]);
     }
 
     public function create(): void
     {
+        if (App::currentUserRole() === 'schueler') {
+            App::redirect('/absences/students/self');
+            return;
+        }
+
         $data = [
             'student_id' => (int) ($_POST['student_id'] ?? 0),
             'date_from' => $_POST['date_from'] ?? '',
@@ -98,6 +109,11 @@ class AbsenceStudentController
 
     public function editForm(string $id): void
     {
+        if (App::currentUserRole() === 'schueler') {
+            App::redirect('/absences/students/mine');
+            return;
+        }
+
         $absence = AbsenceStudent::findById((int) $id);
         if (!$absence) {
             App::setFlash('error', 'Fehlzeit nicht gefunden.');
@@ -114,6 +130,11 @@ class AbsenceStudentController
 
     public function update(string $id): void
     {
+        if (App::currentUserRole() === 'schueler') {
+            App::redirect('/absences/students/mine');
+            return;
+        }
+
         $absence = AbsenceStudent::findById((int) $id);
         if (!$absence) {
             App::setFlash('error', 'Fehlzeit nicht gefunden.');
@@ -136,9 +157,38 @@ class AbsenceStudentController
 
     public function delete(string $id): void
     {
+        if (App::currentUserRole() === 'schueler') {
+            App::redirect('/absences/students/mine');
+            return;
+        }
+
         AbsenceStudent::delete((int) $id);
         App::setFlash('success', 'Fehlzeit geloescht.');
         App::redirect('/absences/students');
+    }
+
+    /**
+     * API: Schueler einer Klasse als JSON zurueckgeben
+     */
+    public function studentsByClass(string $classId): void
+    {
+        $role = App::currentUserRole();
+
+        // Lehrer: nur eigene Klassen erlauben
+        if ($role === 'lehrer') {
+            $teacherId = Teacher::getTeacherIdByUserId($_SESSION['user_id']);
+            $allowed = $teacherId ? array_column(Teacher::getClassesForTeacher($teacherId), 'id') : [];
+            if (!in_array((int) $classId, $allowed)) {
+                http_response_code(403);
+                header('Content-Type: application/json');
+                echo json_encode(['error' => 'Zugriff verweigert']);
+                return;
+            }
+        }
+
+        $students = Student::findByClassId((int) $classId);
+        header('Content-Type: application/json');
+        echo json_encode($students);
     }
 
     /**
