@@ -9,6 +9,7 @@ use OpenClassbook\Controllers\ClassbookController;
 use OpenClassbook\Controllers\AbsenceStudentController;
 use OpenClassbook\Controllers\AbsenceTeacherController;
 use OpenClassbook\Controllers\ImportController;
+use OpenClassbook\Controllers\MessageController;
 use OpenClassbook\Middleware\AuthMiddleware;
 use OpenClassbook\Middleware\CsrfMiddleware;
 
@@ -78,6 +79,14 @@ $router->post('/absences/teachers', [AbsenceTeacherController::class, 'create'],
 $router->get('/absences/teachers/{id}/edit', [AbsenceTeacherController::class, 'editForm'], [AuthMiddleware::class]);
 $router->post('/absences/teachers/{id}', [AbsenceTeacherController::class, 'update'], [AuthMiddleware::class, CsrfMiddleware::class]);
 $router->post('/absences/teachers/{id}/delete', [AbsenceTeacherController::class, 'delete'], [AuthMiddleware::class, CsrfMiddleware::class]);
+
+// === Nachrichten ===
+$router->get('/messages', [MessageController::class, 'inbox'], [AuthMiddleware::class]);
+$router->get('/messages/new', [MessageController::class, 'newConversation'], [AuthMiddleware::class]);
+$router->post('/messages/new', [MessageController::class, 'createConversation'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->get('/messages/{id}', [MessageController::class, 'show'], [AuthMiddleware::class]);
+$router->post('/messages/{id}', [MessageController::class, 'send'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->get('/messages/{id}/older', [MessageController::class, 'loadMore'], [AuthMiddleware::class]);
 
 // === Import ===
 $router->get('/import', [ImportController::class, 'index'], [AuthMiddleware::class]);

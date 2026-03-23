@@ -11,6 +11,7 @@ return [
         ['label' => 'Klassenbuch', 'url' => '/classbook'],
         ['label' => 'Fehlzeiten', 'url' => '/absences/students'],
         ['label' => 'Lehrer-Abwesenheit', 'url' => '/absences/teachers'],
+        ['label' => 'Nachrichten', 'url' => '/messages'],
         ['label' => 'Import', 'url' => '/import'],
     ],
     'schulleitung' => [
@@ -20,6 +21,7 @@ return [
         ['label' => 'Klassenbuch', 'url' => '/classbook'],
         ['label' => 'Fehlzeiten', 'url' => '/absences/students'],
         ['label' => 'Lehrer-Abwesenheit', 'url' => '/absences/teachers'],
+        ['label' => 'Nachrichten', 'url' => '/messages'],
     ],
     'sekretariat' => [
         ['label' => 'Dashboard', 'url' => '/dashboard'],
@@ -28,6 +30,7 @@ return [
         ['label' => 'Klassenbuch', 'url' => '/classbook'],
         ['label' => 'Fehlzeiten', 'url' => '/absences/students'],
         ['label' => 'Lehrer-Abwesenheit', 'url' => '/absences/teachers'],
+        ['label' => 'Nachrichten', 'url' => '/messages'],
         ['label' => 'Import', 'url' => '/import'],
     ],
     'lehrer' => [
@@ -35,10 +38,12 @@ return [
         ['label' => 'Meine Klassen', 'url' => '/classbook'],
         ['label' => 'Fehlzeiten', 'url' => '/absences/students'],
         ['label' => 'Krankmeldung', 'url' => '/absences/teachers/self'],
+        ['label' => 'Nachrichten', 'url' => '/messages'],
     ],
     'schueler' => [
         ['label' => 'Dashboard', 'url' => '/dashboard'],
         ['label' => 'Krankmeldung', 'url' => '/absences/students/self'],
         ['label' => 'Meine Fehlzeiten', 'url' => '/absences/students/mine'],
+        ['label' => 'Nachrichten', 'url' => '/messages'],
     ],
 ];

@@ -21,8 +21,21 @@
             $navConfig = require __DIR__ . '/../../../config/navigation.php';
             $nav = $navConfig[$role] ?? [];
             ?>
+            <?php
+            $unreadMessages = 0;
+            if ($role && isset($_SESSION['user_id'])) {
+                $unreadMessages = \OpenClassbook\Models\Message::countUnread($_SESSION['user_id']);
+            }
+            ?>
             <?php foreach ($nav as $item): ?>
-                <li role="none"><a href="<?= $item['url'] ?>" role="menuitem"><?= htmlspecialchars($item['label'], ENT_QUOTES, 'UTF-8') ?></a></li>
+                <li role="none">
+                    <a href="<?= $item['url'] ?>" role="menuitem">
+                        <?= htmlspecialchars($item['label'], ENT_QUOTES, 'UTF-8') ?>
+                        <?php if ($item['url'] === '/messages' && $unreadMessages > 0): ?>
+                            <span class="unread-badge"><?= $unreadMessages ?></span>
+                        <?php endif; ?>
+                    </a>
+                </li>
             <?php endforeach; ?>
             <li class="navbar-user" role="none">
                 <span aria-label="Angemeldet als"><?= htmlspecialchars($_SESSION['user']['username'] ?? '', ENT_QUOTES, 'UTF-8') ?></span>

@@ -270,6 +270,72 @@ foreach ($absentTeachers as $abbr) {
 echo "  $teacherAbsCount Lehrer-Fehlzeiten angelegt.\n";
 
 // ==========================================
+// 9. Nachrichten / Konversationen
+// ==========================================
+echo "Nachrichten werden angelegt...\n";
+
+$convStmt = $pdo->prepare(
+    'INSERT INTO conversations (user_one_id, user_two_id, last_message_at) VALUES (?, ?, ?)'
+);
+$msgStmt = $pdo->prepare(
+    'INSERT INTO messages (conversation_id, sender_id, body, read_at, created_at) VALUES (?, ?, ?, ?, ?)'
+);
+
+$msgCount = 0;
+
+// Konversation 1: Admin <-> Lehrer Mueller
+$uOne = min($userIds['admin'], $userIds['m.mueller']);
+$uTwo = max($userIds['admin'], $userIds['m.mueller']);
+$convStmt->execute([$uOne, $uTwo, date('Y-m-d H:i:s', strtotime('-1 hour'))]);
+$convId1 = (int) $pdo->lastInsertId();
+
+$conv1Messages = [
+    [$userIds['admin'], 'Hallo Frau Mueller, koennten Sie bitte den Klassenbucheintrag fuer Freitag nachtragen?', '-3 hours', date('Y-m-d H:i:s', strtotime('-2 hours'))],
+    [$userIds['m.mueller'], 'Natuerlich, ich kuemmere mich gleich darum.', '-2 hours', date('Y-m-d H:i:s', strtotime('-1 hour'))],
+    [$userIds['admin'], 'Vielen Dank!', '-1 hour', null],
+];
+foreach ($conv1Messages as $msg) {
+    $msgStmt->execute([$convId1, $msg[0], $msg[1], $msg[3], date('Y-m-d H:i:s', strtotime($msg[2]))]);
+    $msgCount++;
+}
+
+// Konversation 2: Lehrer Fischer <-> Sekretariat
+$uOne = min($userIds['a.fischer'], $userIds['s.meyer']);
+$uTwo = max($userIds['a.fischer'], $userIds['s.meyer']);
+$convStmt->execute([$uOne, $uTwo, date('Y-m-d H:i:s', strtotime('-30 minutes'))]);
+$convId2 = (int) $pdo->lastInsertId();
+
+$conv2Messages = [
+    [$userIds['a.fischer'], 'Gibt es Neuigkeiten zum Elternabend naechste Woche?', '-2 hours', date('Y-m-d H:i:s', strtotime('-1 hour'))],
+    [$userIds['s.meyer'], 'Ja, der Termin steht: Mittwoch, 18:00 Uhr in der Aula.', '-1 hour', date('Y-m-d H:i:s', strtotime('-45 minutes'))],
+    [$userIds['a.fischer'], 'Perfekt, danke fuer die Info!', '-45 minutes', date('Y-m-d H:i:s', strtotime('-30 minutes'))],
+    [$userIds['s.meyer'], 'Gerne! Ich schicke noch eine Einladung an alle Eltern.', '-30 minutes', null],
+];
+foreach ($conv2Messages as $msg) {
+    $msgStmt->execute([$convId2, $msg[0], $msg[1], $msg[3], date('Y-m-d H:i:s', strtotime($msg[2]))]);
+    $msgCount++;
+}
+
+// Konversation 3: Schueler (m.braun) <-> Lehrer Mueller (ungelesene Nachricht)
+$firstStudentUserId = $studentUserIds['m.braun'];
+$uOne = min($firstStudentUserId, $userIds['m.mueller']);
+$uTwo = max($firstStudentUserId, $userIds['m.mueller']);
+$convStmt->execute([$uOne, $uTwo, date('Y-m-d H:i:s', strtotime('-20 minutes'))]);
+$convId3 = (int) $pdo->lastInsertId();
+
+$conv3Messages = [
+    [$firstStudentUserId, 'Frau Mueller, ich habe eine Frage zur Hausaufgabe in Mathe.', '-1 hour', date('Y-m-d H:i:s', strtotime('-40 minutes'))],
+    [$userIds['m.mueller'], 'Natuerlich Max, worum geht es?', '-40 minutes', date('Y-m-d H:i:s', strtotime('-30 minutes'))],
+    [$firstStudentUserId, 'Bei Aufgabe 3 verstehe ich nicht, wie man die Brueche kuerzt.', '-20 minutes', null],
+];
+foreach ($conv3Messages as $msg) {
+    $msgStmt->execute([$convId3, $msg[0], $msg[1], $msg[3], date('Y-m-d H:i:s', strtotime($msg[2]))]);
+    $msgCount++;
+}
+
+echo "  $msgCount Nachrichten in 3 Konversationen angelegt.\n";
+
+// ==========================================
 // Zusammenfassung
 // ==========================================
 echo "\n=== Seed abgeschlossen! ===\n\n";
@@ -282,6 +348,7 @@ echo "  - " . count($studentIds) . " Schueler\n";
 echo "  - $entryCount Klassenbucheintraege\n";
 echo "  - $absCount Schueler-Fehlzeiten\n";
 echo "  - $teacherAbsCount Lehrer-Fehlzeiten\n";
+echo "  - $msgCount Nachrichten\n";
 echo "\nLogin-Daten:\n";
 echo "  Admin:        admin / Admin2026!x\n";
 echo "  Schulleitung: k.schmidt / Leitung2026!\n";
