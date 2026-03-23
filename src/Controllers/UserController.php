@@ -5,6 +5,9 @@ namespace OpenClassbook\Controllers;
 use OpenClassbook\App;
 use OpenClassbook\View;
 use OpenClassbook\Models\User;
+use OpenClassbook\Models\Teacher;
+use OpenClassbook\Models\Student;
+use OpenClassbook\Models\SchoolClass;
 use OpenClassbook\Middleware\CsrfMiddleware;
 use OpenClassbook\Services\AuthService;
 
@@ -34,6 +37,7 @@ class UserController
         View::render('users/create', [
             'title' => 'Neuer Benutzer',
             'roles' => ['admin', 'schulleitung', 'sekretariat', 'lehrer', 'schueler'],
+            'classes' => SchoolClass::findAll(),
         ]);
     }
 
@@ -48,13 +52,65 @@ class UserController
 
         // Validierung
         $errors = $this->validateUser($data);
+
+        // Zusaetzliche Validierung fuer Lehrer
+        if ($data['role'] === 'lehrer') {
+            if (empty(trim($_POST['firstname'] ?? ''))) {
+                $errors[] = 'Vorname ist fuer Lehrer erforderlich.';
+            }
+            if (empty(trim($_POST['lastname'] ?? ''))) {
+                $errors[] = 'Nachname ist fuer Lehrer erforderlich.';
+            }
+            $abbreviation = trim($_POST['abbreviation'] ?? '');
+            if (empty($abbreviation)) {
+                $errors[] = 'Kuerzel ist fuer Lehrer erforderlich.';
+            } elseif (Teacher::abbreviationExists($abbreviation)) {
+                $errors[] = 'Dieses Kuerzel ist bereits vergeben.';
+            }
+        }
+
+        // Zusaetzliche Validierung fuer Schueler
+        if ($data['role'] === 'schueler') {
+            if (empty(trim($_POST['firstname'] ?? ''))) {
+                $errors[] = 'Vorname ist fuer Schueler erforderlich.';
+            }
+            if (empty(trim($_POST['lastname'] ?? ''))) {
+                $errors[] = 'Nachname ist fuer Schueler erforderlich.';
+            }
+            if (empty($_POST['class_id'] ?? '')) {
+                $errors[] = 'Klasse ist fuer Schueler erforderlich.';
+            }
+        }
+
         if (!empty($errors)) {
             App::setFlash('error', implode(' ', $errors));
             App::redirect('/users/create');
             return;
         }
 
-        User::create($data);
+        $userId = User::create($data);
+
+        // Lehrer-Profil anlegen
+        if ($data['role'] === 'lehrer') {
+            Teacher::create([
+                'user_id' => $userId,
+                'firstname' => trim($_POST['firstname']),
+                'lastname' => trim($_POST['lastname']),
+                'abbreviation' => trim($_POST['abbreviation']),
+                'subjects' => trim($_POST['subjects'] ?? '') ?: null,
+            ]);
+        }
+
+        // Schueler-Profil anlegen
+        if ($data['role'] === 'schueler') {
+            Student::create([
+                'user_id' => $userId,
+                'firstname' => trim($_POST['firstname']),
+                'lastname' => trim($_POST['lastname']),
+                'class_id' => (int) $_POST['class_id'],
+            ]);
+        }
+
         App::setFlash('success', 'Benutzer erfolgreich angelegt.');
         App::redirect('/users');
     }
@@ -68,11 +124,21 @@ class UserController
             return;
         }
 
+        // Profildaten laden (Lehrer oder Schueler)
+        $profile = null;
+        if ($user['role'] === 'lehrer') {
+            $profile = Teacher::findByUserId($user['id']);
+        } elseif ($user['role'] === 'schueler') {
+            $profile = Student::findByUserId($user['id']);
+        }
+
         CsrfMiddleware::generateToken();
         View::render('users/edit', [
             'title' => 'Benutzer bearbeiten',
             'user' => $user,
+            'profile' => $profile,
             'roles' => ['admin', 'schulleitung', 'sekretariat', 'lehrer', 'schueler'],
+            'classes' => SchoolClass::findAll(),
         ]);
     }
 
@@ -92,21 +158,89 @@ class UserController
             'role' => $_POST['role'] ?? $user['role'],
         ];
 
+        $errors = [];
+
         // Username-Duplikat pruefen
         if ($data['username'] !== $user['username'] && User::usernameExists($data['username'], $userId)) {
-            App::setFlash('error', 'Dieser Benutzername ist bereits vergeben.');
-            App::redirect('/users/' . $userId . '/edit');
-            return;
+            $errors[] = 'Dieser Benutzername ist bereits vergeben.';
         }
 
         // E-Mail-Pflicht fuer Lehrer
         if ($data['role'] === 'lehrer' && empty($data['email'])) {
-            App::setFlash('error', 'Fuer Lehrer-Accounts ist eine E-Mail-Adresse erforderlich.');
+            $errors[] = 'Fuer Lehrer-Accounts ist eine E-Mail-Adresse erforderlich.';
+        }
+
+        // Validierung Lehrer-Profil
+        if ($data['role'] === 'lehrer') {
+            if (empty(trim($_POST['firstname'] ?? ''))) {
+                $errors[] = 'Vorname ist fuer Lehrer erforderlich.';
+            }
+            if (empty(trim($_POST['lastname'] ?? ''))) {
+                $errors[] = 'Nachname ist fuer Lehrer erforderlich.';
+            }
+            $abbreviation = trim($_POST['abbreviation'] ?? '');
+            $existingTeacher = Teacher::findByUserId($userId);
+            if (empty($abbreviation)) {
+                $errors[] = 'Kuerzel ist fuer Lehrer erforderlich.';
+            } elseif (Teacher::abbreviationExists($abbreviation, $existingTeacher['id'] ?? null)) {
+                $errors[] = 'Dieses Kuerzel ist bereits vergeben.';
+            }
+        }
+
+        // Validierung Schueler-Profil
+        if ($data['role'] === 'schueler') {
+            if (empty(trim($_POST['firstname'] ?? ''))) {
+                $errors[] = 'Vorname ist fuer Schueler erforderlich.';
+            }
+            if (empty(trim($_POST['lastname'] ?? ''))) {
+                $errors[] = 'Nachname ist fuer Schueler erforderlich.';
+            }
+            if (empty($_POST['class_id'] ?? '')) {
+                $errors[] = 'Klasse ist fuer Schueler erforderlich.';
+            }
+        }
+
+        if (!empty($errors)) {
+            App::setFlash('error', implode(' ', $errors));
             App::redirect('/users/' . $userId . '/edit');
             return;
         }
 
         User::update($userId, $data);
+
+        // Lehrer-Profil erstellen oder aktualisieren
+        if ($data['role'] === 'lehrer') {
+            $teacherData = [
+                'user_id' => $userId,
+                'firstname' => trim($_POST['firstname']),
+                'lastname' => trim($_POST['lastname']),
+                'abbreviation' => trim($_POST['abbreviation']),
+                'subjects' => trim($_POST['subjects'] ?? '') ?: null,
+            ];
+            $existingTeacher = Teacher::findByUserId($userId);
+            if ($existingTeacher) {
+                Teacher::update($existingTeacher['id'], $teacherData);
+            } else {
+                Teacher::create($teacherData);
+            }
+        }
+
+        // Schueler-Profil erstellen oder aktualisieren
+        if ($data['role'] === 'schueler') {
+            $studentData = [
+                'user_id' => $userId,
+                'firstname' => trim($_POST['firstname']),
+                'lastname' => trim($_POST['lastname']),
+                'class_id' => (int) $_POST['class_id'],
+            ];
+            $existingStudent = Student::findByUserId($userId);
+            if ($existingStudent) {
+                Student::update($existingStudent['id'], $studentData);
+            } else {
+                Student::create($studentData);
+            }
+        }
+
         App::setFlash('success', 'Benutzer erfolgreich aktualisiert.');
         App::redirect('/users');
     }
