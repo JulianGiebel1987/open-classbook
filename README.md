@@ -8,6 +8,9 @@ Open-Classbook ist eine Open-Source-Loesung fuer digitale Klassenbuchfuehrung, F
 
 - **Digitales Klassenbuch** - Tageseintraege mit Thema, Stunde und Notizen; Filter nach Datum und Lehrer; CSV- und PDF-Export
 - **Fehlzeiten-Management** - Schueler- und Lehrer-Fehlzeiten erfassen, entschuldigt/unentschuldigt/offen verwalten
+- **Listen** - Flexible, tabellarische Listen (Anwesenheit, Noten, etc.) mit Inline-Bearbeitung, 6 Feldtypen (Text, Checkbox, Zahl, Datum, Auswahl, Bewertung), Freigabe an einzelne Nutzer oder global
+- **Nachrichten** - Internes Nachrichtensystem mit Konversationen, Mehrfachempfaenger und Lesebestaetigung
+- **Dateiverwaltung** - Ordnerstruktur mit Upload/Download, Dateityp-Validierung und Groessenbegrenzung
 - **Benutzerverwaltung** - Rollenbasierte Zugriffskontrolle (Admin, Schulleitung, Sekretariat, Lehrer)
 - **Klassenverwaltung** - Klassen mit Klassenlehrern und Fachlehrern organisieren
 - **Excel-Import** - Lehrer- und Schuelerdaten per Excel-Datei importieren
@@ -92,9 +95,9 @@ open-classbook/
 │   ├── css/             # Stylesheets
 │   └── js/              # JavaScript
 ├── src/
-│   ├── Controllers/     # Request-Handler (8 Controller)
-│   ├── Models/          # Datenbank-Modelle (7 Models)
-│   ├── Views/           # PHP-Templates (9 Bereiche)
+│   ├── Controllers/     # Request-Handler (11 Controller)
+│   ├── Models/          # Datenbank-Modelle (15 Models)
+│   ├── Views/           # PHP-Templates (13 Bereiche)
 │   ├── Middleware/       # Auth, CSRF, RBAC, Security Headers, Rate Limiting
 │   └── Services/        # Business-Logik (Import, Auth, Logger)
 ├── config/              # Konfiguration
