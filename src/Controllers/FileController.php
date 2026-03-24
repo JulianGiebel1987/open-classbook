@@ -216,15 +216,22 @@ class FileController
             return;
         }
 
-        Folder::create([
-            'name' => $name,
-            'parent_id' => $parentId,
-            'owner_id' => $isShared ? null : $userId,
-            'is_shared' => $isShared,
-            'created_by' => $userId,
-        ]);
-
-        $this->flashAndRedirect('success', 'Ordner erstellt.', $parentId, $isShared);
+        try {
+            Folder::create([
+                'name' => $name,
+                'parent_id' => $parentId,
+                'owner_id' => $isShared ? null : $userId,
+                'is_shared' => $isShared,
+                'created_by' => $userId,
+            ]);
+            $this->flashAndRedirect('success', 'Ordner erstellt.', $parentId, $isShared);
+        } catch (\PDOException $e) {
+            if ($e->getCode() == 23000) {
+                $this->flashAndRedirect('error', 'Ein Ordner mit diesem Namen existiert bereits.', $parentId, $isShared);
+            } else {
+                $this->flashAndRedirect('error', 'Fehler beim Erstellen des Ordners.', $parentId, $isShared);
+            }
+        }
     }
 
     /**
