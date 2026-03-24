@@ -1,192 +1,213 @@
-# Implementierungsplan: Nachrichten / Chat-System
+# Implementierungsplan: Dateiverwaltung
 
-## Übersicht
+## Uebersicht
 
-Nachrichten-System, das es allen Benutzern ermöglicht, mit anderen Nutzern 1:1 zu chatten. Die Konversationshistorie bleibt erhalten und ist jederzeit einsehbar. Das Feature folgt den bestehenden MVC-Patterns der Anwendung.
+Dateibereich fuer Lehrer, Sekretariat, Schulleitung und Admin. Schueler haben **keinen** Zugriff. Jeder berechtigte Nutzer hat einen **privaten Bereich** und Zugang zu einem **gemeinschaftlichen Bereich**. Unterordner koennen erstellt werden. Max. 15 MB pro Datei, max. 100 MB Speicher pro Nutzer.
 
 ---
 
-## Schritt 1: Datenbank-Migration erstellen
+## Schritt 1: Datenbank-Migration
 
-**Datei:** `database/migrations/013_create_messages.sql`
+**Datei:** `database/migrations/014_create_files.sql`
 
-Zwei Tabellen:
-
-### `conversations` — Konversation zwischen zwei Nutzern
+### `folders` — Ordnerstruktur
 | Spalte | Typ | Beschreibung |
 |--------|-----|-------------|
 | id | INT AUTO_INCREMENT PK | |
-| user_one_id | INT NOT NULL FK → users.id | Nutzer mit kleinerer ID |
-| user_two_id | INT NOT NULL FK → users.id | Nutzer mit größerer ID |
-| last_message_at | DATETIME | Zeitpunkt der letzten Nachricht |
-| created_at | DATETIME DEFAULT NOW() | |
+| name | VARCHAR(255) NOT NULL | Ordnername |
+| parent_id | INT NULL FK → folders.id | Uebergeordneter Ordner (NULL = Root) |
+| owner_id | INT NULL FK → users.id | Besitzer (NULL = gemeinschaftlich) |
+| is_shared | TINYINT(1) DEFAULT 0 | Gemeinschaftlicher Ordner? |
+| created_by | INT NOT NULL FK → users.id | Ersteller |
+| created_at | TIMESTAMP DEFAULT NOW() | |
 
-- UNIQUE KEY auf `(user_one_id, user_two_id)` — eine Konversation pro Paar
-- Konvention: `user_one_id < user_two_id` für Eindeutigkeit
+- INDEX auf `(parent_id)`, `(owner_id)`, `(is_shared)`
+- UNIQUE KEY auf `(name, parent_id, owner_id)` — keine doppelten Ordnernamen auf gleicher Ebene
 
-### `messages` — Einzelne Nachrichten
+### `files` — Hochgeladene Dateien
 | Spalte | Typ | Beschreibung |
 |--------|-----|-------------|
 | id | INT AUTO_INCREMENT PK | |
-| conversation_id | INT NOT NULL FK → conversations.id | |
-| sender_id | INT NOT NULL FK → users.id | |
-| body | TEXT NOT NULL | Nachrichtentext |
-| read_at | DATETIME NULL | Gelesen-Zeitstempel |
-| created_at | DATETIME DEFAULT NOW() | |
+| folder_id | INT NULL FK → folders.id | Ordner (NULL = Root-Ebene) |
+| owner_id | INT NOT NULL FK → users.id | Besitzer/Hochlader |
+| is_shared | TINYINT(1) DEFAULT 0 | Im gemeinschaftlichen Bereich? |
+| original_name | VARCHAR(255) NOT NULL | Originaler Dateiname |
+| stored_name | VARCHAR(255) NOT NULL | Gespeicherter Dateiname (unique) |
+| mime_type | VARCHAR(100) NOT NULL | MIME-Typ |
+| file_size | INT NOT NULL | Groesse in Bytes |
+| created_at | TIMESTAMP DEFAULT NOW() | |
 
-- INDEX auf `(conversation_id, created_at)` für schnelles Laden der Chat-Historie
-- INDEX auf `(sender_id)` und `(read_at)` für Ungelesen-Zähler
-
----
-
-## Schritt 2: Model-Klassen
-
-### `src/Models/Conversation.php`
-Statische Methoden:
-- `findOrCreate(int $userA, int $userB): array` — Konversation finden oder anlegen (sortiert IDs automatisch)
-- `findByUserId(int $userId): array` — Alle Konversationen eines Nutzers, sortiert nach `last_message_at DESC`, mit Name des Gegenübers und letzter Nachricht (Preview)
-- `findById(int $id): ?array` — Einzelne Konversation laden
-- `hasAccess(int $conversationId, int $userId): bool` — Prüfen ob Nutzer Teilnehmer ist
-- `updateLastMessageAt(int $conversationId): void`
-
-### `src/Models/Message.php`
-Statische Methoden:
-- `create(int $conversationId, int $senderId, string $body): int` — Nachricht speichern
-- `findByConversation(int $conversationId, int $limit = 50, int $offset = 0): array` — Nachrichten einer Konversation (chronologisch)
-- `markAsRead(int $conversationId, int $userId): void` — Alle ungelesenen Nachrichten in einer Konversation als gelesen markieren (wo sender_id ≠ userId)
-- `countUnread(int $userId): int` — Gesamtzahl ungelesener Nachrichten für Badge in Navigation
+- INDEX auf `(folder_id)`, `(owner_id)`, `(is_shared)`
 
 ---
 
-## Schritt 3: Controller
+## Schritt 2: Storage-Verzeichnis
 
-### `src/Controllers/MessageController.php`
+**Verzeichnis:** `storage/files/`
+
+Dateien werden mit einem eindeutigen Dateinamen (`uniqid` + Original-Extension) gespeichert. Keine Unterordner im Dateisystem — die Ordnerstruktur existiert nur in der Datenbank.
+
+```
+storage/files/
+├── .gitkeep
+├── 66a1b2c3d4e5f_bericht.pdf
+├── 66a1b2c3d4e60_foto.jpg
+└── ...
+```
+
+---
+
+## Schritt 3: Model-Klassen
+
+### `src/Models/Folder.php`
+- `findById(int $id): ?array`
+- `findByParent(?int $parentId, int $ownerId, bool $shared): array` — Ordner in einem Verzeichnis
+- `create(array $data): int` — Neuen Ordner anlegen
+- `delete(int $id): void` — Ordner und Inhalt loeschen (rekursiv)
+- `getPath(int $id): array` — Breadcrumb-Pfad (rekursiv nach oben)
+- `hasAccess(int $folderId, int $userId): bool` — Darf der Nutzer auf diesen Ordner zugreifen?
+
+### `src/Models/FileEntry.php`
+- `findById(int $id): ?array`
+- `findByFolder(?int $folderId, int $ownerId, bool $shared): array` — Dateien in einem Ordner
+- `create(array $data): int` — Datei-Metadaten speichern
+- `delete(int $id): void` — Datei-Eintrag + physische Datei loeschen
+- `getTotalSizeByUser(int $userId): int` — Gesamtspeicher eines Nutzers (fuer Quota-Pruefung)
+- `hasAccess(int $fileId, int $userId): bool` — Zugriffspruefung (eigene oder shared)
+
+---
+
+## Schritt 4: Controller
+
+### `src/Controllers/FileController.php`
 
 | Methode | Route | Beschreibung |
 |---------|-------|-------------|
-| `inbox()` | GET `/messages` | Konversationsliste (Inbox) |
-| `show(string $id)` | GET `/messages/{id}` | Chat-Ansicht einer Konversation |
-| `send(string $id)` | POST `/messages/{id}` | Nachricht senden |
-| `newConversation()` | GET `/messages/new` | Neuen Chat starten (Nutzerauswahl) |
-| `createConversation()` | POST `/messages/new` | Konversation anlegen und erste Nachricht senden |
-| `loadMore(string $id)` | GET `/messages/{id}/older?offset=N` | Ältere Nachrichten nachladen (JSON) |
+| `index()` | GET `/files` | Uebersicht: "Meine Dateien" + "Gemeinschaftlich" |
+| `browse(string $folderId)` | GET `/files/folder/{folderId}` | Ordnerinhalt anzeigen |
+| `privateBrowse()` | GET `/files/private` | Root des privaten Bereichs |
+| `sharedBrowse()` | GET `/files/shared` | Root des gemeinschaftlichen Bereichs |
+| `upload()` | POST `/files/upload` | Datei hochladen |
+| `download(string $id)` | GET `/files/{id}/download` | Datei herunterladen |
+| `createFolder()` | POST `/files/folder` | Unterordner erstellen |
+| `deleteFile(string $id)` | POST `/files/{id}/delete` | Datei loeschen |
+| `deleteFolder(string $id)` | POST `/files/folder/{id}/delete` | Ordner loeschen |
 
 **Sicherheit in jeder Methode:**
-- AuthMiddleware (eingeloggt)
+- AuthMiddleware + Rollenpruefung (kein `schueler`)
 - CsrfMiddleware bei POST-Requests
-- `Conversation::hasAccess()` Prüfung bei show/send/loadMore
-- Eingabe-Sanitisierung des Nachrichtentexts
+- Zugriffspruefung: Private Dateien nur fuer Besitzer, gemeinschaftliche fuer alle Berechtigten
+- Dateigroesse: Max. 15 MB pro Datei (serverseitige Pruefung)
+- Speicher-Quota: Max. 100 MB pro Nutzer (vor Upload pruefen)
+- Dateiname-Sanitisierung (kein Path Traversal)
+- MIME-Typ-Validierung
 
 ---
 
-## Schritt 4: Views
+## Schritt 5: Views
 
-### `src/Views/messages/inbox.php` — Konversationsliste
-- Liste aller Konversationen mit: Name des Gegenübers, letzte Nachricht (gekürzt), Zeitstempel
-- Ungelesene Konversationen visuell hervorgehoben (fett)
-- Button "Neue Nachricht" → `/messages/new`
-- Leerer Zustand: "Noch keine Nachrichten"
+### `src/Views/files/index.php` — Uebersichtsseite
+- Zwei Kacheln: "Meine Dateien" und "Gemeinschaftliche Dateien"
+- Speicherverbrauch-Anzeige (z.B. "42 MB / 100 MB")
 
-### `src/Views/messages/show.php` — Chat-Ansicht
-- Header mit Name des Chat-Partners
-- Nachrichtenverlauf: eigene Nachrichten rechts, fremde links (Chat-Bubbles)
-- Zeitstempel je Nachricht
-- Eingabefeld + Senden-Button am unteren Rand
-- "Ältere Nachrichten laden"-Button oben (AJAX oder Link mit offset)
-- Automatisches Scrollen zum neusten Eintrag
-
-### `src/Views/messages/new.php` — Neuen Chat starten
-- Dropdown/Suchfeld zur Nutzerauswahl (alle aktiven Nutzer außer sich selbst)
-- Textarea für erste Nachricht
-- Absenden erstellt Konversation + leitet zum Chat weiter
+### `src/Views/files/browse.php` — Ordneransicht
+- Breadcrumb-Navigation (Ordnerpfad)
+- Ordner-Liste (mit Ordner-Icon, anklickbar)
+- Datei-Liste (Tabelle: Name, Groesse, Hochgeladen am, Aktionen)
+- "Datei hochladen"-Button mit Formular (Datei-Input, max 15 MB Hinweis)
+- "Neuer Ordner"-Button mit Formular (Ordnername eingeben)
+- "Loeschen"-Aktionen fuer Dateien und Ordner (mit Bestaetigungsdialog)
+- Leerer Zustand: "Dieser Ordner ist leer"
 
 ---
 
-## Schritt 5: Routen registrieren
+## Schritt 6: Routen
 
 **Datei:** `config/routes.php`
 
 ```php
-// Nachrichten
-$router->get('/messages', [MessageController::class, 'inbox'], [AuthMiddleware::class]);
-$router->get('/messages/new', [MessageController::class, 'newConversation'], [AuthMiddleware::class]);
-$router->post('/messages/new', [MessageController::class, 'createConversation'], [AuthMiddleware::class, CsrfMiddleware::class]);
-$router->get('/messages/{id}', [MessageController::class, 'show'], [AuthMiddleware::class]);
-$router->post('/messages/{id}', [MessageController::class, 'send'], [AuthMiddleware::class, CsrfMiddleware::class]);
-$router->get('/messages/{id}/older', [MessageController::class, 'loadMore'], [AuthMiddleware::class]);
+// Dateiverwaltung
+$router->get('/files', [FileController::class, 'index'], [AuthMiddleware::class]);
+$router->get('/files/private', [FileController::class, 'privateBrowse'], [AuthMiddleware::class]);
+$router->get('/files/shared', [FileController::class, 'sharedBrowse'], [AuthMiddleware::class]);
+$router->get('/files/folder/{folderId}', [FileController::class, 'browse'], [AuthMiddleware::class]);
+$router->post('/files/upload', [FileController::class, 'upload'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/files/folder', [FileController::class, 'createFolder'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->get('/files/{id}/download', [FileController::class, 'download'], [AuthMiddleware::class]);
+$router->post('/files/{id}/delete', [FileController::class, 'deleteFile'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/files/folder/{id}/delete', [FileController::class, 'deleteFolder'], [AuthMiddleware::class, CsrfMiddleware::class]);
 ```
 
-Wichtig: `/messages/new` muss **vor** `/messages/{id}` stehen.
+Reihenfolge: Statische Routen (`/files/private`, `/files/shared`, `/files/upload`, `/files/folder`) vor dynamischen (`/files/{id}/...`, `/files/folder/{folderId}`).
 
 ---
 
-## Schritt 6: Navigation erweitern
+## Schritt 7: Navigation
 
 **Datei:** `config/navigation.php`
 
-Für **alle Rollen** den Menüpunkt hinzufügen:
+"Dateien"-Link nur fuer admin, schulleitung, sekretariat, lehrer:
 ```php
-['label' => 'Nachrichten', 'url' => '/messages'],
+['label' => 'Dateien', 'url' => '/files'],
 ```
 
-Ungelesen-Badge im Layout anzeigen: `Message::countUnread($_SESSION['user_id'])` im Navigation-Rendering.
+**Nicht** fuer `schueler`.
 
 ---
 
-## Schritt 7: CSS-Styling
+## Schritt 8: CSS-Styling
 
-**Datei:** `public/css/style.css` (ergänzen)
+**Datei:** `public/css/style.css` (ergaenzen)
 
-- `.conversation-list` — Inbox-Einträge mit Hover, Ungelesen-Hervorhebung
-- `.chat-container` — Scrollbarer Nachrichtenbereich mit fester Höhe
-- `.chat-bubble`, `.chat-bubble--mine`, `.chat-bubble--theirs` — Sprechblasen links/rechts
-- `.chat-input` — Eingabebereich am unteren Rand (sticky)
-- `.unread-badge` — Rote Badge-Zahl in der Navigation
-- Responsive: Auf Mobile volle Breite, Bubbles angepasst
-
----
-
-## Schritt 8: JavaScript
-
-**Datei:** `public/js/app.js` (ergänzen)
-
-- Auto-Scroll zum letzten Eintrag beim Laden der Chat-Ansicht
-- "Ältere laden"-Button: AJAX-Request an `/messages/{id}/older?offset=N`, Nachrichten oben einfügen
-- Optional: Textarea mit Enter = Senden, Shift+Enter = Zeilenumbruch
-- Optional: Polling alle 10 Sekunden für neue Nachrichten (einfache Lösung ohne WebSocket)
+- `.file-overview` — Kacheln fuer Privat/Gemeinschaftlich
+- `.folder-item` — Ordner-Eintrag mit Icon
+- `.file-table` — Datei-Tabelle
+- `.storage-bar` — Speicherverbrauch-Balken (Fortschrittsanzeige)
+- `.upload-form` — Upload-Bereich mit Drag-and-Drop-Styling
+- Responsive: Mobile-optimierte Datei-Liste
 
 ---
 
-## Schritt 9: Seed-Daten erweitern
+## Schritt 9: JavaScript
 
-**Datei:** `database/seed.php` (ergänzen)
+**Datei:** `public/js/app.js` (ergaenzen)
 
-- 2-3 Demo-Konversationen zwischen bestehenden Nutzern erstellen
-- Je Konversation 3-5 Beispielnachrichten
-- Mix aus gelesenen und ungelesenen Nachrichten
+- Upload-Formular: Dateigroesse clientseitig pruefen (max 15 MB) vor dem Absenden
+- Ordner-Erstellung: Inline-Formular ein-/ausblenden
+- Dateigroesse-Formatierung (KB, MB)
 
 ---
 
-## Schritt 10: Tests
+## Schritt 10: Seed-Daten
 
-**Datei:** `tests/MessageTest.php`
+**Datei:** `database/seed.php` (ergaenzen)
 
-- Conversation::findOrCreate erstellt nur eine Konversation pro Paar
-- Message::create speichert korrekt
-- Message::countUnread zählt nur ungelesene fremde Nachrichten
-- Conversation::hasAccess verhindert Zugriff durch Dritte
-- Controller: Unautorisierter Zugriff auf fremde Konversationen wird abgelehnt
+- Root-Ordner fuer gemeinschaftlichen Bereich anlegen
+- 2-3 Beispielordner (z.B. "Lehrplaene", "Formulare")
+- Keine echten Dateien im Seed (nur Ordnerstruktur)
+
+---
+
+## Schritt 11: Sicherheitsmassnahmen
+
+- **Rollenpruefung:** Schueler werden in jeder Controller-Methode mit Redirect abgewiesen
+- **Dateigroesse:** `$_FILES['file']['size'] <= 15 * 1024 * 1024` (serverseitig)
+- **Quota:** `FileEntry::getTotalSizeByUser()` vor Upload pruefen
+- **Dateiname:** `basename()` + `preg_replace` zum Entfernen unsicherer Zeichen
+- **MIME-Typ:** `finfo_file()` zur echten MIME-Typ-Erkennung (nicht nur Extension)
+- **Path Traversal:** Nur gespeicherte Dateinamen verwenden, nie User-Input als Pfad
+- **Zugriffskontrolle:** Private Dateien/Ordner nur fuer den Besitzer, gemeinschaftliche fuer alle berechtigten Rollen
 
 ---
 
 ## Implementierungsreihenfolge
 
 1. Migration (Tabellen)
-2. Models (Conversation + Message)
-3. Controller (MessageController)
-4. Views (inbox, show, new)
-5. Routen + Navigation
-6. CSS-Styling
-7. JavaScript (Scroll, Nachladen)
-8. Seed-Daten
-9. Tests
+2. Storage-Verzeichnis anlegen
+3. Models (Folder + FileEntry)
+4. Controller (FileController)
+5. Views (index, browse)
+6. Routen + Navigation
+7. CSS-Styling
+8. JavaScript
+9. Seed-Daten

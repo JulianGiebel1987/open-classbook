@@ -2,9 +2,11 @@
 /storage/logs/*
 /storage/uploads/*
 /storage/cache/*
+/storage/files/*
 !storage/logs/.gitkeep
 !storage/uploads/.gitkeep
 !storage/cache/.gitkeep
+!storage/files/.gitkeep
 .env
 *.log
 .DS_Store
