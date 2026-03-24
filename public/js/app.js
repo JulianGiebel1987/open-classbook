@@ -48,6 +48,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // === Dateiverwaltung ===
     initFileManager();
+
+    // === Listen ===
+    initLists();
 });
 
 /**
@@ -357,4 +360,137 @@ function initFileManager() {
             }
         });
     }
+}
+
+/**
+ * Listen: Inline-Speicherung, Formular-Toggles, Spaltentyp-Logik
+ */
+function initLists() {
+    // Toggle-Buttons fuer Inline-Formulare
+    var togglePairs = [
+        ['toggleAddColumn', 'addColumnForm'],
+        ['toggleAddRow', 'addRowForm'],
+        ['toggleEditMeta', 'editMetaForm'],
+    ];
+    togglePairs.forEach(function (pair) {
+        var btn = document.getElementById(pair[0]);
+        var form = document.getElementById(pair[1]);
+        if (btn && form) {
+            btn.addEventListener('click', function () {
+                var visible = form.style.display !== 'none';
+                form.style.display = visible ? 'none' : 'block';
+                if (!visible) {
+                    var firstInput = form.querySelector('input[type="text"], select');
+                    if (firstInput) firstInput.focus();
+                }
+            });
+        }
+    });
+
+    // Select-Optionen ein-/ausblenden bei Spaltentyp-Auswahl
+    document.querySelectorAll('.list-col-type-select').forEach(function (select) {
+        var optionsInput = select.parentElement.querySelector('.list-col-options');
+        if (!optionsInput) return;
+        function toggleOptions() {
+            optionsInput.style.display = select.value === 'select' ? '' : 'none';
+            optionsInput.required = select.value === 'select';
+        }
+        toggleOptions();
+        select.addEventListener('change', toggleOptions);
+    });
+
+    // Spalte hinzufuegen im Erstellformular
+    var addColBtn = document.getElementById('addColumnBtn');
+    var colContainer = document.getElementById('columnContainer');
+    if (addColBtn && colContainer) {
+        addColBtn.addEventListener('click', function () {
+            var row = document.createElement('div');
+            row.className = 'list-column-row';
+            row.innerHTML =
+                '<input type="text" name="col_title[]" class="form-control" placeholder="Spaltenname" required>' +
+                '<select name="col_type[]" class="form-control list-col-type-select">' +
+                    '<option value="text">Freitext</option>' +
+                    '<option value="checkbox">Checkbox</option>' +
+                    '<option value="number">Zahl</option>' +
+                    '<option value="date">Datum</option>' +
+                    '<option value="select">Auswahl</option>' +
+                    '<option value="rating">Bewertung (1-6)</option>' +
+                '</select>' +
+                '<input type="text" name="col_options[]" class="form-control list-col-options" placeholder="Optionen (kommasepariert)" style="display:none">' +
+                '<button type="button" class="btn-icon btn-icon-danger list-remove-col">&times;</button>';
+            colContainer.appendChild(row);
+
+            // Event-Listener fuer neuen Type-Select
+            var newSelect = row.querySelector('.list-col-type-select');
+            var newOptions = row.querySelector('.list-col-options');
+            newSelect.addEventListener('change', function () {
+                newOptions.style.display = newSelect.value === 'select' ? '' : 'none';
+                newOptions.required = newSelect.value === 'select';
+            });
+
+            // Entfernen-Button
+            row.querySelector('.list-remove-col').addEventListener('click', function () {
+                row.remove();
+            });
+        });
+    }
+
+    // Inline-Zellen-Speicherung (AJAX)
+    var listTable = document.querySelector('.list-table');
+    if (!listTable) return;
+
+    var listId = listTable.dataset.listId;
+    var canEdit = listTable.dataset.canEdit === '1';
+    if (!canEdit) return;
+
+    listTable.querySelectorAll('.list-cell').forEach(function (cell) {
+        var input = cell.querySelector('.list-cell-input');
+        if (!input) return;
+
+        var rowId = cell.dataset.rowId;
+        var columnId = cell.dataset.columnId;
+
+        function saveValue() {
+            var value;
+            if (input.type === 'checkbox') {
+                value = input.checked ? '1' : '';
+            } else {
+                value = input.value;
+            }
+
+            cell.classList.add('list-cell--saving');
+            cell.classList.remove('list-cell--saved');
+
+            fetch('/lists/cell', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    list_id: parseInt(listId, 10),
+                    row_id: parseInt(rowId, 10),
+                    column_id: parseInt(columnId, 10),
+                    value: value
+                })
+            })
+            .then(function (res) { return res.json(); })
+            .then(function () {
+                cell.classList.remove('list-cell--saving');
+                cell.classList.add('list-cell--saved');
+                setTimeout(function () {
+                    cell.classList.remove('list-cell--saved');
+                }, 1000);
+            })
+            .catch(function () {
+                cell.classList.remove('list-cell--saving');
+                alert('Fehler beim Speichern.');
+            });
+        }
+
+        if (input.type === 'checkbox') {
+            input.addEventListener('change', saveValue);
+        } else if (input.tagName === 'SELECT') {
+            input.addEventListener('change', saveValue);
+        } else {
+            input.addEventListener('blur', saveValue);
+        }
+    });
 }
