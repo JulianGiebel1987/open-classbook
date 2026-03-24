@@ -45,7 +45,15 @@ try {
         $sql = file_get_contents($file);
 
         try {
-            $db->exec($sql);
+            // Multi-Statement SQL aufteilen — PDO::exec() kann bei
+            // ATTR_EMULATE_PREPARES=false nur ein Statement zuverlaessig ausfuehren
+            $statements = array_filter(
+                array_map('trim', explode(';', $sql)),
+                fn($s) => $s !== ''
+            );
+            foreach ($statements as $statement) {
+                $db->exec($statement);
+            }
 
             $stmt = $db->prepare('INSERT INTO migrations (filename) VALUES (?)');
             $stmt->execute([$filename]);
