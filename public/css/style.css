@@ -1391,3 +1391,145 @@ a.widget:hover {
         margin-left: 0;
     }
 }
+
+/* ===== Dateiverwaltung ===== */
+
+.file-overview {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--spacing-lg);
+}
+
+.file-overview-card {
+    text-decoration: none;
+    color: var(--color-text);
+    padding: var(--spacing-xl);
+    text-align: center;
+    transition: transform var(--transition), box-shadow var(--transition);
+}
+
+.file-overview-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.file-overview-icon {
+    font-size: 3rem;
+    margin-bottom: var(--spacing-sm);
+}
+
+.file-overview-card h2 {
+    margin-bottom: var(--spacing-xs);
+    font-size: var(--font-size-lg);
+}
+
+/* Storage-Anzeige */
+.storage-info {
+    padding: var(--spacing-md) var(--spacing-lg);
+}
+
+.storage-bar-wrapper {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.storage-bar {
+    flex: 1;
+    height: 8px;
+    background: var(--color-border-light);
+    border-radius: 9999px;
+    overflow: hidden;
+}
+
+.storage-bar-fill {
+    height: 100%;
+    background: var(--color-primary);
+    border-radius: 9999px;
+    transition: width var(--transition-slow);
+}
+
+.storage-text {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-light);
+    white-space: nowrap;
+}
+
+/* Datei-Aktionen */
+.file-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: var(--spacing-md);
+}
+
+.file-upload-form {
+    flex: 1;
+    min-width: 250px;
+}
+
+.file-upload-row {
+    display: flex;
+    gap: var(--spacing-sm);
+    align-items: center;
+}
+
+.file-upload-row input[type="file"] {
+    flex: 1;
+}
+
+.file-upload-hint {
+    font-size: var(--font-size-xs);
+    margin-top: var(--spacing-xs);
+}
+
+.folder-create-form {
+    margin-top: var(--spacing-sm);
+}
+
+.folder-create-row {
+    display: flex;
+    gap: var(--spacing-sm);
+    align-items: center;
+}
+
+.folder-create-row input[type="text"] {
+    flex: 1;
+    min-width: 150px;
+}
+
+/* Ordner/Datei-Icons */
+.folder-link {
+    text-decoration: none;
+    color: var(--color-text);
+    font-weight: 500;
+}
+
+.folder-link:hover {
+    color: var(--color-primary);
+}
+
+.folder-icon,
+.file-icon {
+    margin-right: var(--spacing-xs);
+}
+
+@media (max-width: 768px) {
+    .file-overview {
+        grid-template-columns: 1fr;
+    }
+
+    .file-actions {
+        flex-direction: column;
+    }
+
+    .file-upload-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .folder-create-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}

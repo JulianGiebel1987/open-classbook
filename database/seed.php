@@ -336,6 +336,42 @@ foreach ($conv3Messages as $msg) {
 echo "  $msgCount Nachrichten in 3 Konversationen angelegt.\n";
 
 // ==========================================
+// 10. Ordnerstruktur fuer Dateiverwaltung
+// ==========================================
+echo "Ordnerstruktur wird angelegt...\n";
+
+$folderStmt = $pdo->prepare(
+    'INSERT INTO folders (name, parent_id, owner_id, is_shared, created_by) VALUES (?, ?, ?, ?, ?)'
+);
+
+$folderCount = 0;
+
+// Gemeinschaftliche Ordner
+$folderStmt->execute(['Lehrplaene', null, null, 1, $userIds['admin']]);
+$folderCount++;
+$lehrplaeneId = (int) $pdo->lastInsertId();
+
+$folderStmt->execute(['Formulare', null, null, 1, $userIds['s.meyer']]);
+$folderCount++;
+
+$folderStmt->execute(['Vorlagen', null, null, 1, $userIds['s.meyer']]);
+$folderCount++;
+
+// Unterordner
+$folderStmt->execute(['Mathematik', $lehrplaeneId, null, 1, $userIds['m.mueller']]);
+$folderCount++;
+$folderStmt->execute(['Deutsch', $lehrplaeneId, null, 1, $userIds['a.fischer']]);
+$folderCount++;
+
+// Private Ordner fuer Lehrer Mueller
+$folderStmt->execute(['Klausuren', null, $userIds['m.mueller'], 0, $userIds['m.mueller']]);
+$folderCount++;
+$folderStmt->execute(['Unterrichtsmaterial', null, $userIds['m.mueller'], 0, $userIds['m.mueller']]);
+$folderCount++;
+
+echo "  $folderCount Ordner angelegt.\n";
+
+// ==========================================
 // Zusammenfassung
 // ==========================================
 echo "\n=== Seed abgeschlossen! ===\n\n";
@@ -349,6 +385,7 @@ echo "  - $entryCount Klassenbucheintraege\n";
 echo "  - $absCount Schueler-Fehlzeiten\n";
 echo "  - $teacherAbsCount Lehrer-Fehlzeiten\n";
 echo "  - $msgCount Nachrichten\n";
+echo "  - $folderCount Ordner (Dateiverwaltung)\n";
 echo "\nLogin-Daten:\n";
 echo "  Admin:        admin / Admin2026!x\n";
 echo "  Schulleitung: k.schmidt / Leitung2026!\n";

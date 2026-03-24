@@ -8,6 +8,7 @@ use OpenClassbook\Controllers\ClassController;
 use OpenClassbook\Controllers\ClassbookController;
 use OpenClassbook\Controllers\AbsenceStudentController;
 use OpenClassbook\Controllers\AbsenceTeacherController;
+use OpenClassbook\Controllers\FileController;
 use OpenClassbook\Controllers\ImportController;
 use OpenClassbook\Controllers\MessageController;
 use OpenClassbook\Middleware\AuthMiddleware;
@@ -87,6 +88,17 @@ $router->post('/messages/new', [MessageController::class, 'createConversation'],
 $router->get('/messages/{id}', [MessageController::class, 'show'], [AuthMiddleware::class]);
 $router->post('/messages/{id}', [MessageController::class, 'send'], [AuthMiddleware::class, CsrfMiddleware::class]);
 $router->get('/messages/{id}/older', [MessageController::class, 'loadMore'], [AuthMiddleware::class]);
+
+// === Dateiverwaltung ===
+$router->get('/files', [FileController::class, 'index'], [AuthMiddleware::class]);
+$router->get('/files/private', [FileController::class, 'privateBrowse'], [AuthMiddleware::class]);
+$router->get('/files/shared', [FileController::class, 'sharedBrowse'], [AuthMiddleware::class]);
+$router->post('/files/upload', [FileController::class, 'upload'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/files/folder', [FileController::class, 'createFolder'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->get('/files/folder/{folderId}', [FileController::class, 'browse'], [AuthMiddleware::class]);
+$router->post('/files/folder/{id}/delete', [FileController::class, 'deleteFolder'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->get('/files/{id}/download', [FileController::class, 'download'], [AuthMiddleware::class]);
+$router->post('/files/{id}/delete', [FileController::class, 'deleteFile'], [AuthMiddleware::class, CsrfMiddleware::class]);
 
 // === Import ===
 $router->get('/import', [ImportController::class, 'index'], [AuthMiddleware::class]);

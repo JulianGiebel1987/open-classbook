@@ -45,6 +45,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // === Chat-Funktionen ===
     initChat();
+
+    // === Dateiverwaltung ===
+    initFileManager();
 });
 
 /**
@@ -324,4 +327,34 @@ function initChat() {
             })
             .catch(function () { /* ignore */ });
     }, 15000);
+}
+
+/**
+ * Dateiverwaltung: Upload-Validierung, Ordner-Toggle
+ */
+function initFileManager() {
+    // Ordner-Erstellung ein-/ausblenden
+    var toggleBtn = document.getElementById('toggleFolderForm');
+    var folderForm = document.getElementById('folderForm');
+    if (toggleBtn && folderForm) {
+        toggleBtn.addEventListener('click', function () {
+            var visible = folderForm.style.display !== 'none';
+            folderForm.style.display = visible ? 'none' : 'block';
+            if (!visible) {
+                folderForm.querySelector('input[name="name"]').focus();
+            }
+        });
+    }
+
+    // Dateigroesse clientseitig pruefen
+    var fileInput = document.getElementById('fileInput');
+    if (fileInput) {
+        var maxSize = parseInt(fileInput.dataset.maxSize, 10) || (15 * 1024 * 1024);
+        fileInput.addEventListener('change', function () {
+            if (fileInput.files.length > 0 && fileInput.files[0].size > maxSize) {
+                alert('Die Datei ist zu gross. Maximale Groesse: 15 MB.');
+                fileInput.value = '';
+            }
+        });
+    }
 }
