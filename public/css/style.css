@@ -1226,11 +1226,7 @@ a.widget:hover {
 .conversation-list {
     display: flex;
     flex-direction: column;
-    gap: 1px;
-    background: var(--color-border-light);
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-    box-shadow: var(--shadow);
+    gap: var(--spacing-sm);
 }
 
 .conversation-item {
@@ -1241,19 +1237,49 @@ a.widget:hover {
     background: var(--color-surface);
     text-decoration: none;
     color: var(--color-text);
-    transition: background var(--transition);
+    transition: background var(--transition), transform var(--transition), box-shadow var(--transition), border-left-color var(--transition);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    border-left: 3px solid transparent;
+    gap: var(--spacing-md);
 }
 
 .conversation-item:hover {
     background: var(--color-primary-50);
+    transform: translateX(3px);
+    box-shadow: var(--shadow-md);
+    border-left-color: var(--color-primary);
 }
 
 .conversation-unread {
     background: var(--color-primary-light);
+    border-left-color: var(--color-primary);
 }
 
 .conversation-unread:hover {
-    background: #b2f5ea;
+    background: #ccfbf1;
+}
+
+/* Avatar mit Initiale */
+.conversation-avatar {
+    flex-shrink: 0;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: var(--font-size-base);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    user-select: none;
+}
+
+.conversation-unread .conversation-avatar {
+    background: var(--color-primary-dark);
 }
 
 .conversation-info {
@@ -1263,7 +1289,7 @@ a.widget:hover {
 
 .conversation-partner {
     font-weight: 600;
-    margin-bottom: var(--spacing-xs);
+    margin-bottom: 0.2rem;
     display: flex;
     align-items: center;
     gap: var(--spacing-sm);
@@ -1278,11 +1304,18 @@ a.widget:hover {
     text-overflow: ellipsis;
 }
 
+.conversation-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: var(--spacing-xs);
+    flex-shrink: 0;
+}
+
 .conversation-time {
     font-size: var(--font-size-xs);
     color: var(--color-text-lighter);
     white-space: nowrap;
-    margin-left: var(--spacing-md);
 }
 
 /* Chat-Ansicht */
@@ -1309,6 +1342,13 @@ a.widget:hover {
     border-radius: var(--radius-lg);
     word-wrap: break-word;
     overflow-wrap: break-word;
+    box-shadow: var(--shadow);
+}
+
+/* Mehr Abstand wenn Absender wechselt */
+.chat-bubble--mine + .chat-bubble--theirs,
+.chat-bubble--theirs + .chat-bubble--mine {
+    margin-top: var(--spacing-lg);
 }
 
 .chat-bubble--mine {
@@ -1323,6 +1363,7 @@ a.widget:hover {
     background: var(--color-border-light);
     color: var(--color-text);
     border-bottom-left-radius: var(--spacing-xs);
+    border: 1px solid var(--color-border);
 }
 
 .chat-bubble-body {
@@ -1382,13 +1423,13 @@ a.widget:hover {
     }
 
     .conversation-item {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: var(--spacing-xs);
+        flex-wrap: wrap;
     }
 
-    .conversation-time {
-        margin-left: 0;
+    .conversation-meta {
+        flex-direction: row;
+        align-items: center;
+        width: 100%;
     }
 }
 
@@ -1396,36 +1437,67 @@ a.widget:hover {
 
 .file-overview {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: var(--spacing-lg);
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--spacing-xl);
 }
 
 .file-overview-card {
     text-decoration: none;
     color: var(--color-text);
     padding: var(--spacing-xl);
-    text-align: center;
-    transition: transform var(--transition), box-shadow var(--transition);
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-lg);
+    border-left: 4px solid var(--color-primary);
+    transition: transform var(--transition), box-shadow var(--transition), border-left-color var(--transition);
 }
 
 .file-overview-card:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+    border-left-color: var(--color-primary-dark);
+    color: var(--color-text);
 }
 
 .file-overview-icon {
-    font-size: 3rem;
-    margin-bottom: var(--spacing-sm);
+    flex-shrink: 0;
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    background: var(--color-primary-light);
+    border-radius: var(--radius-lg);
+}
+
+.file-overview-card-body {
+    flex: 1;
+    min-width: 0;
 }
 
 .file-overview-card h2 {
     margin-bottom: var(--spacing-xs);
     font-size: var(--font-size-lg);
+    color: var(--color-text);
+}
+
+.file-overview-card-link {
+    display: inline-block;
+    margin-top: var(--spacing-sm);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--color-primary);
+}
+
+.file-overview-card:hover .file-overview-card-link {
+    color: var(--color-primary-dark);
 }
 
 /* Storage-Anzeige */
 .storage-info {
     padding: var(--spacing-md) var(--spacing-lg);
+    border-left: 4px solid var(--color-primary);
 }
 
 .storage-bar-wrapper {
@@ -1436,7 +1508,7 @@ a.widget:hover {
 
 .storage-bar {
     flex: 1;
-    height: 8px;
+    height: 10px;
     background: var(--color-border-light);
     border-radius: 9999px;
     overflow: hidden;
@@ -1444,13 +1516,14 @@ a.widget:hover {
 
 .storage-bar-fill {
     height: 100%;
-    background: var(--color-primary);
+    background: linear-gradient(90deg, var(--color-primary), var(--color-primary-dark));
     border-radius: 9999px;
     transition: width var(--transition-slow);
 }
 
 .storage-text {
     font-size: var(--font-size-sm);
+    font-weight: 500;
     color: var(--color-text-light);
     white-space: nowrap;
 }

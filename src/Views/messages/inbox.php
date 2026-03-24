@@ -21,13 +21,13 @@ $roleLabels = [
 <div class="conversation-list">
     <?php foreach ($conversations as $c): ?>
         <a href="/messages/<?= (int) $c['id'] ?>" class="conversation-item<?= ((int) $c['unread_count'] > 0) ? ' conversation-unread' : '' ?>">
+            <div class="conversation-avatar" aria-hidden="true">
+                <?= htmlspecialchars(mb_strtoupper(mb_substr($c['partner_username'], 0, 1, 'UTF-8'), 'UTF-8'), ENT_QUOTES, 'UTF-8') ?>
+            </div>
             <div class="conversation-info">
                 <div class="conversation-partner">
                     <?= htmlspecialchars($c['partner_username'], ENT_QUOTES, 'UTF-8') ?>
                     <span class="badge badge-muted"><?= $roleLabels[$c['partner_role']] ?? $c['partner_role'] ?></span>
-                    <?php if ((int) $c['unread_count'] > 0): ?>
-                        <span class="unread-badge"><?= (int) $c['unread_count'] ?></span>
-                    <?php endif; ?>
                 </div>
                 <div class="conversation-preview">
                     <?php if ($c['last_message_body']): ?>
@@ -40,10 +40,15 @@ $roleLabels = [
                     <?php endif; ?>
                 </div>
             </div>
-            <div class="conversation-time">
-                <?php if ($c['last_message_created_at']): ?>
-                    <?= date('d.m.Y H:i', strtotime($c['last_message_created_at'])) ?>
+            <div class="conversation-meta">
+                <?php if ((int) $c['unread_count'] > 0): ?>
+                    <span class="unread-badge"><?= (int) $c['unread_count'] ?></span>
                 <?php endif; ?>
+                <div class="conversation-time">
+                    <?php if ($c['last_message_created_at']): ?>
+                        <?= date('d.m.Y H:i', strtotime($c['last_message_created_at'])) ?>
+                    <?php endif; ?>
+                </div>
             </div>
         </a>
     <?php endforeach; ?>
