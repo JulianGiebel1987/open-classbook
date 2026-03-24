@@ -1533,3 +1533,176 @@ a.widget:hover {
         align-items: stretch;
     }
 }
+
+/* ===== Listen ===== */
+
+.list-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.list-table th,
+.list-table td {
+    min-width: 100px;
+    vertical-align: middle;
+}
+
+.list-row-label-header {
+    min-width: 160px !important;
+    width: 160px;
+}
+
+.list-row-label {
+    font-weight: 600;
+    white-space: nowrap;
+    background: var(--color-primary-50);
+    position: sticky;
+    left: 0;
+    z-index: 1;
+}
+
+.list-col-type {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-lighter);
+    font-weight: 400;
+}
+
+.list-action-col {
+    width: 40px;
+    min-width: 40px !important;
+}
+
+/* Zellen-Inputs */
+.list-cell-input {
+    width: 100%;
+    border: 1px solid transparent;
+    background: transparent;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: var(--font-size-sm);
+    font-family: var(--font-family);
+    border-radius: var(--radius);
+    transition: border-color var(--transition), background var(--transition);
+}
+
+.list-cell-input:focus {
+    border-color: var(--color-primary);
+    background: var(--color-surface);
+    outline: none;
+    box-shadow: var(--focus-ring);
+}
+
+.list-cell-input:hover {
+    border-color: var(--color-border);
+}
+
+.list-cell-input[type="checkbox"] {
+    width: auto;
+    cursor: pointer;
+}
+
+.list-cell--saving {
+    background: var(--color-accent-light);
+    transition: background 0.2s;
+}
+
+.list-cell--saved {
+    background: var(--color-success-light);
+    transition: background 0.3s;
+}
+
+/* Inline-Icon-Button zum Loeschen */
+.btn-icon {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: var(--font-size-lg);
+    line-height: 1;
+    padding: 2px 6px;
+    border-radius: var(--radius);
+    transition: background var(--transition);
+}
+
+.btn-icon-danger {
+    color: var(--color-danger);
+}
+
+.btn-icon-danger:hover {
+    background: var(--color-danger-light);
+}
+
+/* Aktionsleiste */
+.list-actions-bar {
+    display: flex;
+    gap: var(--spacing-sm);
+    flex-wrap: wrap;
+    margin-bottom: var(--spacing-md);
+}
+
+.list-inline-form {
+    margin-bottom: var(--spacing-md);
+}
+
+.list-inline-form-row {
+    display: flex;
+    gap: var(--spacing-sm);
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.list-inline-form-row .form-control {
+    flex: 1;
+    min-width: 120px;
+}
+
+.list-inline-form-row .btn {
+    flex-shrink: 0;
+}
+
+/* Erstellformular: Spaltenzeilen */
+.list-column-row {
+    display: flex;
+    gap: var(--spacing-sm);
+    align-items: center;
+    margin-bottom: var(--spacing-sm);
+    flex-wrap: wrap;
+}
+
+.list-column-row .form-control {
+    flex: 1;
+    min-width: 120px;
+}
+
+.form-row {
+    display: flex;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
+}
+
+.form-row .form-group {
+    flex: 1;
+    min-width: 200px;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.mt-05 {
+    margin-top: var(--spacing-sm);
+}
+
+@media (max-width: 768px) {
+    .list-inline-form-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .list-column-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}

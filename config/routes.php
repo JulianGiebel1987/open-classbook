@@ -10,6 +10,7 @@ use OpenClassbook\Controllers\AbsenceStudentController;
 use OpenClassbook\Controllers\AbsenceTeacherController;
 use OpenClassbook\Controllers\FileController;
 use OpenClassbook\Controllers\ImportController;
+use OpenClassbook\Controllers\ListController;
 use OpenClassbook\Controllers\MessageController;
 use OpenClassbook\Middleware\AuthMiddleware;
 use OpenClassbook\Middleware\CsrfMiddleware;
@@ -99,6 +100,22 @@ $router->get('/files/folder/{folderId}', [FileController::class, 'browse'], [Aut
 $router->post('/files/folder/{id}/delete', [FileController::class, 'deleteFolder'], [AuthMiddleware::class, CsrfMiddleware::class]);
 $router->get('/files/{id}/download', [FileController::class, 'download'], [AuthMiddleware::class]);
 $router->post('/files/{id}/delete', [FileController::class, 'deleteFile'], [AuthMiddleware::class, CsrfMiddleware::class]);
+
+// === Listen ===
+$router->get('/lists', [ListController::class, 'index'], [AuthMiddleware::class]);
+$router->get('/lists/create', [ListController::class, 'createForm'], [AuthMiddleware::class]);
+$router->post('/lists', [ListController::class, 'create'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/lists/cell', [ListController::class, 'saveCell'], [AuthMiddleware::class]);
+$router->post('/lists/column/{colId}/delete', [ListController::class, 'deleteColumn'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/lists/row/{rowId}/delete', [ListController::class, 'deleteRow'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->get('/lists/{id}', [ListController::class, 'show'], [AuthMiddleware::class]);
+$router->post('/lists/{id}', [ListController::class, 'update'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/lists/{id}/delete', [ListController::class, 'delete'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/lists/{id}/column', [ListController::class, 'addColumn'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/lists/{id}/row', [ListController::class, 'addRow'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->get('/lists/{id}/share', [ListController::class, 'shareForm'], [AuthMiddleware::class]);
+$router->post('/lists/{id}/share', [ListController::class, 'share'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/lists/{id}/unshare', [ListController::class, 'removeShare'], [AuthMiddleware::class, CsrfMiddleware::class]);
 
 // === Import ===
 $router->get('/import', [ImportController::class, 'index'], [AuthMiddleware::class]);

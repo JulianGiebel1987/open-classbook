@@ -12,6 +12,7 @@ return [
         ['label' => 'Fehlzeiten', 'url' => '/absences/students'],
         ['label' => 'Lehrer-Abwesenheit', 'url' => '/absences/teachers'],
         ['label' => 'Nachrichten', 'url' => '/messages'],
+        ['label' => 'Listen', 'url' => '/lists'],
         ['label' => 'Dateien', 'url' => '/files'],
         ['label' => 'Import', 'url' => '/import'],
     ],
@@ -23,6 +24,7 @@ return [
         ['label' => 'Fehlzeiten', 'url' => '/absences/students'],
         ['label' => 'Lehrer-Abwesenheit', 'url' => '/absences/teachers'],
         ['label' => 'Nachrichten', 'url' => '/messages'],
+        ['label' => 'Listen', 'url' => '/lists'],
         ['label' => 'Dateien', 'url' => '/files'],
     ],
     'sekretariat' => [
@@ -33,6 +35,7 @@ return [
         ['label' => 'Fehlzeiten', 'url' => '/absences/students'],
         ['label' => 'Lehrer-Abwesenheit', 'url' => '/absences/teachers'],
         ['label' => 'Nachrichten', 'url' => '/messages'],
+        ['label' => 'Listen', 'url' => '/lists'],
         ['label' => 'Dateien', 'url' => '/files'],
         ['label' => 'Import', 'url' => '/import'],
     ],
@@ -42,6 +45,7 @@ return [
         ['label' => 'Fehlzeiten', 'url' => '/absences/students'],
         ['label' => 'Krankmeldung', 'url' => '/absences/teachers/self'],
         ['label' => 'Nachrichten', 'url' => '/messages'],
+        ['label' => 'Listen', 'url' => '/lists'],
         ['label' => 'Dateien', 'url' => '/files'],
     ],
     'schueler' => [

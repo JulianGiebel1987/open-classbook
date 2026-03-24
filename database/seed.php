@@ -372,6 +372,91 @@ $folderCount++;
 echo "  $folderCount Ordner angelegt.\n";
 
 // ==========================================
+// 11. Listen
+// ==========================================
+echo "Listen werden angelegt...\n";
+
+$listCount = 0;
+
+// Liste 1: Globale Anwesenheitsliste fuer 5a
+$pdo->prepare('INSERT INTO lists (title, description, owner_id, visibility, class_id) VALUES (?, ?, ?, ?, ?)')->execute([
+    'Anwesenheit Klasse 5a', 'Taegliche Anwesenheitsliste', $userIds['m.mueller'], 'global', $classIds['5a']
+]);
+$anwListId = (int) $pdo->lastInsertId();
+$listCount++;
+
+// Spalten fuer Anwesenheitsliste
+$pdo->prepare('INSERT INTO list_columns (list_id, title, type, options, position) VALUES (?, ?, ?, ?, ?)')->execute([
+    $anwListId, 'Anwesend', 'checkbox', null, 0
+]);
+$anwCol1 = (int) $pdo->lastInsertId();
+$pdo->prepare('INSERT INTO list_columns (list_id, title, type, options, position) VALUES (?, ?, ?, ?, ?)')->execute([
+    $anwListId, 'Status', 'select', json_encode(['Anwesend', 'Abwesend', 'Entschuldigt', 'Verspaetet']), 1
+]);
+$anwCol2 = (int) $pdo->lastInsertId();
+$pdo->prepare('INSERT INTO list_columns (list_id, title, type, options, position) VALUES (?, ?, ?, ?, ?)')->execute([
+    $anwListId, 'Bemerkung', 'text', null, 2
+]);
+$anwCol3 = (int) $pdo->lastInsertId();
+
+// Zeilen aus Klasse 5a (Schueler)
+$students5a = $pdo->query("SELECT firstname, lastname FROM students WHERE class_id = {$classIds['5a']} ORDER BY lastname, firstname")->fetchAll(\PDO::FETCH_ASSOC);
+$anwRowIds = [];
+$pos = 0;
+foreach ($students5a as $s) {
+    $pdo->prepare('INSERT INTO list_rows (list_id, label, position) VALUES (?, ?, ?)')->execute([
+        $anwListId, $s['lastname'] . ', ' . $s['firstname'], $pos++
+    ]);
+    $anwRowIds[] = (int) $pdo->lastInsertId();
+}
+
+// Beispielwerte
+if (count($anwRowIds) >= 3) {
+    $pdo->prepare('INSERT INTO list_cells (list_id, row_id, column_id, value) VALUES (?, ?, ?, ?)')->execute([$anwListId, $anwRowIds[0], $anwCol1, '1']);
+    $pdo->prepare('INSERT INTO list_cells (list_id, row_id, column_id, value) VALUES (?, ?, ?, ?)')->execute([$anwListId, $anwRowIds[0], $anwCol2, 'Anwesend']);
+    $pdo->prepare('INSERT INTO list_cells (list_id, row_id, column_id, value) VALUES (?, ?, ?, ?)')->execute([$anwListId, $anwRowIds[1], $anwCol2, 'Entschuldigt']);
+    $pdo->prepare('INSERT INTO list_cells (list_id, row_id, column_id, value) VALUES (?, ?, ?, ?)')->execute([$anwListId, $anwRowIds[1], $anwCol3, 'Krank']);
+    $pdo->prepare('INSERT INTO list_cells (list_id, row_id, column_id, value) VALUES (?, ?, ?, ?)')->execute([$anwListId, $anwRowIds[2], $anwCol1, '1']);
+    $pdo->prepare('INSERT INTO list_cells (list_id, row_id, column_id, value) VALUES (?, ?, ?, ?)')->execute([$anwListId, $anwRowIds[2], $anwCol2, 'Anwesend']);
+}
+
+// Liste 2: Private Notenliste fuer Lehrer Mueller
+$pdo->prepare('INSERT INTO lists (title, description, owner_id, visibility, class_id) VALUES (?, ?, ?, ?, ?)')->execute([
+    'Noten Klasse 5a - Mathematik', 'Mathematik-Noten Schuljahr 2025/2026', $userIds['m.mueller'], 'private', $classIds['5a']
+]);
+$notenListId = (int) $pdo->lastInsertId();
+$listCount++;
+
+$pdo->prepare('INSERT INTO list_columns (list_id, title, type, options, position) VALUES (?, ?, ?, ?, ?)')->execute([
+    $notenListId, 'Test 1', 'rating', null, 0
+]);
+$nCol1 = (int) $pdo->lastInsertId();
+$pdo->prepare('INSERT INTO list_columns (list_id, title, type, options, position) VALUES (?, ?, ?, ?, ?)')->execute([
+    $notenListId, 'Test 2', 'rating', null, 1
+]);
+$pdo->prepare('INSERT INTO list_columns (list_id, title, type, options, position) VALUES (?, ?, ?, ?, ?)')->execute([
+    $notenListId, 'Muendlich', 'rating', null, 2
+]);
+
+$notenRowIds = [];
+$pos = 0;
+foreach ($students5a as $s) {
+    $pdo->prepare('INSERT INTO list_rows (list_id, label, position) VALUES (?, ?, ?)')->execute([
+        $notenListId, $s['lastname'] . ', ' . $s['firstname'], $pos++
+    ]);
+    $notenRowIds[] = (int) $pdo->lastInsertId();
+}
+
+// Einige Noten eintragen
+if (count($notenRowIds) >= 3) {
+    $pdo->prepare('INSERT INTO list_cells (list_id, row_id, column_id, value) VALUES (?, ?, ?, ?)')->execute([$notenListId, $notenRowIds[0], $nCol1, '2']);
+    $pdo->prepare('INSERT INTO list_cells (list_id, row_id, column_id, value) VALUES (?, ?, ?, ?)')->execute([$notenListId, $notenRowIds[1], $nCol1, '3']);
+    $pdo->prepare('INSERT INTO list_cells (list_id, row_id, column_id, value) VALUES (?, ?, ?, ?)')->execute([$notenListId, $notenRowIds[2], $nCol1, '1']);
+}
+
+echo "  $listCount Listen angelegt.\n";
+
+// ==========================================
 // Zusammenfassung
 // ==========================================
 echo "\n=== Seed abgeschlossen! ===\n\n";
@@ -386,6 +471,7 @@ echo "  - $absCount Schueler-Fehlzeiten\n";
 echo "  - $teacherAbsCount Lehrer-Fehlzeiten\n";
 echo "  - $msgCount Nachrichten\n";
 echo "  - $folderCount Ordner (Dateiverwaltung)\n";
+echo "  - $listCount Listen\n";
 echo "\nLogin-Daten:\n";
 echo "  Admin:        admin / Admin2026!x\n";
 echo "  Schulleitung: k.schmidt / Leitung2026!\n";
