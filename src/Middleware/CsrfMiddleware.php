@@ -18,6 +18,11 @@ class CsrfMiddleware
         if (empty($token) || !hash_equals($sessionToken, $token)) {
             App::setFlash('error', 'Ungueltige Anfrage. Bitte versuchen Sie es erneut.');
             $referer = $_SERVER['HTTP_REFERER'] ?? '/';
+            // Open-Redirect verhindern: nur relative Pfade oder gleiche Origin erlauben
+            $parsed = parse_url($referer);
+            if (!empty($parsed['host']) && $parsed['host'] !== ($_SERVER['HTTP_HOST'] ?? '')) {
+                $referer = '/';
+            }
             App::redirect($referer);
             return false;
         }

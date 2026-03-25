@@ -14,6 +14,23 @@ class FileController
     private const MAX_FILE_SIZE = 15 * 1024 * 1024; // 15 MB
     private const MAX_USER_STORAGE = 100 * 1024 * 1024; // 100 MB
 
+    private const ALLOWED_MIME_TYPES = [
+        // Bilder
+        'image/jpeg', 'image/png', 'image/gif', 'image/webp',
+        // Dokumente
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/vnd.ms-excel',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'application/vnd.ms-powerpoint',
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        // Text
+        'text/plain', 'text/csv',
+        // Archiv
+        'application/zip',
+    ];
+
     private function checkRole(): bool
     {
         if (!in_array(App::currentUserRole(), self::ALLOWED_ROLES)) {
@@ -124,15 +141,20 @@ class FileController
             return;
         }
 
-        // MIME-Typ pruefen
+        // MIME-Typ pruefen (gegen Whitelist)
         $finfo = new \finfo(FILEINFO_MIME_TYPE);
         $mimeType = $finfo->file($file['tmp_name']);
+
+        if (!in_array($mimeType, self::ALLOWED_MIME_TYPES, true)) {
+            $this->flashAndRedirect('error', 'Dieser Dateityp ist nicht erlaubt.', $folderId, $isShared);
+            return;
+        }
 
         // Dateiname sanitisieren
         $originalName = basename($file['name']);
         $originalName = preg_replace('/[^\w\.\-\(\) ]/', '_', $originalName);
         $extension = pathinfo($originalName, PATHINFO_EXTENSION);
-        $storedName = uniqid('file_') . ($extension ? '.' . strtolower($extension) : '');
+        $storedName = bin2hex(random_bytes(16)) . ($extension ? '.' . strtolower($extension) : '');
 
         $storagePath = FileEntry::getStoragePath($storedName);
         if (!move_uploaded_file($file['tmp_name'], $storagePath)) {

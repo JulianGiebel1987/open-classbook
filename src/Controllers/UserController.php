@@ -282,8 +282,28 @@ class UserController
         User::updatePassword($userId, $tempPassword);
         User::update($userId, ['must_change_password' => 1]);
 
-        App::setFlash('success', 'Passwort zurueckgesetzt. Temporaeres Passwort: ' . $tempPassword);
-        App::redirect('/users');
+        // Passwort einmalig in der Session speichern, nicht im Flash-Message (verhindert Browser-Verlauf-Exposition)
+        $_SESSION['reset_password_info'] = [
+            'username' => $user['username'],
+            'password' => $tempPassword,
+        ];
+        App::redirect('/users/reset-password-info');
+    }
+
+    public function resetPasswordInfo(): void
+    {
+        $info = $_SESSION['reset_password_info'] ?? null;
+        unset($_SESSION['reset_password_info']);
+
+        if (!$info) {
+            App::redirect('/users');
+            return;
+        }
+
+        View::render('users/reset-password-info', [
+            'title' => 'Passwort zurueckgesetzt',
+            'info' => $info,
+        ]);
     }
 
     private function validateUser(array $data, ?int $excludeId = null): array

@@ -33,6 +33,9 @@ class AuthService
         self::logAttempt($username, true);
         User::updateLastLogin($user['id']);
 
+        // Session-ID VOR dem Setzen der Daten regenerieren (Session-Fixation verhindern)
+        session_regenerate_id(true);
+
         // Session setzen
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['user'] = [
@@ -42,9 +45,6 @@ class AuthService
             'role' => $user['role'],
         ];
         $_SESSION['last_activity'] = time();
-
-        // Session-ID regenerieren fuer Sicherheit
-        session_regenerate_id(true);
 
         return [
             'success' => true,

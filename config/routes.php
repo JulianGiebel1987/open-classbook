@@ -40,6 +40,7 @@ $router->get('/users/{id}/edit', [UserController::class, 'editForm'], [AuthMiddl
 $router->post('/users/{id}', [UserController::class, 'update'], [AuthMiddleware::class, CsrfMiddleware::class]);
 $router->post('/users/{id}/toggle', [UserController::class, 'toggleActive'], [AuthMiddleware::class, CsrfMiddleware::class]);
 $router->post('/users/{id}/reset-password', [UserController::class, 'resetPassword'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->get('/users/reset-password-info', [UserController::class, 'resetPasswordInfo'], [AuthMiddleware::class]);
 
 // === Klassenverwaltung ===
 $router->get('/classes', [ClassController::class, 'index'], [AuthMiddleware::class]);

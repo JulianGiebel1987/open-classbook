@@ -1,3 +1,9 @@
+// CSRF-Token aus Meta-Tag lesen (fuer AJAX-Anfragen)
+function getCsrfToken() {
+    var meta = document.querySelector('meta[name="csrf-token"]');
+    return meta ? meta.getAttribute('content') : '';
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     // === Mobile Navigation Toggle ===
     var toggle = document.querySelector('.navbar-toggle');
@@ -468,7 +474,8 @@ function initLists() {
                     list_id: parseInt(listId, 10),
                     row_id: parseInt(rowId, 10),
                     column_id: parseInt(columnId, 10),
-                    value: value
+                    value: value,
+                    csrf_token: getCsrfToken()
                 })
             })
             .then(function (res) { return res.json(); })
