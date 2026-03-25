@@ -21,4 +21,10 @@
             <a href="/forgot-password">Passwort vergessen?</a>
         </div>
     </form>
+
+    <p class="text-muted text-center" style="margin-top: var(--spacing-lg); font-size: var(--font-size-xs);">
+        Mit der Anmeldung bestaetigen Sie, dass Sie die
+        <a href="/datenschutz" style="color: inherit; text-decoration: underline;">Datenschutzhinweise</a>
+        zur Kenntnis genommen haben. Login-Versuche werden zur Sicherheit pseudonymisiert protokolliert.
+    </p>
 </div>

@@ -107,7 +107,8 @@ class ListModel
             return true;
         }
         if ($list['visibility'] === 'global') {
-            return true;
+            // Globale Listen duerfen nur von privilegierten Rollen bearbeitet werden
+            return in_array($userRole, ['admin', 'schulleitung'], true);
         }
         if ($list['visibility'] === 'shared') {
             $share = Database::queryOne(

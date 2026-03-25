@@ -109,17 +109,113 @@ open-classbook/
 
 ## Sicherheit
 
-- SQL-Injection-Schutz durch PDO Prepared Statements
-- XSS-Schutz durch konsequentes HTML-Escaping
-- CSRF-Token in allen Formularen
-- Passwort-Hashing mit bcrypt
-- Brute-Force-Schutz (5 Versuche, 15 Min. Sperre)
-- Session-Timeout nach 60 Minuten
-- Session-Haertung (HttpOnly, Secure, SameSite, Strict Mode)
-- Sicherheits-Header (X-Content-Type-Options, X-Frame-Options, HSTS, Referrer-Policy, Permissions-Policy)
-- Content Security Policy (CSP)
-- Rate Limiting (datenbankbasiert, per IP)
-- Rollenbasierte Zugriffskontrolle auf jeder Route
+### Implementierte Schutzmaßnahmen
+
+| Bereich | Maßnahme |
+|---|---|
+| Datenbank | PDO Prepared Statements gegen SQL-Injection |
+| Ausgabe | Konsequentes `htmlspecialchars()` gegen XSS |
+| Formulare | CSRF-Token in allen Formularen + AJAX-Endpunkten |
+| Passwörter | bcrypt-Hashing via `password_hash()`, Mindestlänge 10 Zeichen mit Komplexitätsprüfung |
+| Brute-Force | Max. 5 Login-Versuche, danach 15 Minuten Sperre |
+| Sessions | Session-Regenerierung vor Login-Daten (Session-Fixation-Schutz), HttpOnly, Secure, SameSite=Strict, Timeout 60 Min. |
+| Datei-Upload | MIME-Typ-Whitelist (15 erlaubte Typen), kryptografische Dateinamen (`random_bytes`), Größenlimit 15 MB |
+| Zugriffskontrolle | Rollenbasiertes Berechtigungssystem (RBAC) auf jeder Route, globale Listen nur für Admin/Schulleitung bearbeitbar |
+| HTTP-Header | X-Content-Type-Options, X-Frame-Options, HSTS (bei HTTPS), Referrer-Policy, Permissions-Policy, CSP |
+| Rate Limiting | Datenbankbasiert per pseudonymisierter IP, 120 Req/Min |
+| Import | Temporäre Dateipfade per Regex validiert, keine Path-Traversal-Möglichkeit |
+| Redirects | HTTP-Referer-Validierung gegen Open-Redirect-Angriffe |
+| Passwort-Reset | Temporäres Passwort nur einmalig auf dedizierter Seite angezeigt, nie in Logs |
+
+### Sicherheitsrelevante Serveranforderungen
+
+```
+# HTTPS ist Pflicht – HTTP darf nicht für den Produktivbetrieb verwendet werden
+# Webroot muss auf public/ zeigen, nicht auf das Repository-Root
+# storage/, config/ und database/ müssen außerhalb des Webroots liegen
+# .htaccess (Apache) schützt sensitive Verzeichnisse automatisch
+```
+
+> **Hinweis für Administratoren:** Die Datei `config/config.php` enthält Datenbankpasswort und Secret Key. Diese Datei darf **niemals** öffentlich zugänglich sein. Vor dem Produktiveinsatz sollte ein externer Penetrationstest durchgeführt werden.
+
+---
+
+## Datenschutz (DSGVO)
+
+Open-Classbook verarbeitet personenbezogene Daten von Schülerinnen und Schülern sowie Lehrkräften. Der Schulträger ist datenschutzrechtlich **Verantwortlicher** im Sinne von Art. 4 Nr. 7 DSGVO.
+
+### Verarbeitete personenbezogene Daten
+
+| Kategorie | Daten | Betroffene | Rechtsgrundlage |
+|---|---|---|---|
+| Lehrerdaten | Name, Kürzel, Fächer, E-Mail | Lehrkräfte | Art. 6 Abs. 1 lit. b/c DSGVO |
+| Schülerdaten | Vor-/Nachname, Klasse, Schuljahr | Schüler/innen | Art. 6 Abs. 1 lit. c DSGVO (Schulpflicht) |
+| Fehlzeiten | Datum, Status (entschuldigt/unentschuldigt/offen), Grund* | Schüler/innen, Lehrkräfte | Art. 6 Abs. 1 lit. c DSGVO |
+| Klassenbucheinträge | Datum, Stunde, Thema, Lehrkraft, Notizen | Lehrkräfte (anonym) | Art. 6 Abs. 1 lit. c DSGVO |
+| Login-Protokoll | Benutzername, pseudonymisierte IP, Zeitstempel | Alle Nutzer | Art. 6 Abs. 1 lit. f DSGVO (Sicherheit) |
+| Audit-Log | Aktion, User-ID, pseudonymisierte IP | Alle Nutzer | Art. 5 Abs. 2 DSGVO (Rechenschaftspflicht) |
+| Nachrichten | Nachrichteninhalt, Zeitstempel, Lesebestätigung | Sender/Empfänger | Art. 6 Abs. 1 lit. b DSGVO |
+
+*\* Fehlzeitengründe können Gesundheitsinformationen enthalten (Art. 9 DSGVO, besondere Kategorie) und sind daher nur für Sekretariat und Admin sichtbar – nicht für Lehrkräfte.*
+
+### Technische Datenschutzmaßnahmen
+
+- **IP-Pseudonymisierung:** IP-Adressen werden in allen Logs pseudonymisiert gespeichert (letztes IPv4-Oktett = `xxx`, z.B. `192.168.1.xxx`). Keine personenscharfe IP-Speicherung.
+- **Datensparsamkeit:** Fehlzeitengründe (können Gesundheitsdaten enthalten) sind rollenbasiert geschützt – Lehrkräfte sehen nur den Entschuldigungsstatus.
+- **Keine Drittanbieter:** Keine externen CDNs, keine Analytics, keine Cloud-Dienste. Alle Daten verbleiben auf dem Server des Schulträgers.
+- **Exportauditierung:** Jeder PDF- und CSV-Export wird im Audit-Log festgehalten (wer hat wann welche Klasse exportiert).
+- **Browser-Schutz:** Seiten mit temporären Passwörtern werden mit `Cache-Control: no-store` ausgeliefert.
+- **On-Premises:** Keine Abhängigkeit von externen Diensten oder Cloud-Infrastruktur.
+
+### Automatische Löschroutinen (Retention-Policies)
+
+Die Datenbank enthält MariaDB-Events für automatische Datenlöschung (Migration `016_add_retention_policies.sql`):
+
+| Datenkategorie | Aufbewahrungsdauer | Löschung |
+|---|---|---|
+| Login-Versuche | 30 Tage | Automatisch (täglich) |
+| Audit-Log | 90 Tage | Automatisch (täglich) |
+| Rate-Limit-Einträge | 15 Minuten | Automatisch (alle 15 Min.) |
+| Abgelaufene Reset-Tokens | sofort nach Ablauf | Automatisch (stündlich) |
+
+> **Voraussetzung:** Der MariaDB Event-Scheduler muss aktiviert sein:
+> ```sql
+> SET GLOBAL event_scheduler = ON;
+> -- Dauerhaft in my.cnf: event_scheduler=ON
+> ```
+
+### Aufbewahrungsfristen (manuell durch Schulträger)
+
+Diese Fristen müssen vom Schulträger gemäß geltendem Schulrecht umgesetzt werden:
+
+| Datenkategorie | Empfohlene Aufbewahrung | Grundlage |
+|---|---|---|
+| Klassenbucheinträge | 2 Jahre nach Schuljahresende | Landesschulrecht |
+| Schüler-Fehlzeiten | 3 Jahre nach Schuljahresende | Landesschulrecht |
+| Lehrerdaten (nach Ausscheiden) | Auf Archivminimum reduzieren | Art. 5 Abs. 1 lit. e DSGVO |
+| Nachrichten | 2 Jahre | Art. 5 Abs. 1 lit. e DSGVO |
+
+### Betroffenenrechte (Art. 15–22 DSGVO)
+
+Betroffene können folgende Rechte beim Schulträger geltend machen:
+
+- **Auskunft (Art. 15):** Admin kann alle Daten einer Person über die Benutzerverwaltung einsehen.
+- **Berichtigung (Art. 16):** Über die jeweiligen Verwaltungsoberflächen möglich.
+- **Löschung (Art. 17):** Accounts können deaktiviert werden. Vollständige Datenlöschung muss der Schulträger manuell durchführen (ggf. Pseudonymisierung statt Löschung für archivpflichtige Daten).
+- **Datenportabilität (Art. 20):** CSV-Export im Klassenbuch-Bereich vorhanden.
+
+### Pflichten des Schulträgers vor Produktiveinsatz
+
+Folgende Maßnahmen liegen in der Verantwortung des Schulträgers und sind **nicht** Bestandteil der Software:
+
+- [ ] **Datenschutzerklärung** erstellen und unter `/datenschutz` bereitstellen (Art. 13/14 DSGVO)
+- [ ] **Verarbeitungsverzeichnis** nach Art. 30 DSGVO führen
+- [ ] **Datenschutz-Folgenabschätzung (DPIA)** nach Art. 35 DSGVO durchführen (Verarbeitung von Kinderdaten)
+- [ ] **Datenschutzbeauftragten** benennen (sofern gesetzlich vorgeschrieben)
+- [ ] **Auftragsverarbeitungsvertrag (AVV)** mit dem Serveranbieter schließen (sofern Hosting extern)
+- [ ] **Schulung der Nutzer** zu Datenschutz und sicherem Umgang mit der Software
+- [ ] **Aufbewahrungsfristen** für Klassenbuch und Fehlzeiten gemäß Landesschulrecht einhalten
+- [ ] **HTTPS** als einzigen Zugangsweg erzwingen
 
 ## Tests
 

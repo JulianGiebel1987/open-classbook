@@ -45,7 +45,7 @@ class ImportController
         $preview = ImportService::previewTeachers($tmpPath);
 
         // Datei temporaer speichern fuer den tatsaechlichen Import
-        $storedPath = __DIR__ . '/../../storage/uploads/' . uniqid('import_') . '.xlsx';
+        $storedPath = __DIR__ . '/../../storage/uploads/' . bin2hex(random_bytes(16)) . '.xlsx';
         move_uploaded_file($tmpPath, $storedPath);
 
         CsrfMiddleware::generateToken();
@@ -59,7 +59,15 @@ class ImportController
     public function confirmTeachers(): void
     {
         $storedFile = $_POST['stored_file'] ?? '';
-        $storedPath = __DIR__ . '/../../storage/uploads/' . basename($storedFile);
+
+        // Nur hex-generierte Dateinamen (32 Hex-Zeichen + .xlsx) akzeptieren
+        if (!preg_match('/^[0-9a-f]{32}\.xlsx$/', $storedFile)) {
+            App::setFlash('error', 'Ungueltige Import-Datei. Bitte erneut hochladen.');
+            App::redirect('/import');
+            return;
+        }
+
+        $storedPath = __DIR__ . '/../../storage/uploads/' . $storedFile;
 
         if (!file_exists($storedPath)) {
             App::setFlash('error', 'Import-Datei nicht gefunden. Bitte erneut hochladen.');
@@ -105,7 +113,7 @@ class ImportController
         $tmpPath = $file['tmp_name'];
         $preview = ImportService::previewStudents($tmpPath, $schoolYear);
 
-        $storedPath = __DIR__ . '/../../storage/uploads/' . uniqid('import_') . '.xlsx';
+        $storedPath = __DIR__ . '/../../storage/uploads/' . bin2hex(random_bytes(16)) . '.xlsx';
         move_uploaded_file($tmpPath, $storedPath);
 
         CsrfMiddleware::generateToken();
@@ -121,7 +129,15 @@ class ImportController
     {
         $storedFile = $_POST['stored_file'] ?? '';
         $schoolYear = $_POST['school_year'] ?? '';
-        $storedPath = __DIR__ . '/../../storage/uploads/' . basename($storedFile);
+
+        // Nur hex-generierte Dateinamen (32 Hex-Zeichen + .xlsx) akzeptieren
+        if (!preg_match('/^[0-9a-f]{32}\.xlsx$/', $storedFile)) {
+            App::setFlash('error', 'Ungueltige Import-Datei. Bitte erneut hochladen.');
+            App::redirect('/import');
+            return;
+        }
+
+        $storedPath = __DIR__ . '/../../storage/uploads/' . $storedFile;
 
         if (!file_exists($storedPath)) {
             App::setFlash('error', 'Import-Datei nicht gefunden. Bitte erneut hochladen.');
@@ -156,6 +172,10 @@ class ImportController
             App::redirect('/users');
             return;
         }
+
+        // Passwort-Seite nie cachen (Browser-Verlauf / Proxy-Schutz)
+        header('Cache-Control: no-store, no-cache, must-revalidate, private');
+        header('Pragma: no-cache');
 
         View::render('import/student-credentials', [
             'title' => 'Schueler-Zugangsdaten',

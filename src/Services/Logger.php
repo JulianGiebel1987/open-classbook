@@ -6,6 +6,26 @@ class Logger
 {
     private static string $logDir = __DIR__ . '/../../storage/logs/';
 
+    /**
+     * IP-Adresse pseudonymisieren (DSGVO Art. 5 Abs. 1 lit. e):
+     * Letztes Oktett bei IPv4 / letzte 2 Bloecke bei IPv6 entfernen.
+     */
+    private static function pseudonymizeIp(string $ip): string
+    {
+        if (str_contains($ip, ':')) {
+            // IPv6: nur erste 4 Bloecke behalten
+            $parts = explode(':', $ip);
+            return implode(':', array_slice($parts, 0, 4)) . ':xxxx:xxxx:xxxx:xxxx';
+        }
+        // IPv4: letztes Oktett durch X ersetzen
+        $parts = explode('.', $ip);
+        if (count($parts) === 4) {
+            $parts[3] = 'xxx';
+            return implode('.', $parts);
+        }
+        return 'unknown';
+    }
+
     public static function error(string $message, array $context = []): void
     {
         self::log('ERROR', $message, $context);
@@ -29,7 +49,7 @@ class Logger
             'entity_type' => $entityType,
             'entity_id' => $entityId,
             'details' => $details,
-            'ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown',
+            'ip' => self::pseudonymizeIp($_SERVER['REMOTE_ADDR'] ?? 'unknown'),
         ];
 
         self::log('AUDIT', $action, $context);

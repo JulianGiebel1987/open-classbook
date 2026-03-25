@@ -50,13 +50,13 @@
                     <th scope="col">Von</th>
                     <th scope="col">Bis</th>
                     <th scope="col">Status</th>
-                    <th scope="col">Grund</th>
+                    <?php if ($canViewReason ?? false): ?><th scope="col">Grund</th><?php endif; ?>
                     <th scope="col">Aktionen</th>
                 </tr>
             </thead>
             <tbody>
                 <?php if (empty($absences)): ?>
-                    <tr><td colspan="7" class="text-center">Keine Fehlzeiten gefunden.</td></tr>
+                    <tr><td colspan="<?= ($canViewReason ?? false) ? 7 : 6 ?>" class="text-center">Keine Fehlzeiten gefunden.</td></tr>
                 <?php endif; ?>
                 <?php foreach ($absences as $a): ?>
                 <tr>
@@ -73,7 +73,9 @@
                             <span class="badge badge-warning">Offen</span>
                         <?php endif; ?>
                     </td>
+                    <?php if ($canViewReason ?? false): ?>
                     <td><?= htmlspecialchars($a['reason'] ?? '-', ENT_QUOTES, 'UTF-8') ?></td>
+                    <?php endif; ?>
                     <td>
                         <div class="btn-group">
                             <a href="/absences/students/<?= $a['id'] ?>/edit" class="btn btn-sm btn-secondary">Bearbeiten</a>

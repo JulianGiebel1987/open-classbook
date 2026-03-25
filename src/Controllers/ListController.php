@@ -368,6 +368,15 @@ class ListController
             $input = $_POST;
         }
 
+        // CSRF-Pruefung fuer AJAX-Anfragen
+        $csrfToken = $input['csrf_token'] ?? ($_SERVER['HTTP_X_CSRF_TOKEN'] ?? '');
+        $sessionToken = $_SESSION['csrf_token'] ?? '';
+        if (empty($csrfToken) || !hash_equals($sessionToken, $csrfToken)) {
+            http_response_code(403);
+            echo json_encode(['error' => 'Ungueltige Anfrage']);
+            return;
+        }
+
         $listId = (int) ($input['list_id'] ?? 0);
         $rowId = (int) ($input['row_id'] ?? 0);
         $columnId = (int) ($input['column_id'] ?? 0);
