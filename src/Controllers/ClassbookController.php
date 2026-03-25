@@ -236,6 +236,15 @@ class ClassbookController
             $pdf->MultiCell(87, $rowHeight, $e['notes'] ?? '', 1, 'L', false, 1);
         }
 
+        // Export auditieren (DSGVO Art. 5 Abs. 2 - Rechenschaftspflicht)
+        \OpenClassbook\Services\Logger::audit(
+            'export_classbook_pdf',
+            $_SESSION['user_id'] ?? null,
+            'SchoolClass',
+            $class['id'],
+            'PDF-Export Klassenbuch: ' . $class['name']
+        );
+
         $filename = 'klassenbuch_' . $class['name'] . '_' . date('Y-m-d') . '.pdf';
         $pdf->Output($filename, 'D');
         exit;
@@ -256,6 +265,15 @@ class ClassbookController
         ];
 
         $entries = ClassbookEntry::findByClass($class['id'], $filters);
+
+        // Export auditieren (DSGVO Art. 5 Abs. 2 - Rechenschaftspflicht)
+        \OpenClassbook\Services\Logger::audit(
+            'export_classbook_csv',
+            $_SESSION['user_id'] ?? null,
+            'SchoolClass',
+            $class['id'],
+            'CSV-Export Klassenbuch: ' . $class['name']
+        );
 
         header('Content-Type: text/csv; charset=utf-8');
         header('Content-Disposition: attachment; filename="klassenbuch_' . $class['name'] . '_' . date('Y-m-d') . '.csv"');

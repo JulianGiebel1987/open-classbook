@@ -112,8 +112,25 @@ class AuthService
     {
         Database::execute(
             'INSERT INTO login_attempts (username, ip_address, successful) VALUES (?, ?, ?)',
-            [$username, $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0', $successful ? 1 : 0]
+            [$username, self::pseudonymizeIp($_SERVER['REMOTE_ADDR'] ?? '0.0.0.0'), $successful ? 1 : 0]
         );
+    }
+
+    /**
+     * IP-Adresse pseudonymisieren (DSGVO Art. 5 Abs. 1 lit. e)
+     */
+    private static function pseudonymizeIp(string $ip): string
+    {
+        if (str_contains($ip, ':')) {
+            $parts = explode(':', $ip);
+            return implode(':', array_slice($parts, 0, 4)) . ':xxxx:xxxx:xxxx:xxxx';
+        }
+        $parts = explode('.', $ip);
+        if (count($parts) === 4) {
+            $parts[3] = 'xxx';
+            return implode('.', $parts);
+        }
+        return 'unknown';
     }
 
     /**

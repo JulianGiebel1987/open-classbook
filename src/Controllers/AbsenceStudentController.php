@@ -42,12 +42,15 @@ class AbsenceStudentController
         }
 
         $absences = AbsenceStudent::findAll($filters);
+        $currentRole = App::currentUserRole();
 
         View::render('absences/students-index', [
             'title' => 'Schueler-Fehlzeiten',
             'absences' => $absences,
             'classes' => $accessibleClasses,
             'filters' => $filters,
+            // Fehlzeitengruende nur fuer Sekretariat/Admin sichtbar (Art. 5 Abs. 1 lit. c DSGVO)
+            'canViewReason' => in_array($currentRole, ['admin', 'schulleitung', 'sekretariat'], true),
         ]);
     }
 

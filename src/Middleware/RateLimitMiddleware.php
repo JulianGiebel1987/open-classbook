@@ -19,8 +19,10 @@ class RateLimitMiddleware
 
     public function handle(): bool
     {
-        $ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
-        $endpoint = $_SERVER['REQUEST_URI'] ?? '/';
+        // IP pseudonymisieren (DSGVO Art. 5 Abs. 1 lit. e)
+        $ip = $this->pseudonymizeIp($_SERVER['REMOTE_ADDR'] ?? '0.0.0.0');
+        // Nur Pfad ohne Query-Parameter speichern (keine Schuelerdaten in URL)
+        $endpoint = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?? '/';
 
         // Anfrage protokollieren
         Database::execute(
@@ -42,13 +44,27 @@ class RateLimitMiddleware
             return false;
         }
 
-        // Alte Eintraege bereinigen (1% Wahrscheinlichkeit pro Request)
-        if (random_int(1, 100) === 1) {
+        // Alte Eintraege bereinigen (10% Wahrscheinlichkeit pro Request, kuerzere Retention)
+        if (random_int(1, 10) === 1) {
             Database::execute(
-                'DELETE FROM rate_limits WHERE requested_at < DATE_SUB(NOW(), INTERVAL 1 HOUR)'
+                'DELETE FROM rate_limits WHERE requested_at < DATE_SUB(NOW(), INTERVAL 15 MINUTE)'
             );
         }
 
         return true;
+    }
+
+    private function pseudonymizeIp(string $ip): string
+    {
+        if (str_contains($ip, ':')) {
+            $parts = explode(':', $ip);
+            return implode(':', array_slice($parts, 0, 4)) . ':xxxx:xxxx:xxxx:xxxx';
+        }
+        $parts = explode('.', $ip);
+        if (count($parts) === 4) {
+            $parts[3] = 'xxx';
+            return implode('.', $parts);
+        }
+        return 'unknown';
     }
 }

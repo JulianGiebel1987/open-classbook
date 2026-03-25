@@ -173,6 +173,10 @@ class ImportController
             return;
         }
 
+        // Passwort-Seite nie cachen (Browser-Verlauf / Proxy-Schutz)
+        header('Cache-Control: no-store, no-cache, must-revalidate, private');
+        header('Pragma: no-cache');
+
         View::render('import/student-credentials', [
             'title' => 'Schueler-Zugangsdaten',
             'credentials' => $credentials,
