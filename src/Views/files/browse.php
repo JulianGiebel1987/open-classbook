@@ -1,13 +1,16 @@
 <div class="page-header">
     <div>
-        <a href="<?= $currentFolderId ? '' : '/files' ?>" class="btn btn-sm btn-secondary mb-05"
-           <?php if ($currentFolderId): ?>
-               <?php $parentFolder = $breadcrumbs[count($breadcrumbs) - 1]['parent_id'] ?? null; ?>
-               href="<?= $parentFolder ? '/files/folder/' . (int) $parentFolder : ($isShared ? '/files/shared' : '/files/private') ?>"
-           <?php else: ?>
-               href="/files"
-           <?php endif; ?>
-        >Zurueck</a>
+        <?php
+        if ($currentFolderId) {
+            $parentFolderId = $breadcrumbs[count($breadcrumbs) - 1]['parent_id'] ?? null;
+            $backUrl = $parentFolderId
+                ? '/files/folder/' . (int) $parentFolderId
+                : ($isShared ? '/files/shared' : '/files/private');
+        } else {
+            $backUrl = '/files';
+        }
+        ?>
+        <a href="<?= $backUrl ?>" class="btn btn-sm btn-secondary mb-05">Zurueck</a>
         <h1><?= $isShared ? 'Gemeinschaftliche Dateien' : 'Meine Dateien' ?></h1>
     </div>
 </div>
