@@ -25,28 +25,18 @@ class ImportController
 
         $file = $_FILES['file'];
         $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-        if ($ext !== 'xlsx') {
-            App::setFlash('error', 'Nur .xlsx-Dateien werden unterstuetzt.');
+        if (!in_array($ext, ['xlsx', 'csv'], true)) {
+            App::setFlash('error', 'Nur .xlsx- oder .csv-Dateien werden unterstuetzt.');
             App::redirect('/import');
             return;
         }
 
-        $tmpPath = $file['tmp_name'];
-
-        if (isset($_POST['confirm']) && $_POST['confirm'] === '1') {
-            // Tatsaechlicher Import
-            $result = ImportService::importTeachers($tmpPath);
-            App::setFlash('success', "{$result['imported']} Lehrkraft/Lehrkraefte importiert, {$result['skipped']} uebersprungen.");
-            App::redirect('/users');
-            return;
-        }
+        // Datei zuerst mit korrekter Endung speichern (PHPSpreadsheet + CSV-Parser benoetigen sie)
+        $storedPath = __DIR__ . '/../../storage/uploads/' . bin2hex(random_bytes(16)) . '.' . $ext;
+        move_uploaded_file($file['tmp_name'], $storedPath);
 
         // Vorschau anzeigen
-        $preview = ImportService::previewTeachers($tmpPath);
-
-        // Datei temporaer speichern fuer den tatsaechlichen Import
-        $storedPath = __DIR__ . '/../../storage/uploads/' . bin2hex(random_bytes(16)) . '.xlsx';
-        move_uploaded_file($tmpPath, $storedPath);
+        $preview = ImportService::previewTeachers($storedPath);
 
         CsrfMiddleware::generateToken();
         View::render('import/preview-teachers', [
@@ -60,8 +50,8 @@ class ImportController
     {
         $storedFile = $_POST['stored_file'] ?? '';
 
-        // Nur hex-generierte Dateinamen (32 Hex-Zeichen + .xlsx) akzeptieren
-        if (!preg_match('/^[0-9a-f]{32}\.xlsx$/', $storedFile)) {
+        // Nur hex-generierte Dateinamen (32 Hex-Zeichen + .xlsx oder .csv) akzeptieren
+        if (!preg_match('/^[0-9a-f]{32}\.(xlsx|csv)$/', $storedFile)) {
             App::setFlash('error', 'Ungueltige Import-Datei. Bitte erneut hochladen.');
             App::redirect('/import');
             return;
@@ -97,8 +87,8 @@ class ImportController
 
         $file = $_FILES['file'];
         $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-        if ($ext !== 'xlsx') {
-            App::setFlash('error', 'Nur .xlsx-Dateien werden unterstuetzt.');
+        if (!in_array($ext, ['xlsx', 'csv'], true)) {
+            App::setFlash('error', 'Nur .xlsx- oder .csv-Dateien werden unterstuetzt.');
             App::redirect('/import');
             return;
         }
@@ -110,11 +100,10 @@ class ImportController
             return;
         }
 
-        $tmpPath = $file['tmp_name'];
-        $preview = ImportService::previewStudents($tmpPath, $schoolYear);
+        $storedPath = __DIR__ . '/../../storage/uploads/' . bin2hex(random_bytes(16)) . '.' . $ext;
+        move_uploaded_file($file['tmp_name'], $storedPath);
 
-        $storedPath = __DIR__ . '/../../storage/uploads/' . bin2hex(random_bytes(16)) . '.xlsx';
-        move_uploaded_file($tmpPath, $storedPath);
+        $preview = ImportService::previewStudents($storedPath, $schoolYear);
 
         CsrfMiddleware::generateToken();
         View::render('import/preview-students', [
@@ -130,8 +119,8 @@ class ImportController
         $storedFile = $_POST['stored_file'] ?? '';
         $schoolYear = $_POST['school_year'] ?? '';
 
-        // Nur hex-generierte Dateinamen (32 Hex-Zeichen + .xlsx) akzeptieren
-        if (!preg_match('/^[0-9a-f]{32}\.xlsx$/', $storedFile)) {
+        // Nur hex-generierte Dateinamen (32 Hex-Zeichen + .xlsx oder .csv) akzeptieren
+        if (!preg_match('/^[0-9a-f]{32}\.(xlsx|csv)$/', $storedFile)) {
             App::setFlash('error', 'Ungueltige Import-Datei. Bitte erneut hochladen.');
             App::redirect('/import');
             return;

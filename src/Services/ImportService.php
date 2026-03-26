@@ -11,15 +11,80 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 class ImportService
 {
     /**
+     * CSV-Datei einlesen (Semikolon oder Komma als Trennzeichen, BOM-tolerant)
+     * Gibt alle Datenzeilen ab Zeile 2 (nach dem Header) zurück.
+     */
+    private static function parseCsvFile(string $filePath): array
+    {
+        $rows = [];
+        $handle = fopen($filePath, 'r');
+        if (!$handle) {
+            return [];
+        }
+
+        // UTF-8 BOM entfernen falls vorhanden
+        $bom = fread($handle, 3);
+        if ($bom !== "\xEF\xBB\xBF") {
+            rewind($handle);
+        }
+
+        // Trennzeichen automatisch erkennen
+        $headerLine = fgets($handle);
+        $delimiter = (substr_count($headerLine, ';') >= substr_count($headerLine, ',')) ? ';' : ',';
+        rewind($handle);
+        // BOM ggf. erneut ueberspringen
+        $bom = fread($handle, 3);
+        if ($bom !== "\xEF\xBB\xBF") {
+            rewind($handle);
+        }
+
+        // Header-Zeile ueberspringen
+        fgetcsv($handle, 0, $delimiter);
+
+        while (($row = fgetcsv($handle, 0, $delimiter)) !== false) {
+            $row = array_map('trim', $row);
+            if (!empty(array_filter($row))) {
+                $rows[] = $row;
+            }
+        }
+        fclose($handle);
+        return $rows;
+    }
+
+    /**
      * Lehrer-Import aus Excel-Datei
      * Spalten: A=Vorname, B=Nachname, C=Kuerzel, D=E-Mail, E=Faecher, F=Klassen
      */
     public static function previewTeachers(string $filePath): array
     {
-        $spreadsheet = IOFactory::load($filePath);
-        $sheet = $spreadsheet->getActiveSheet();
         $rows = [];
         $errors = [];
+        $isCsv = strtolower(pathinfo($filePath, PATHINFO_EXTENSION)) === 'csv';
+
+        if ($isCsv) {
+            $rawRows = self::parseCsvFile($filePath);
+            $rowIndex = 2;
+            foreach ($rawRows as $cells) {
+                $cells = array_pad($cells, 6, '');
+                [$firstname, $lastname, $abbreviation, $email, $subjects, $classes] = $cells;
+                $rowErrors = [];
+                if (empty($firstname) && empty($lastname)) { $rowIndex++; continue; }
+                if (empty($firstname)) $rowErrors[] = 'Vorname fehlt';
+                if (empty($lastname)) $rowErrors[] = 'Nachname fehlt';
+                if (empty($abbreviation)) $rowErrors[] = 'Kuerzel fehlt';
+                if (empty($email)) $rowErrors[] = 'E-Mail fehlt';
+                if (!empty($abbreviation) && Teacher::abbreviationExists($abbreviation)) {
+                    $rowErrors[] = 'Kuerzel "' . $abbreviation . '" existiert bereits';
+                }
+                $rows[] = compact('firstname', 'lastname', 'abbreviation', 'email', 'subjects', 'classes') + ['row' => $rowIndex, 'errors' => $rowErrors];
+                if (!empty($rowErrors)) $errors[] = "Zeile {$rowIndex}: " . implode(', ', $rowErrors);
+                $rowIndex++;
+            }
+            return ['rows' => $rows, 'errors' => $errors];
+        }
+
+        $spreadsheet = IOFactory::load($filePath);
+        $sheet = $spreadsheet->getActiveSheet();
 
         foreach ($sheet->getRowIterator(2) as $row) { // Ab Zeile 2 (Zeile 1 = Header)
             $rowIndex = $row->getRowIndex();
@@ -118,10 +183,44 @@ class ImportService
      */
     public static function previewStudents(string $filePath, string $schoolYear): array
     {
-        $spreadsheet = IOFactory::load($filePath);
-        $sheet = $spreadsheet->getActiveSheet();
         $rows = [];
         $errors = [];
+        $isCsv = strtolower(pathinfo($filePath, PATHINFO_EXTENSION)) === 'csv';
+
+        if ($isCsv) {
+            $rawRows = self::parseCsvFile($filePath);
+            $rowIndex = 2;
+            foreach ($rawRows as $cells) {
+                $cells = array_pad($cells, 5, '');
+                [$firstname, $lastname, $className, $birthday, $guardianEmail] = $cells;
+                if (empty($firstname) && empty($lastname)) { $rowIndex++; continue; }
+                $rowErrors = [];
+                if (empty($firstname)) $rowErrors[] = 'Vorname fehlt';
+                if (empty($lastname)) $rowErrors[] = 'Nachname fehlt';
+                if (empty($className)) {
+                    $rowErrors[] = 'Klasse fehlt';
+                } else {
+                    $class = SchoolClass::findByName($className, $schoolYear);
+                    if (!$class) $rowErrors[] = 'Klasse "' . $className . '" nicht gefunden';
+                }
+                $parsedBirthday = null;
+                if (!empty($birthday)) {
+                    $date = \DateTime::createFromFormat('d.m.Y', $birthday);
+                    if ($date) {
+                        $parsedBirthday = $date->format('Y-m-d');
+                    } else {
+                        $rowErrors[] = 'Ungueltiges Datumsformat (erwartet: TT.MM.JJJJ)';
+                    }
+                }
+                $rows[] = ['row' => $rowIndex, 'firstname' => $firstname, 'lastname' => $lastname, 'class_name' => $className, 'birthday' => $parsedBirthday, 'guardian_email' => $guardianEmail, 'errors' => $rowErrors];
+                if (!empty($rowErrors)) $errors[] = "Zeile {$rowIndex}: " . implode(', ', $rowErrors);
+                $rowIndex++;
+            }
+            return ['rows' => $rows, 'errors' => $errors];
+        }
+
+        $spreadsheet = IOFactory::load($filePath);
+        $sheet = $spreadsheet->getActiveSheet();
 
         foreach ($sheet->getRowIterator(2) as $row) {
             $rowIndex = $row->getRowIndex();

@@ -12,9 +12,9 @@
     <form method="post" action="/import/teachers" enctype="multipart/form-data">
         <?= \OpenClassbook\View::csrfField() ?>
         <div class="form-group">
-            <label for="file_teachers">Excel-Datei (.xlsx)</label>
-            <input type="file" id="file_teachers" name="file" class="form-control" accept=".xlsx" required aria-describedby="file_teachers_help">
-            <span class="form-help" id="file_teachers_help">Maximale Dateigroesse: 5 MB. Nur .xlsx-Dateien.</span>
+            <label for="file_teachers">Excel- oder CSV-Datei</label>
+            <input type="file" id="file_teachers" name="file" class="form-control" accept=".xlsx,.csv" required aria-describedby="file_teachers_help">
+            <span class="form-help" id="file_teachers_help">Maximale Dateigroesse: 5 MB. Formate: .xlsx oder .csv (Semikolon- oder kommagetrennt).</span>
         </div>
         <button type="submit" class="btn">Vorschau anzeigen</button>
     </form>
@@ -35,8 +35,9 @@
             <span class="form-help" id="school_year_help">Format: JJJJ/JJJJ (z.B. 2025/2026)</span>
         </div>
         <div class="form-group">
-            <label for="file_students">Excel-Datei (.xlsx)</label>
-            <input type="file" id="file_students" name="file" class="form-control" accept=".xlsx" required>
+            <label for="file_students">Excel- oder CSV-Datei</label>
+            <input type="file" id="file_students" name="file" class="form-control" accept=".xlsx,.csv" required aria-describedby="file_students_help">
+            <span class="form-help" id="file_students_help">Formate: .xlsx oder .csv (Semikolon- oder kommagetrennt).</span>
         </div>
         <button type="submit" class="btn">Vorschau anzeigen</button>
     </form>
