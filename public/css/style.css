@@ -1779,3 +1779,107 @@ a.widget:hover {
         align-items: stretch;
     }
 }
+
+/* ===== Klassenbuch – Tagesansicht ===== */
+
+.classbook-day-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.classbook-day {
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    background: var(--color-surface);
+}
+
+.classbook-day-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md) var(--spacing-lg);
+    background: var(--color-primary-50);
+    border-bottom: 2px solid var(--color-primary-light);
+}
+
+.classbook-day-weekday {
+    font-size: var(--font-size-xs);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-primary-dark);
+    background: var(--color-primary-light);
+    border-radius: var(--radius);
+    padding: 0.2rem 0.55rem;
+    white-space: nowrap;
+}
+
+.classbook-day-date {
+    font-weight: 700;
+    font-size: var(--font-size-lg);
+    color: var(--color-text);
+}
+
+.classbook-day-count {
+    margin-left: auto;
+    font-size: var(--font-size-xs);
+    color: var(--color-text-lighter);
+    white-space: nowrap;
+}
+
+.classbook-day table {
+    border-radius: 0;
+    box-shadow: none;
+    margin: 0;
+}
+
+.classbook-day th {
+    background: var(--color-bg);
+    font-size: var(--font-size-xs);
+    padding: 0.5rem var(--spacing-md);
+}
+
+.classbook-day td {
+    padding: 0.75rem var(--spacing-md);
+    vertical-align: top;
+}
+
+.classbook-lesson-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 50%;
+    background: var(--color-primary-light);
+    color: var(--color-primary-dark);
+    font-weight: 700;
+    font-size: var(--font-size-xs);
+    flex-shrink: 0;
+}
+
+.classbook-topic {
+    font-weight: 500;
+    color: var(--color-text);
+}
+
+.classbook-notes {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-light);
+    margin-top: 0.15rem;
+}
+
+@media (max-width: 640px) {
+    .classbook-day-header {
+        flex-wrap: wrap;
+        gap: var(--spacing-sm);
+    }
+
+    .classbook-day-count {
+        margin-left: 0;
+        width: 100%;
+    }
+}

@@ -6,12 +6,14 @@
             <p class="text-muted"><?= htmlspecialchars($list['description'], ENT_QUOTES, 'UTF-8') ?></p>
         <?php endif; ?>
     </div>
-    <?php if ($isOwner): ?>
     <div class="btn-group">
+        <a href="/lists/<?= (int) $list['id'] ?>/export-csv" class="btn btn-secondary btn-sm">CSV</a>
+        <a href="/lists/<?= (int) $list['id'] ?>/export-pdf" class="btn btn-secondary btn-sm">PDF</a>
+        <?php if ($isOwner): ?>
         <a href="/lists/<?= (int) $list['id'] ?>/share" class="btn btn-secondary">Freigabe</a>
         <button type="button" class="btn btn-secondary" id="toggleEditMeta">Bearbeiten</button>
+        <?php endif; ?>
     </div>
-    <?php endif; ?>
 </div>
 
 <?php if ($isOwner): ?>

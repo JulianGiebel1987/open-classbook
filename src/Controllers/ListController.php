@@ -404,6 +404,143 @@ class ListController
     }
 
     /**
+     * Liste als CSV exportieren.
+     */
+    public function exportCsv(string $id): void
+    {
+        if (!$this->checkRole()) return;
+
+        $listId = (int) $id;
+        $userId = $_SESSION['user_id'];
+        $list = ListModel::findById($listId);
+
+        if (!$list || !ListModel::hasAccess($listId, $userId)) {
+            App::setFlash('error', 'Liste nicht gefunden oder Zugriff verweigert.');
+            App::redirect('/lists');
+            return;
+        }
+
+        $columns = ListColumn::findByList($listId);
+        $rows = ListRow::findByList($listId);
+        $cells = ListCell::findByList($listId);
+
+        $filename = 'liste_' . preg_replace('/[^a-z0-9_-]/i', '_', $list['title']) . '_' . date('Y-m-d') . '.csv';
+
+        header('Content-Type: text/csv; charset=utf-8');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+
+        $output = fopen('php://output', 'w');
+        // BOM fuer Excel UTF-8
+        fwrite($output, "\xEF\xBB\xBF");
+
+        // Kopfzeile
+        $header = ['#'];
+        foreach ($columns as $col) {
+            $header[] = $col['title'];
+        }
+        fputcsv($output, $header, ';');
+
+        // Datenzeilen
+        foreach ($rows as $row) {
+            $line = [$row['label'] ?? ''];
+            foreach ($columns as $col) {
+                $value = $cells[$row['id']][$col['id']] ?? '';
+                if ($col['type'] === 'checkbox') {
+                    $value = $value ? 'Ja' : 'Nein';
+                }
+                $line[] = $value;
+            }
+            fputcsv($output, $line, ';');
+        }
+
+        fclose($output);
+        exit;
+    }
+
+    /**
+     * Liste als PDF exportieren.
+     */
+    public function exportPdf(string $id): void
+    {
+        if (!$this->checkRole()) return;
+
+        $listId = (int) $id;
+        $userId = $_SESSION['user_id'];
+        $list = ListModel::findById($listId);
+
+        if (!$list || !ListModel::hasAccess($listId, $userId)) {
+            App::setFlash('error', 'Liste nicht gefunden oder Zugriff verweigert.');
+            App::redirect('/lists');
+            return;
+        }
+
+        $columns = ListColumn::findByList($listId);
+        $rows = ListRow::findByList($listId);
+        $cells = ListCell::findByList($listId);
+
+        $pdf = new \TCPDF('L', 'mm', 'A4', true, 'UTF-8', false);
+        $pdf->SetCreator('Open-Classbook');
+        $pdf->SetAuthor('Open-Classbook');
+        $pdf->SetTitle($list['title']);
+        $pdf->SetMargins(10, 15, 10);
+        $pdf->SetAutoPageBreak(true, 15);
+        $pdf->setPrintHeader(false);
+        $pdf->setPrintFooter(false);
+        $pdf->AddPage();
+
+        $pdf->SetFont('helvetica', 'B', 16);
+        $pdf->Cell(0, 10, $list['title'], 0, 1, 'C');
+
+        if (!empty($list['description'])) {
+            $pdf->SetFont('helvetica', '', 10);
+            $pdf->Cell(0, 6, $list['description'], 0, 1, 'C');
+        }
+        $pdf->Ln(4);
+
+        if (empty($columns) || empty($rows)) {
+            $pdf->SetFont('helvetica', '', 10);
+            $pdf->Cell(0, 8, 'Keine Daten vorhanden.', 0, 1, 'C');
+        } else {
+            // Spaltenbreiten berechnen
+            $pageWidth = $pdf->getPageWidth() - 20; // Margins
+            $labelWidth = 40;
+            $colCount = count($columns);
+            $colWidth = $colCount > 0 ? ($pageWidth - $labelWidth) / $colCount : $pageWidth;
+            $colWidth = max(20, min($colWidth, 60));
+
+            // Kopfzeile
+            $pdf->SetFont('helvetica', 'B', 9);
+            $pdf->SetFillColor(230, 230, 230);
+            $pdf->Cell($labelWidth, 8, '#', 1, 0, 'C', true);
+            foreach ($columns as $col) {
+                $pdf->Cell($colWidth, 8, $col['title'], 1, 0, 'C', true);
+            }
+            $pdf->Ln();
+
+            // Datenzeilen
+            $pdf->SetFont('helvetica', '', 9);
+            foreach ($rows as $row) {
+                if ($pdf->GetY() + 8 > $pdf->getPageHeight() - 15) {
+                    $pdf->AddPage();
+                }
+                $pdf->Cell($labelWidth, 7, $row['label'] ?? '', 1, 0, 'L');
+                foreach ($columns as $col) {
+                    $value = $cells[$row['id']][$col['id']] ?? '';
+                    if ($col['type'] === 'checkbox') {
+                        $value = $value ? 'Ja' : 'Nein';
+                    }
+                    $pdf->Cell($colWidth, 7, $value, 1, 0, 'L');
+                }
+                $pdf->Ln();
+            }
+        }
+
+        $filename = 'liste_' . preg_replace('/[^a-z0-9_-]/i', '_', $list['title']) . '_' . date('Y-m-d') . '.pdf';
+        $pdf->Output($filename, 'D');
+        exit;
+    }
+
+    /**
      * Freigabe-Formular.
      */
     public function shareForm(string $id): void

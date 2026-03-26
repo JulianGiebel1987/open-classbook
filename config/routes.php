@@ -114,6 +114,8 @@ $router->post('/lists/{id}', [ListController::class, 'update'], [AuthMiddleware:
 $router->post('/lists/{id}/delete', [ListController::class, 'delete'], [AuthMiddleware::class, CsrfMiddleware::class]);
 $router->post('/lists/{id}/column', [ListController::class, 'addColumn'], [AuthMiddleware::class, CsrfMiddleware::class]);
 $router->post('/lists/{id}/row', [ListController::class, 'addRow'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->get('/lists/{id}/export-csv', [ListController::class, 'exportCsv'], [AuthMiddleware::class]);
+$router->get('/lists/{id}/export-pdf', [ListController::class, 'exportPdf'], [AuthMiddleware::class]);
 $router->get('/lists/{id}/share', [ListController::class, 'shareForm'], [AuthMiddleware::class]);
 $router->post('/lists/{id}/share', [ListController::class, 'share'], [AuthMiddleware::class, CsrfMiddleware::class]);
 $router->post('/lists/{id}/unshare', [ListController::class, 'removeShare'], [AuthMiddleware::class, CsrfMiddleware::class]);
