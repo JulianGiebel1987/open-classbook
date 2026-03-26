@@ -38,7 +38,11 @@ class ImportController
 
         // Datei temporaer speichern fuer den tatsaechlichen Import
         $storedPath = __DIR__ . '/../../storage/uploads/' . bin2hex(random_bytes(16)) . '.' . $ext;
-        move_uploaded_file($tmpPath, $storedPath);
+        if (!move_uploaded_file($tmpPath, $storedPath)) {
+            App::setFlash('error', 'Datei konnte nicht gespeichert werden. Bitte Schreibrechte fuer storage/uploads/ pruefen.');
+            App::redirect('/import');
+            return;
+        }
 
         CsrfMiddleware::generateToken();
         View::render('import/preview-teachers', [
@@ -106,7 +110,11 @@ class ImportController
         $preview = ImportService::previewStudents($tmpPath, $schoolYear, $ext);
 
         $storedPath = __DIR__ . '/../../storage/uploads/' . bin2hex(random_bytes(16)) . '.' . $ext;
-        move_uploaded_file($tmpPath, $storedPath);
+        if (!move_uploaded_file($tmpPath, $storedPath)) {
+            App::setFlash('error', 'Datei konnte nicht gespeichert werden. Bitte Schreibrechte fuer storage/uploads/ pruefen.');
+            App::redirect('/import');
+            return;
+        }
 
         CsrfMiddleware::generateToken();
         View::render('import/preview-students', [
