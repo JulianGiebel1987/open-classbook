@@ -7,6 +7,8 @@ use OpenClassbook\View;
 use OpenClassbook\Middleware\CsrfMiddleware;
 use OpenClassbook\Models\ClassbookEntry;
 use OpenClassbook\Models\SchoolClass;
+use OpenClassbook\Models\Student;
+use OpenClassbook\Models\StudentRemark;
 use OpenClassbook\Models\Teacher;
 
 class ClassbookController
@@ -295,6 +297,154 @@ class ClassbookController
 
         fclose($output);
         exit;
+    }
+
+    // === Schuelerbemerkungen ===
+
+    public function remarksIndex(string $classId): void
+    {
+        $class = SchoolClass::findById((int) $classId);
+        if (!$class || !$this->hasAccessToClass((int) $classId)) {
+            App::setFlash('error', 'Klasse nicht gefunden oder kein Zugriff.');
+            App::redirect('/classbook');
+            return;
+        }
+
+        $filters = [
+            'student_id' => $_GET['student_id'] ?? '',
+            'date_from'  => $_GET['date_from']  ?? '',
+            'date_to'    => $_GET['date_to']    ?? '',
+        ];
+
+        $remarks  = StudentRemark::findByClass((int) $classId, $filters);
+        $students = Student::findByClassId((int) $classId);
+
+        View::render('classbook/remarks-index', [
+            'title'    => 'Schuelerbemerkungen – ' . $class['name'],
+            'class'    => $class,
+            'remarks'  => $remarks,
+            'students' => $students,
+            'filters'  => $filters,
+        ]);
+    }
+
+    public function remarkCreateForm(string $classId): void
+    {
+        $class = SchoolClass::findById((int) $classId);
+        if (!$class || !$this->canCreateEntry((int) $classId)) {
+            App::setFlash('error', 'Kein Zugriff.');
+            App::redirect('/classbook/' . $classId . '/remarks');
+            return;
+        }
+
+        $students = Student::findByClassId((int) $classId);
+
+        CsrfMiddleware::generateToken();
+        View::render('classbook/remarks-create', [
+            'title'    => 'Neue Bemerkung',
+            'class'    => $class,
+            'students' => $students,
+        ]);
+    }
+
+    public function remarkCreate(string $classId): void
+    {
+        $class = SchoolClass::findById((int) $classId);
+        if (!$class || !$this->canCreateEntry((int) $classId)) {
+            App::setFlash('error', 'Kein Zugriff.');
+            App::redirect('/classbook');
+            return;
+        }
+
+        $teacherId = Teacher::getTeacherIdByUserId($_SESSION['user_id']);
+        if (!$teacherId && App::currentUserRole() !== 'admin') {
+            App::setFlash('error', 'Kein Lehrer-Profil gefunden.');
+            App::redirect('/classbook/' . $classId . '/remarks');
+            return;
+        }
+
+        // Admin ohne Lehrer-Profil: ersten zugewiesenen Lehrer verwenden
+        if (!$teacherId) {
+            $teachers  = SchoolClass::getTeachers($class['id']);
+            $teacherId = $teachers[0]['id'] ?? null;
+            if (!$teacherId) {
+                App::setFlash('error', 'Kein Lehrer der Klasse zugewiesen.');
+                App::redirect('/classbook/' . $classId . '/remarks');
+                return;
+            }
+        }
+
+        $studentId  = (int) ($_POST['student_id'] ?? 0);
+        $remark     = trim($_POST['remark'] ?? '');
+        $remarkDate = $_POST['remark_date'] ?? date('Y-m-d');
+
+        // Schueler muss zur Klasse gehoeren
+        $student = Student::findById($studentId);
+        if (!$student || (int) $student['class_id'] !== (int) $classId) {
+            App::setFlash('error', 'Schueler nicht in dieser Klasse.');
+            App::redirect('/classbook/' . $classId . '/remarks/create');
+            return;
+        }
+
+        if (empty($remark)) {
+            App::setFlash('error', 'Bemerkung darf nicht leer sein.');
+            App::redirect('/classbook/' . $classId . '/remarks/create');
+            return;
+        }
+
+        if (mb_strlen($remark) > 2000) {
+            App::setFlash('error', 'Bemerkung darf hoechstens 2000 Zeichen enthalten.');
+            App::redirect('/classbook/' . $classId . '/remarks/create');
+            return;
+        }
+
+        StudentRemark::create([
+            'student_id'  => $studentId,
+            'class_id'    => $class['id'],
+            'teacher_id'  => $teacherId,
+            'remark'      => $remark,
+            'remark_date' => $remarkDate,
+        ]);
+
+        \OpenClassbook\Services\Logger::audit(
+            'create_student_remark',
+            $_SESSION['user_id'] ?? null,
+            'Student',
+            $studentId,
+            'Bemerkung fuer Schueler-ID ' . $studentId . ' in Klasse ' . $class['name']
+        );
+
+        App::setFlash('success', 'Bemerkung gespeichert.');
+        App::redirect('/classbook/' . $classId . '/remarks');
+    }
+
+    public function remarkDelete(string $classId, string $id): void
+    {
+        $remark = StudentRemark::findById((int) $id);
+        if (!$remark) {
+            App::setFlash('error', 'Bemerkung nicht gefunden.');
+            App::redirect('/classbook/' . $classId . '/remarks');
+            return;
+        }
+
+        if (!StudentRemark::canDelete($remark, $_SESSION['user_id'], App::currentUserRole())) {
+            App::setFlash('error', 'Keine Berechtigung zum Loeschen.');
+            App::redirect('/classbook/' . $classId . '/remarks');
+            return;
+        }
+
+        StudentRemark::delete((int) $id);
+
+        \OpenClassbook\Services\Logger::audit(
+            'delete_student_remark',
+            $_SESSION['user_id'] ?? null,
+            'Student',
+            $remark['student_id'],
+            'Bemerkung geloescht, Schueler-ID ' . $remark['student_id']
+        );
+
+        App::setFlash('success', 'Bemerkung geloescht.');
+        App::redirect('/classbook/' . $classId . '/remarks');
     }
 
     private function getAccessibleClasses(): array
