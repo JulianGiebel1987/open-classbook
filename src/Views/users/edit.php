@@ -73,34 +73,4 @@
     </form>
 </div>
 
-<script>
-(function() {
-    var roleSelect = document.getElementById('role');
-    var profileFields = document.getElementById('profile-fields');
-    var teacherFields = document.getElementById('teacher-fields');
-    var studentFields = document.getElementById('student-fields');
-    var firstname = document.getElementById('firstname');
-    var lastname = document.getElementById('lastname');
-    var abbreviation = document.getElementById('abbreviation');
-    var classId = document.getElementById('class_id');
-
-    function toggleFields() {
-        var role = roleSelect.value;
-        var isTeacher = (role === 'lehrer');
-        var isStudent = (role === 'schueler');
-        var needsProfile = isTeacher || isStudent;
-
-        profileFields.style.display = needsProfile ? '' : 'none';
-        teacherFields.style.display = isTeacher ? '' : 'none';
-        studentFields.style.display = isStudent ? '' : 'none';
-
-        firstname.required = needsProfile;
-        lastname.required = needsProfile;
-        abbreviation.required = isTeacher;
-        if (classId) classId.required = isStudent;
-    }
-
-    roleSelect.addEventListener('change', toggleFields);
-    toggleFields();
-})();
-</script>
+<script src="/js/user-form.js"></script>
