@@ -32,8 +32,8 @@ class ListModel
              JOIN users u ON u.id = l.owner_id
              LEFT JOIN classes c ON c.id = l.class_id
              WHERE l.owner_id = ?
-                OR l.visibility = "global"
-                OR (l.visibility = "shared" AND l.id IN (
+                OR l.visibility = 'global'
+                OR (l.visibility = 'shared' AND l.id IN (
                     SELECT list_id FROM list_shares WHERE user_id = ?
                 ))
              ORDER BY l.updated_at DESC',
