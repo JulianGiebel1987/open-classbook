@@ -6,9 +6,11 @@
     <form method="post" action="/users/<?= $user['id'] ?>">
         <?= \OpenClassbook\View::csrfField() ?>
 
+        <?php $old = $old ?? []; ?>
+
         <div class="form-group">
             <label for="username">Benutzername <span aria-hidden="true">*</span><span class="sr-only">(Pflichtfeld)</span></label>
-            <input type="text" id="username" name="username" class="form-control" required value="<?= htmlspecialchars($user['username'], ENT_QUOTES, 'UTF-8') ?>" autocomplete="username">
+            <input type="text" id="username" name="username" class="form-control" required value="<?= htmlspecialchars($old['username'] ?? $user['username'], ENT_QUOTES, 'UTF-8') ?>" autocomplete="username">
         </div>
 
         <div class="form-group">
@@ -19,8 +21,9 @@
         <div class="form-group">
             <label for="role">Rolle <span aria-hidden="true">*</span><span class="sr-only">(Pflichtfeld)</span></label>
             <select name="role" id="role" class="form-control" required>
+                <?php $selectedRole = $old['role'] ?? $user['role']; ?>
                 <?php foreach ($roles as $r): ?>
-                    <option value="<?= $r ?>" <?= $user['role'] === $r ? 'selected' : '' ?>><?= ucfirst($r) ?></option>
+                    <option value="<?= $r ?>" <?= $selectedRole === $r ? 'selected' : '' ?>><?= ucfirst($r) ?></option>
                 <?php endforeach; ?>
             </select>
         </div>

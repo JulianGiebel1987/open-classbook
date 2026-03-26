@@ -84,7 +84,13 @@ class UserController
 
         if (!empty($errors)) {
             App::setFlash('error', implode(' ', $errors));
-            App::redirect('/users/create');
+            CsrfMiddleware::generateToken();
+            View::render('users/create', [
+                'title' => 'Neuer Benutzer',
+                'roles' => ['admin', 'schulleitung', 'sekretariat', 'lehrer', 'schueler'],
+                'classes' => SchoolClass::findAll(),
+                'old' => $_POST,
+            ]);
             return;
         }
 
@@ -202,7 +208,21 @@ class UserController
 
         if (!empty($errors)) {
             App::setFlash('error', implode(' ', $errors));
-            App::redirect('/users/' . $userId . '/edit');
+            CsrfMiddleware::generateToken();
+            View::render('users/edit', [
+                'title' => 'Benutzer bearbeiten',
+                'user' => $user,
+                'profile' => [
+                    'firstname' => $_POST['firstname'] ?? '',
+                    'lastname'  => $_POST['lastname'] ?? '',
+                    'abbreviation' => $_POST['abbreviation'] ?? '',
+                    'subjects'  => $_POST['subjects'] ?? '',
+                    'class_id'  => $_POST['class_id'] ?? '',
+                ],
+                'roles' => ['admin', 'schulleitung', 'sekretariat', 'lehrer', 'schueler'],
+                'classes' => SchoolClass::findAll(),
+                'old' => $_POST,
+            ]);
             return;
         }
 
