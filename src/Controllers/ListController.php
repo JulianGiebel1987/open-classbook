@@ -87,46 +87,51 @@ class ListController
 
         $classId = !empty($_POST['class_id']) ? (int) $_POST['class_id'] : null;
 
-        $listId = ListModel::create([
-            'title' => mb_substr($title, 0, 255),
-            'description' => trim($_POST['description'] ?? '') ?: null,
-            'owner_id' => $_SESSION['user_id'],
-            'visibility' => $visibility,
-            'class_id' => $classId,
-        ]);
+        try {
+            $listId = ListModel::create([
+                'title' => mb_substr($title, 0, 255),
+                'description' => trim($_POST['description'] ?? '') ?: null,
+                'owner_id' => $_SESSION['user_id'],
+                'visibility' => $visibility,
+                'class_id' => $classId,
+            ]);
 
-        // Initiale Spalten erstellen
-        $colTitles = $_POST['col_title'] ?? [];
-        $colTypes = $_POST['col_type'] ?? [];
-        $colOptions = $_POST['col_options'] ?? [];
-        foreach ($colTitles as $i => $colTitle) {
-            $colTitle = trim($colTitle);
-            if ($colTitle === '') continue;
-            $type = $colTypes[$i] ?? 'text';
-            if (!in_array($type, self::VALID_TYPES)) $type = 'text';
+            // Initiale Spalten erstellen
+            $colTitles = $_POST['col_title'] ?? [];
+            $colTypes = $_POST['col_type'] ?? [];
+            $colOptions = $_POST['col_options'] ?? [];
+            foreach ($colTitles as $i => $colTitle) {
+                $colTitle = trim($colTitle);
+                if ($colTitle === '') continue;
+                $type = $colTypes[$i] ?? 'text';
+                if (!in_array($type, self::VALID_TYPES)) $type = 'text';
 
-            $options = null;
-            if ($type === 'select' && !empty($colOptions[$i])) {
-                $opts = array_map('trim', explode(',', $colOptions[$i]));
-                $opts = array_filter($opts, fn($o) => $o !== '');
-                $options = json_encode(array_values($opts));
+                $options = null;
+                if ($type === 'select' && !empty($colOptions[$i])) {
+                    $opts = array_map('trim', explode(',', $colOptions[$i]));
+                    $opts = array_filter($opts, fn($o) => $o !== '');
+                    $options = json_encode(array_values($opts));
+                }
+
+                ListColumn::create([
+                    'list_id' => $listId,
+                    'title' => mb_substr($colTitle, 0, 255),
+                    'type' => $type,
+                    'options' => $options,
+                ]);
             }
 
-            ListColumn::create([
-                'list_id' => $listId,
-                'title' => mb_substr($colTitle, 0, 255),
-                'type' => $type,
-                'options' => $options,
-            ]);
-        }
+            // Schuelerliste vorbefuellen
+            if ($classId) {
+                ListRow::createFromClass($listId, $classId);
+            }
 
-        // Schuelerliste vorbefuellen
-        if ($classId) {
-            ListRow::createFromClass($listId, $classId);
+            App::setFlash('success', 'Liste erstellt.');
+            App::redirect('/lists/' . $listId);
+        } catch (\PDOException $e) {
+            App::setFlash('error', 'Fehler beim Erstellen der Liste. Bitte pruefen Sie, ob die Datenbank-Migrationen ausgefuehrt wurden (php database/migrate.php).');
+            App::redirect('/lists/create');
         }
-
-        App::setFlash('success', 'Liste erstellt.');
-        App::redirect('/lists/' . $listId);
     }
 
     /**
@@ -193,13 +198,16 @@ class ListController
             $visibility = 'private';
         }
 
-        ListModel::update($listId, [
-            'title' => mb_substr($title, 0, 255),
-            'description' => trim($_POST['description'] ?? '') ?: null,
-            'visibility' => $visibility,
-        ]);
-
-        App::setFlash('success', 'Liste aktualisiert.');
+        try {
+            ListModel::update($listId, [
+                'title' => mb_substr($title, 0, 255),
+                'description' => trim($_POST['description'] ?? '') ?: null,
+                'visibility' => $visibility,
+            ]);
+            App::setFlash('success', 'Liste aktualisiert.');
+        } catch (\PDOException $e) {
+            App::setFlash('error', 'Fehler beim Aktualisieren der Liste.');
+        }
         App::redirect('/lists/' . $listId);
     }
 
@@ -254,14 +262,17 @@ class ListController
             $options = json_encode(array_values($opts));
         }
 
-        ListColumn::create([
-            'list_id' => $listId,
-            'title' => mb_substr($title, 0, 255),
-            'type' => $type,
-            'options' => $options,
-        ]);
-
-        App::setFlash('success', 'Spalte hinzugefuegt.');
+        try {
+            ListColumn::create([
+                'list_id' => $listId,
+                'title' => mb_substr($title, 0, 255),
+                'type' => $type,
+                'options' => $options,
+            ]);
+            App::setFlash('success', 'Spalte hinzugefuegt.');
+        } catch (\PDOException $e) {
+            App::setFlash('error', 'Fehler beim Hinzufuegen der Spalte.');
+        }
         App::redirect('/lists/' . $listId);
     }
 
@@ -305,12 +316,15 @@ class ListController
             return;
         }
 
-        ListRow::create([
-            'list_id' => $listId,
-            'label' => trim($_POST['row_label'] ?? '') ?: null,
-        ]);
-
-        App::setFlash('success', 'Zeile hinzugefuegt.');
+        try {
+            ListRow::create([
+                'list_id' => $listId,
+                'label' => trim($_POST['row_label'] ?? '') ?: null,
+            ]);
+            App::setFlash('success', 'Zeile hinzugefuegt.');
+        } catch (\PDOException $e) {
+            App::setFlash('error', 'Fehler beim Hinzufuegen der Zeile.');
+        }
         App::redirect('/lists/' . $listId);
     }
 
@@ -380,8 +394,13 @@ class ListController
             return;
         }
 
-        ListCell::upsert($rowId, $columnId, $listId, $value);
-        echo json_encode(['success' => true]);
+        try {
+            ListCell::upsert($rowId, $columnId, $listId, $value);
+            echo json_encode(['success' => true]);
+        } catch (\PDOException $e) {
+            http_response_code(500);
+            echo json_encode(['error' => 'Fehler beim Speichern der Zelle.']);
+        }
     }
 
     /**

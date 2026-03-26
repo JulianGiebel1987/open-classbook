@@ -11,80 +11,145 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 class ImportService
 {
     /**
-     * CSV-Datei einlesen (Semikolon oder Komma als Trennzeichen, BOM-tolerant)
-     * Gibt alle Datenzeilen ab Zeile 2 (nach dem Header) zurück.
+     * CSV-Datei einlesen und als Array zurueckgeben (Delimiter-Erkennung: ; oder ,)
      */
-    private static function parseCsvFile(string $filePath): array
+    private static function parseCsv(string $filePath): array
     {
-        $rows = [];
         $handle = fopen($filePath, 'r');
-        if (!$handle) {
+        if ($handle === false) {
             return [];
         }
 
-        // UTF-8 BOM entfernen falls vorhanden
-        $bom = fread($handle, 3);
-        if ($bom !== "\xEF\xBB\xBF") {
-            rewind($handle);
-        }
-
-        // Trennzeichen automatisch erkennen
-        $headerLine = fgets($handle);
-        $delimiter = (substr_count($headerLine, ';') >= substr_count($headerLine, ',')) ? ';' : ',';
+        $firstLine = fgets($handle);
         rewind($handle);
-        // BOM ggf. erneut ueberspringen
-        $bom = fread($handle, 3);
-        if ($bom !== "\xEF\xBB\xBF") {
-            rewind($handle);
-        }
+        $delimiter = (substr_count($firstLine, ';') >= substr_count($firstLine, ',')) ? ';' : ',';
 
-        // Header-Zeile ueberspringen
-        fgetcsv($handle, 0, $delimiter);
-
-        while (($row = fgetcsv($handle, 0, $delimiter)) !== false) {
-            $row = array_map('trim', $row);
-            if (!empty(array_filter($row))) {
-                $rows[] = $row;
+        $rows = [];
+        $lineNum = 0;
+        while (($data = fgetcsv($handle, 0, $delimiter)) !== false) {
+            $lineNum++;
+            if ($lineNum === 1) {
+                continue; // Header-Zeile ueberspringen
             }
+            if (empty(array_filter($data, fn($v) => trim($v) !== ''))) {
+                continue; // Leere Zeile ueberspringen
+            }
+            $rows[] = ['lineNum' => $lineNum, 'data' => array_map('trim', $data)];
         }
         fclose($handle);
+
         return $rows;
     }
 
     /**
-     * Lehrer-Import aus Excel-Datei
-     * Spalten: A=Vorname, B=Nachname, C=Kuerzel, D=E-Mail, E=Faecher, F=Klassen
+     * Lehrer-Vorschau aus CSV-Datei
      */
-    public static function previewTeachers(string $filePath): array
+    private static function previewTeachersFromCsv(string $filePath): array
     {
+        $csvRows = self::parseCsv($filePath);
         $rows = [];
         $errors = [];
-        $isCsv = strtolower(pathinfo($filePath, PATHINFO_EXTENSION)) === 'csv';
 
-        if ($isCsv) {
-            $rawRows = self::parseCsvFile($filePath);
-            $rowIndex = 2;
-            foreach ($rawRows as $cells) {
-                $cells = array_pad($cells, 6, '');
-                [$firstname, $lastname, $abbreviation, $email, $subjects, $classes] = $cells;
-                $rowErrors = [];
-                if (empty($firstname) && empty($lastname)) { $rowIndex++; continue; }
-                if (empty($firstname)) $rowErrors[] = 'Vorname fehlt';
-                if (empty($lastname)) $rowErrors[] = 'Nachname fehlt';
-                if (empty($abbreviation)) $rowErrors[] = 'Kuerzel fehlt';
-                if (empty($email)) $rowErrors[] = 'E-Mail fehlt';
-                if (!empty($abbreviation) && Teacher::abbreviationExists($abbreviation)) {
-                    $rowErrors[] = 'Kuerzel "' . $abbreviation . '" existiert bereits';
-                }
-                $rows[] = compact('firstname', 'lastname', 'abbreviation', 'email', 'subjects', 'classes') + ['row' => $rowIndex, 'errors' => $rowErrors];
-                if (!empty($rowErrors)) $errors[] = "Zeile {$rowIndex}: " . implode(', ', $rowErrors);
-                $rowIndex++;
+        foreach ($csvRows as $csvRow) {
+            $data = array_pad($csvRow['data'], 6, '');
+            [$firstname, $lastname, $abbreviation, $email, $subjects, $classes] = $data;
+
+            $rowErrors = [];
+            if (empty($firstname)) $rowErrors[] = 'Vorname fehlt';
+            if (empty($lastname)) $rowErrors[] = 'Nachname fehlt';
+            if (empty($abbreviation)) $rowErrors[] = 'Kuerzel fehlt';
+            if (empty($email)) $rowErrors[] = 'E-Mail fehlt';
+
+            if (!empty($abbreviation) && Teacher::abbreviationExists($abbreviation)) {
+                $rowErrors[] = 'Kuerzel "' . $abbreviation . '" existiert bereits';
             }
-            return ['rows' => $rows, 'errors' => $errors];
+
+            $rows[] = [
+                'row' => $csvRow['lineNum'],
+                'firstname' => $firstname,
+                'lastname' => $lastname,
+                'abbreviation' => $abbreviation,
+                'email' => $email,
+                'subjects' => $subjects,
+                'classes' => $classes,
+                'errors' => $rowErrors,
+            ];
+
+            if (!empty($rowErrors)) {
+                $errors[] = "Zeile {$csvRow['lineNum']}: " . implode(', ', $rowErrors);
+            }
+        }
+
+        return ['rows' => $rows, 'errors' => $errors];
+    }
+
+    /**
+     * Schueler-Vorschau aus CSV-Datei
+     */
+    private static function previewStudentsFromCsv(string $filePath, string $schoolYear): array
+    {
+        $csvRows = self::parseCsv($filePath);
+        $rows = [];
+        $errors = [];
+
+        foreach ($csvRows as $csvRow) {
+            $data = array_pad($csvRow['data'], 5, '');
+            [$firstname, $lastname, $className, $birthday, $guardianEmail] = $data;
+
+            $rowErrors = [];
+            if (empty($firstname)) $rowErrors[] = 'Vorname fehlt';
+            if (empty($lastname)) $rowErrors[] = 'Nachname fehlt';
+            if (empty($className)) {
+                $rowErrors[] = 'Klasse fehlt';
+            } else {
+                $class = SchoolClass::findByName($className, $schoolYear);
+                if (!$class) {
+                    $rowErrors[] = 'Klasse "' . $className . '" nicht gefunden';
+                }
+            }
+
+            $parsedBirthday = null;
+            if (!empty($birthday)) {
+                $date = \DateTime::createFromFormat('d.m.Y', $birthday);
+                if ($date) {
+                    $parsedBirthday = $date->format('Y-m-d');
+                } else {
+                    $rowErrors[] = 'Ungueltiges Datumsformat (erwartet: TT.MM.JJJJ)';
+                }
+            }
+
+            $rows[] = [
+                'row' => $csvRow['lineNum'],
+                'firstname' => $firstname,
+                'lastname' => $lastname,
+                'class_name' => $className,
+                'birthday' => $parsedBirthday,
+                'guardian_email' => $guardianEmail,
+                'errors' => $rowErrors,
+            ];
+
+            if (!empty($rowErrors)) {
+                $errors[] = "Zeile {$csvRow['lineNum']}: " . implode(', ', $rowErrors);
+            }
+        }
+
+        return ['rows' => $rows, 'errors' => $errors];
+    }
+
+    /**
+     * Lehrer-Import aus Excel- oder CSV-Datei
+     * Spalten: Vorname, Nachname, Kuerzel, E-Mail, Faecher, Klassen
+     */
+    public static function previewTeachers(string $filePath, string $format = 'xlsx'): array
+    {
+        if ($format === 'csv') {
+            return self::previewTeachersFromCsv($filePath);
         }
 
         $spreadsheet = IOFactory::load($filePath);
         $sheet = $spreadsheet->getActiveSheet();
+        $rows = [];
+        $errors = [];
 
         foreach ($sheet->getRowIterator(2) as $row) { // Ab Zeile 2 (Zeile 1 = Header)
             $rowIndex = $row->getRowIndex();
@@ -133,7 +198,8 @@ class ImportService
      */
     public static function importTeachers(string $filePath): array
     {
-        $preview = self::previewTeachers($filePath);
+        $format = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+        $preview = self::previewTeachers($filePath, $format);
         $imported = 0;
         $skipped = 0;
 
@@ -178,49 +244,19 @@ class ImportService
     }
 
     /**
-     * Schueler-Import aus Excel-Datei
-     * Spalten: A=Vorname, B=Nachname, C=Klasse, D=Geburtsdatum, E=Erziehungsberechtigten-Email
+     * Schueler-Import aus Excel- oder CSV-Datei
+     * Spalten: Vorname, Nachname, Klasse, Geburtsdatum, Erziehungsberechtigten-Email
      */
-    public static function previewStudents(string $filePath, string $schoolYear): array
+    public static function previewStudents(string $filePath, string $schoolYear, string $format = 'xlsx'): array
     {
-        $rows = [];
-        $errors = [];
-        $isCsv = strtolower(pathinfo($filePath, PATHINFO_EXTENSION)) === 'csv';
-
-        if ($isCsv) {
-            $rawRows = self::parseCsvFile($filePath);
-            $rowIndex = 2;
-            foreach ($rawRows as $cells) {
-                $cells = array_pad($cells, 5, '');
-                [$firstname, $lastname, $className, $birthday, $guardianEmail] = $cells;
-                if (empty($firstname) && empty($lastname)) { $rowIndex++; continue; }
-                $rowErrors = [];
-                if (empty($firstname)) $rowErrors[] = 'Vorname fehlt';
-                if (empty($lastname)) $rowErrors[] = 'Nachname fehlt';
-                if (empty($className)) {
-                    $rowErrors[] = 'Klasse fehlt';
-                } else {
-                    $class = SchoolClass::findByName($className, $schoolYear);
-                    if (!$class) $rowErrors[] = 'Klasse "' . $className . '" nicht gefunden';
-                }
-                $parsedBirthday = null;
-                if (!empty($birthday)) {
-                    $date = \DateTime::createFromFormat('d.m.Y', $birthday);
-                    if ($date) {
-                        $parsedBirthday = $date->format('Y-m-d');
-                    } else {
-                        $rowErrors[] = 'Ungueltiges Datumsformat (erwartet: TT.MM.JJJJ)';
-                    }
-                }
-                $rows[] = ['row' => $rowIndex, 'firstname' => $firstname, 'lastname' => $lastname, 'class_name' => $className, 'birthday' => $parsedBirthday, 'guardian_email' => $guardianEmail, 'errors' => $rowErrors];
-                if (!empty($rowErrors)) $errors[] = "Zeile {$rowIndex}: " . implode(', ', $rowErrors);
-                $rowIndex++;
-            }
-            return ['rows' => $rows, 'errors' => $errors];
+        if ($format === 'csv') {
+            return self::previewStudentsFromCsv($filePath, $schoolYear);
         }
 
         $spreadsheet = IOFactory::load($filePath);
         $sheet = $spreadsheet->getActiveSheet();
+        $rows = [];
+        $errors = [];
 
         foreach ($sheet->getRowIterator(2) as $row) {
             $rowIndex = $row->getRowIndex();
@@ -281,7 +317,8 @@ class ImportService
      */
     public static function importStudents(string $filePath, string $schoolYear): array
     {
-        $preview = self::previewStudents($filePath, $schoolYear);
+        $format = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+        $preview = self::previewStudents($filePath, $schoolYear, $format);
         $imported = 0;
         $skipped = 0;
         $credentials = [];

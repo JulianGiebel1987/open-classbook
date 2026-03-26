@@ -7,14 +7,15 @@
         <h2>Lehrkraefte importieren</h2>
     </div>
     <p class="mb-sm">
-        <a href="/import/template/lehrer" class="btn btn-sm btn-secondary">Vorlage herunterladen</a>
+        <a href="/import/template/lehrer" class="btn btn-sm btn-secondary">Excel-Vorlage (.xlsx)</a>
+        <a href="/import/template/lehrer-csv" class="btn btn-sm btn-secondary">CSV-Vorlage (.csv)</a>
     </p>
     <form method="post" action="/import/teachers" enctype="multipart/form-data">
         <?= \OpenClassbook\View::csrfField() ?>
         <div class="form-group">
-            <label for="file_teachers">Excel- oder CSV-Datei</label>
+            <label for="file_teachers">Import-Datei (.xlsx oder .csv)</label>
             <input type="file" id="file_teachers" name="file" class="form-control" accept=".xlsx,.csv" required aria-describedby="file_teachers_help">
-            <span class="form-help" id="file_teachers_help">Maximale Dateigroesse: 5 MB. Formate: .xlsx oder .csv (Semikolon- oder kommagetrennt).</span>
+            <span class="form-help" id="file_teachers_help">Maximale Dateigroesse: 5 MB. Excel (.xlsx) oder CSV (.csv, Trennzeichen: Semikolon oder Komma).</span>
         </div>
         <button type="submit" class="btn">Vorschau anzeigen</button>
     </form>
@@ -25,7 +26,8 @@
         <h2>Schueler/innen importieren</h2>
     </div>
     <p class="mb-sm">
-        <a href="/import/template/schueler" class="btn btn-sm btn-secondary">Vorlage herunterladen</a>
+        <a href="/import/template/schueler" class="btn btn-sm btn-secondary">Excel-Vorlage (.xlsx)</a>
+        <a href="/import/template/schueler-csv" class="btn btn-sm btn-secondary">CSV-Vorlage (.csv)</a>
     </p>
     <form method="post" action="/import/students" enctype="multipart/form-data">
         <?= \OpenClassbook\View::csrfField() ?>
@@ -35,9 +37,9 @@
             <span class="form-help" id="school_year_help">Format: JJJJ/JJJJ (z.B. 2025/2026)</span>
         </div>
         <div class="form-group">
-            <label for="file_students">Excel- oder CSV-Datei</label>
+            <label for="file_students">Import-Datei (.xlsx oder .csv)</label>
             <input type="file" id="file_students" name="file" class="form-control" accept=".xlsx,.csv" required aria-describedby="file_students_help">
-            <span class="form-help" id="file_students_help">Formate: .xlsx oder .csv (Semikolon- oder kommagetrennt).</span>
+            <span class="form-help" id="file_students_help">Excel (.xlsx) oder CSV (.csv, Trennzeichen: Semikolon oder Komma).</span>
         </div>
         <button type="submit" class="btn">Vorschau anzeigen</button>
     </form>
