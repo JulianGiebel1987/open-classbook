@@ -13,7 +13,8 @@ Open-Classbook ist eine Open-Source-Loesung fuer digitale Klassenbuchfuehrung, F
 - **Dateiverwaltung** - Ordnerstruktur mit Upload/Download, Dateityp-Validierung und Groessenbegrenzung
 - **Benutzerverwaltung** - Rollenbasierte Zugriffskontrolle (Admin, Schulleitung, Sekretariat, Lehrer)
 - **Klassenverwaltung** - Klassen mit Klassenlehrern und Fachlehrern organisieren
-- **Excel-Import** - Lehrer- und Schuelerdaten per Excel-Datei importieren
+- **Import** - Lehrer- und Schuelerdaten per Excel (.xlsx) oder CSV-Datei importieren; Delimiter (Semikolon/Komma) wird automatisch erkannt
+- **Schuelerbemerkungen** - Lehrkraefte koennen individuelle Bemerkungen zu Schuelern mit Datumsangabe im Klassenbuch erfassen; filterbar nach Schueler und Zeitraum
 - **Dashboards** - Rollenspezifische Uebersichten mit Widgets und Schnellzugriff
 - **Responsive Design** - Optimiert fuer Desktop, Tablet und Smartphone
 - **Barrierefreiheit** - WCAG 2.1 AA konform (Tastaturnavigation, ARIA-Labels, Kontraste)
@@ -216,6 +217,170 @@ Folgende Maßnahmen liegen in der Verantwortung des Schulträgers und sind **nic
 - [ ] **Schulung der Nutzer** zu Datenschutz und sicherem Umgang mit der Software
 - [ ] **Aufbewahrungsfristen** für Klassenbuch und Fehlzeiten gemäß Landesschulrecht einhalten
 - [ ] **HTTPS** als einzigen Zugangsweg erzwingen
+
+## Mehrere Instanzen auf einem Server
+
+Open-Classbook unterstuetzt den Betrieb mehrerer unabhaengiger Instanzen auf einem Server – z.B. wenn ein Schultraeger mehrere Schulen verwaltet. Jede Schule erhaelt eine eigene Datenbank und einen eigenen Webroot-Ordner, was vollstaendige Datentrennung gewaehrleistet (DSGVO-konform).
+
+### Option A: Mehrere Virtual Hosts (empfohlen)
+
+Jede Instanz ist eine eigene Kopie der Codebase mit eigener Konfiguration:
+
+```bash
+# Verzeichnisse anlegen
+mkdir -p /var/www/schule-a /var/www/schule-b
+
+# Codebase klonen
+git clone https://github.com/JulianGiebel1987/open-classbook.git /var/www/schule-a
+git clone https://github.com/JulianGiebel1987/open-classbook.git /var/www/schule-b
+
+# Abhaengigkeiten installieren
+composer install -d /var/www/schule-a
+composer install -d /var/www/schule-b
+```
+
+Fuer jede Schule eine eigene Datenbank anlegen:
+
+```sql
+-- Schule A
+CREATE DATABASE classbook_schule_a CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER 'classbook_a'@'localhost' IDENTIFIED BY 'SicheresPasswortA';
+GRANT ALL PRIVILEGES ON classbook_schule_a.* TO 'classbook_a'@'localhost';
+
+-- Schule B
+CREATE DATABASE classbook_schule_b CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER 'classbook_b'@'localhost' IDENTIFIED BY 'SicheresPasswortB';
+GRANT ALL PRIVILEGES ON classbook_schule_b.* TO 'classbook_b'@'localhost';
+
+FLUSH PRIVILEGES;
+```
+
+Installer fuer jede Instanz ausfuehren:
+
+```bash
+php /var/www/schule-a/install.php
+php /var/www/schule-b/install.php
+```
+
+**Apache Virtual Hosts** (`/etc/apache2/sites-available/`):
+
+```apache
+# /etc/apache2/sites-available/schule-a.conf
+<VirtualHost *:443>
+    ServerName schule-a.example.de
+    DocumentRoot /var/www/schule-a/public
+
+    SSLEngine on
+    SSLCertificateFile    /etc/ssl/certs/schule-a.crt
+    SSLCertificateKeyFile /etc/ssl/private/schule-a.key
+
+    <Directory /var/www/schule-a/public>
+        AllowOverride All
+        Require all granted
+    </Directory>
+</VirtualHost>
+
+# /etc/apache2/sites-available/schule-b.conf
+<VirtualHost *:443>
+    ServerName schule-b.example.de
+    DocumentRoot /var/www/schule-b/public
+    # ... analog
+</VirtualHost>
+```
+
+**Nginx** (alternativ):
+
+```nginx
+# /etc/nginx/sites-available/schule-a
+server {
+    listen 443 ssl;
+    server_name schule-a.example.de;
+    root /var/www/schule-a/public;
+
+    ssl_certificate     /etc/ssl/certs/schule-a.crt;
+    ssl_certificate_key /etc/ssl/private/schule-a.key;
+
+    index index.php;
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location ~ \.php$ {
+        fastcgi_pass unix:/run/php/php8.3-fpm.sock;
+        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+        include fastcgi_params;
+    }
+}
+```
+
+Virtual Host aktivieren (Apache):
+
+```bash
+a2ensite schule-a.conf schule-b.conf
+systemctl reload apache2
+```
+
+### Option B: Shared Codebase, konfigurationsbasiert
+
+Eine einzige Codebase fuer alle Schulen – die richtige Datenbank wird anhand des Hostnamens gewaehlt. Empfohlen wenn viele Instanzen zentral aktualisiert werden sollen.
+
+```php
+// config/config.php
+$instanceConfigs = [
+    'schule-a.example.de' => [
+        'db_name' => 'classbook_schule_a',
+        'db_user' => 'classbook_a',
+        'db_pass' => 'SicheresPasswortA',
+    ],
+    'schule-b.example.de' => [
+        'db_name' => 'classbook_schule_b',
+        'db_user' => 'classbook_b',
+        'db_pass' => 'SicheresPasswortB',
+    ],
+];
+
+$currentHost = $_SERVER['HTTP_HOST'] ?? '';
+if (!isset($instanceConfigs[$currentHost])) {
+    http_response_code(403);
+    exit('Unbekannte Instanz.');
+}
+
+$instance = $instanceConfigs[$currentHost];
+define('DB_NAME', $instance['db_name']);
+define('DB_USER', $instance['db_user']);
+define('DB_PASS', $instance['db_pass']);
+// ... restliche Konfiguration
+```
+
+**Pro:** Ein Update (`git pull` + `php database/migrate.php` fuer jede DB) gilt fuer alle Schulen.
+**Con:** Eine fehlerhafte Migration betrifft alle Instanzen gleichzeitig.
+
+### Vergleich der Optionen
+
+| Kriterium | Option A (getrennte Ordner) | Option B (Shared Codebase) |
+|---|---|---|
+| Datentrennung | Vollstaendig (eigener Webroot) | Vollstaendig (eigene Datenbanken) |
+| Updates | Jede Instanz einzeln | Zentral fuer alle |
+| Konfigurationsaufwand | Gering pro Instanz | Einmalig, dann minimal |
+| Fehlerisolierung | Instanzen unabhaengig | Fehler koennen alle betreffen |
+| Empfohlen fuer | 2–5 Schulen | 6+ Schulen |
+
+### Migrationen bei mehreren Instanzen ausfuehren
+
+```bash
+# Jede Datenbank muss separat migriert werden
+for DB in classbook_schule_a classbook_schule_b; do
+    DB_NAME=$DB php /var/www/open-classbook/database/migrate.php
+done
+```
+
+### Hinweise fuer den Produktivbetrieb
+
+- Jede Instanz benoetigt einen eigenen `storage/`-Ordner (Uploads, Logs) – bei Option A automatisch gegeben
+- `config/config.php` und `storage/` muessen ausserhalb des Webroots liegen oder per Webserver-Konfiguration gesperrt sein
+- Separate Backups pro Datenbank einrichten (z.B. `mysqldump` via Cronjob)
+- SSL-Zertifikat pro Subdomain oder ein Wildcard-Zertifikat (`*.example.de`)
 
 ## Tests
 
