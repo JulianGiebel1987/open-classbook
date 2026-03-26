@@ -89,7 +89,7 @@ if (file_exists(__DIR__ . '/vendor/autoload.php')) {
 }
 
 // Schreibbare Verzeichnisse
-$writableDirs = ['storage', 'storage/logs', 'storage/uploads', 'storage/cache'];
+$writableDirs = ['storage', 'storage/logs', 'storage/uploads', 'storage/cache', 'storage/files'];
 foreach ($writableDirs as $dir) {
     $fullPath = __DIR__ . '/' . $dir;
     if (!is_dir($fullPath)) {
@@ -378,9 +378,10 @@ if (strtolower($createAdmin) === 'j') {
 echo "=== Schritt 6: Verzeichnisse einrichten ===\n\n";
 
 $dirs = [
-    'storage/logs' => 0755,
-    'storage/uploads' => 0755,
-    'storage/cache' => 0755,
+    'storage/logs'    => 0775,
+    'storage/uploads' => 0775,
+    'storage/cache'   => 0775,
+    'storage/files'   => 0775,
 ];
 
 foreach ($dirs as $dir => $perms) {
@@ -390,6 +391,16 @@ foreach ($dirs as $dir => $perms) {
     }
     chmod($fullPath, $perms);
     echo "  [OK] {$dir}/\n";
+}
+
+// Hinweis auf Webserver-Berechtigungen
+$webUser = trim(shell_exec('ps aux | grep -E "apache|nginx|www-data|php" | grep -v grep | awk \'{print $1}\' | head -1') ?? '');
+if ($webUser && $webUser !== 'root') {
+    echo "\n  [HINWEIS] Webserver laeuft als '{$webUser}'.\n";
+    echo "  Damit Datei-Uploads funktionieren, muessen die storage/-\n";
+    echo "  Verzeichnisse fuer diesen Benutzer beschreibbar sein:\n";
+    echo "    chown -R {$webUser}:{$webUser} " . __DIR__ . "/storage/\n";
+    echo "  (oder mindestens: chmod -R 777 " . __DIR__ . "/storage/)\n\n";
 }
 
 // .htaccess in storage/ fuer Sicherheit

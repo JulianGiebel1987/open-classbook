@@ -12,6 +12,10 @@ class ImportController
     public function index(): void
     {
         CsrfMiddleware::generateToken();
+        $uploadsDir = __DIR__ . '/../../storage/uploads';
+        if (!is_writable($uploadsDir)) {
+            App::setFlash('error', 'Import nicht moeglich: Das Verzeichnis storage/uploads/ ist nicht beschreibbar. Bitte Berechtigungen pruefen (z.B.: chmod 775 storage/uploads/).');
+        }
         View::render('import/index', ['title' => 'Daten importieren']);
     }
 
