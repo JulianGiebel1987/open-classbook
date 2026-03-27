@@ -171,4 +171,10 @@ class AuthController
         App::setFlash('success', 'Passwort erfolgreich geaendert. Sie koennen sich jetzt anmelden.');
         App::redirect('/login');
     }
+
+    public function privacy(): void
+    {
+        $layout = App::isLoggedIn() ? 'main' : 'auth';
+        View::render('auth/privacy', ['title' => 'Datenschutzhinweise'], $layout);
+    }
 }
