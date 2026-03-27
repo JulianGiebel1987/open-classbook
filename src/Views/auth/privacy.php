@@ -1,5 +1,5 @@
 <div class="card" style="max-width: 900px; margin: 0 auto;">
-    <div class="card-header" style="border-bottom: 2px solid var(--color-primary); padding-bottom: var(--spacing-md);">
+    <div class="card-header" style="border-bottom: 2px solid var(--color-primary); padding-bottom: var(--spacing-md); text-align: center;">
         <h1 style="font-size: var(--font-size-2xl); color: var(--color-primary);">Datenschutzhinweise</h1>
         <p class="text-muted" style="margin-top: var(--spacing-xs);">Stand: <?= date('d.m.Y') ?></p>
     </div>
