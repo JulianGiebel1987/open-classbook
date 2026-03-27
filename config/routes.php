@@ -26,6 +26,7 @@ $router->get('/forgot-password', [AuthController::class, 'forgotPasswordForm']);
 $router->post('/forgot-password', [AuthController::class, 'forgotPassword'], [CsrfMiddleware::class]);
 $router->get('/reset-password/{token}', [AuthController::class, 'resetPasswordForm']);
 $router->post('/reset-password', [AuthController::class, 'resetPassword'], [CsrfMiddleware::class]);
+$router->get('/datenschutz', [AuthController::class, 'privacy']);
 
 // === Geschuetzte Routen (Login erforderlich) ===
 $router->get('/dashboard', [DashboardController::class, 'index'], [AuthMiddleware::class]);
