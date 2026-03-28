@@ -14,8 +14,11 @@ use OpenClassbook\Controllers\ListController;
 use OpenClassbook\Controllers\MessageController;
 use OpenClassbook\Controllers\TimetableController;
 use OpenClassbook\Controllers\SubstitutionController;
+use OpenClassbook\Controllers\ZeugnisTemplateController;
+use OpenClassbook\Controllers\ZeugnisController;
 use OpenClassbook\Middleware\AuthMiddleware;
 use OpenClassbook\Middleware\CsrfMiddleware;
+use OpenClassbook\Middleware\ZeugnisAdminMiddleware;
 
 /** @var Router $router */
 
@@ -168,3 +171,36 @@ $router->post('/import/students', [ImportController::class, 'uploadStudents'], [
 $router->post('/import/students/confirm', [ImportController::class, 'confirmStudents'], [AuthMiddleware::class, CsrfMiddleware::class]);
 $router->get('/import/students/credentials', [ImportController::class, 'studentCredentials'], [AuthMiddleware::class]);
 $router->get('/import/template/{type}', [ImportController::class, 'downloadTemplate'], [AuthMiddleware::class]);
+
+// === Zeugniserstellung: Vorlagenverwaltung (Admin, Schulleitung, Sekretariat) ===
+$router->get('/zeugnis/templates', [ZeugnisTemplateController::class, 'index'], [AuthMiddleware::class, ZeugnisAdminMiddleware::class]);
+$router->get('/zeugnis/templates/create', [ZeugnisTemplateController::class, 'createForm'], [AuthMiddleware::class, ZeugnisAdminMiddleware::class]);
+$router->post('/zeugnis/templates', [ZeugnisTemplateController::class, 'create'], [AuthMiddleware::class, ZeugnisAdminMiddleware::class, CsrfMiddleware::class]);
+$router->get('/zeugnis/templates/{id}/edit', [ZeugnisTemplateController::class, 'editForm'], [AuthMiddleware::class, ZeugnisAdminMiddleware::class]);
+$router->post('/zeugnis/templates/{id}', [ZeugnisTemplateController::class, 'update'], [AuthMiddleware::class, ZeugnisAdminMiddleware::class, CsrfMiddleware::class]);
+$router->post('/zeugnis/templates/{id}/duplicate', [ZeugnisTemplateController::class, 'duplicate'], [AuthMiddleware::class, ZeugnisAdminMiddleware::class, CsrfMiddleware::class]);
+$router->post('/zeugnis/templates/{id}/delete', [ZeugnisTemplateController::class, 'delete'], [AuthMiddleware::class, ZeugnisAdminMiddleware::class, CsrfMiddleware::class]);
+$router->post('/zeugnis/templates/{id}/publish', [ZeugnisTemplateController::class, 'publish'], [AuthMiddleware::class, ZeugnisAdminMiddleware::class, CsrfMiddleware::class]);
+$router->post('/zeugnis/templates/{id}/unpublish', [ZeugnisTemplateController::class, 'unpublish'], [AuthMiddleware::class, ZeugnisAdminMiddleware::class, CsrfMiddleware::class]);
+$router->get('/zeugnis/templates/{id}/preview', [ZeugnisTemplateController::class, 'preview'], [AuthMiddleware::class]);
+$router->post('/zeugnis/templates/{id}/images', [ZeugnisTemplateController::class, 'uploadImage'], [AuthMiddleware::class, ZeugnisAdminMiddleware::class]);
+$router->get('/zeugnis/images/{imageId}', [ZeugnisTemplateController::class, 'serveImage'], [AuthMiddleware::class]);
+$router->post('/zeugnis/images/{imageId}/delete', [ZeugnisTemplateController::class, 'deleteImage'], [AuthMiddleware::class, ZeugnisAdminMiddleware::class, CsrfMiddleware::class]);
+
+// === Zeugniserstellung: Zeugnisse erstellen und verwalten (alle Lehrkräfte) ===
+$router->get('/zeugnis', [ZeugnisController::class, 'index'], [AuthMiddleware::class]);
+$router->get('/zeugnis/browse', [ZeugnisController::class, 'browse'], [AuthMiddleware::class]);
+$router->get('/zeugnis/batch-export', [ZeugnisController::class, 'batchExportPdf'], [AuthMiddleware::class]);
+$router->post('/zeugnis/batch-export', [ZeugnisController::class, 'batchExportPdf'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->get('/zeugnis/create/{templateId}', [ZeugnisController::class, 'createForm'], [AuthMiddleware::class]);
+$router->post('/zeugnis/create/{templateId}', [ZeugnisController::class, 'create'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->get('/zeugnis/batch/{templateId}', [ZeugnisController::class, 'batchForm'], [AuthMiddleware::class]);
+$router->post('/zeugnis/batch/{templateId}', [ZeugnisController::class, 'batchCreate'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->get('/zeugnis/{id}/edit', [ZeugnisController::class, 'editForm'], [AuthMiddleware::class]);
+$router->post('/zeugnis/{id}', [ZeugnisController::class, 'update'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/zeugnis/{id}/field', [ZeugnisController::class, 'saveField'], [AuthMiddleware::class]);
+$router->get('/zeugnis/{id}/share', [ZeugnisController::class, 'shareForm'], [AuthMiddleware::class]);
+$router->post('/zeugnis/{id}/share', [ZeugnisController::class, 'share'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/zeugnis/{id}/unshare', [ZeugnisController::class, 'unshare'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/zeugnis/{id}/delete', [ZeugnisController::class, 'delete'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->get('/zeugnis/{id}/export-pdf', [ZeugnisController::class, 'exportPdf'], [AuthMiddleware::class]);

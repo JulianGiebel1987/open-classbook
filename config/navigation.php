@@ -16,6 +16,7 @@ return [
         ['label' => 'Nachrichten', 'url' => '/messages'],
         ['label' => 'Listen', 'url' => '/lists'],
         ['label' => 'Dateien', 'url' => '/files'],
+        ['label' => 'Zeugnisse', 'url' => '/zeugnis/templates'],
         ['label' => 'Import', 'url' => '/import'],
     ],
     'schulleitung' => [
@@ -30,6 +31,7 @@ return [
         ['label' => 'Nachrichten', 'url' => '/messages'],
         ['label' => 'Listen', 'url' => '/lists'],
         ['label' => 'Dateien', 'url' => '/files'],
+        ['label' => 'Zeugnisse', 'url' => '/zeugnis/templates'],
     ],
     'sekretariat' => [
         ['label' => 'Dashboard', 'url' => '/dashboard'],
@@ -43,6 +45,7 @@ return [
         ['label' => 'Nachrichten', 'url' => '/messages'],
         ['label' => 'Listen', 'url' => '/lists'],
         ['label' => 'Dateien', 'url' => '/files'],
+        ['label' => 'Zeugnisse', 'url' => '/zeugnis/templates'],
         ['label' => 'Import', 'url' => '/import'],
     ],
     'lehrer' => [
@@ -55,6 +58,7 @@ return [
         ['label' => 'Nachrichten', 'url' => '/messages'],
         ['label' => 'Listen', 'url' => '/lists'],
         ['label' => 'Dateien', 'url' => '/files'],
+        ['label' => 'Zeugnisse', 'url' => '/zeugnis'],
     ],
     'schueler' => [
         ['label' => 'Dashboard', 'url' => '/dashboard'],
