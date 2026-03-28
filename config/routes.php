@@ -12,6 +12,7 @@ use OpenClassbook\Controllers\FileController;
 use OpenClassbook\Controllers\ImportController;
 use OpenClassbook\Controllers\ListController;
 use OpenClassbook\Controllers\MessageController;
+use OpenClassbook\Controllers\TimetableController;
 use OpenClassbook\Middleware\AuthMiddleware;
 use OpenClassbook\Middleware\CsrfMiddleware;
 
@@ -126,6 +127,22 @@ $router->get('/lists/{id}/export-pdf', [ListController::class, 'exportPdf'], [Au
 $router->get('/lists/{id}/share', [ListController::class, 'shareForm'], [AuthMiddleware::class]);
 $router->post('/lists/{id}/share', [ListController::class, 'share'], [AuthMiddleware::class, CsrfMiddleware::class]);
 $router->post('/lists/{id}/unshare', [ListController::class, 'removeShare'], [AuthMiddleware::class, CsrfMiddleware::class]);
+
+// === Stundenplanung ===
+$router->get('/timetable', [TimetableController::class, 'index'], [AuthMiddleware::class]);
+$router->get('/timetable/settings', [TimetableController::class, 'settingsForm'], [AuthMiddleware::class]);
+$router->post('/timetable/settings', [TimetableController::class, 'saveSettings'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->get('/timetable/my-schedule', [TimetableController::class, 'teacherView'], [AuthMiddleware::class]);
+$router->post('/timetable/slot', [TimetableController::class, 'saveSlot'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/timetable/check-conflict', [TimetableController::class, 'checkConflict'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/timetable/slot/{id}/delete', [TimetableController::class, 'deleteSlot'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->get('/timetable/{settingId}/class/select', [TimetableController::class, 'selectClass'], [AuthMiddleware::class]);
+$router->get('/timetable/{settingId}/class/{classId}', [TimetableController::class, 'editClass'], [AuthMiddleware::class]);
+$router->get('/timetable/{settingId}/class/{classId}/pdf', [TimetableController::class, 'exportPdf'], [AuthMiddleware::class]);
+$router->post('/timetable/{settingId}/publish', [TimetableController::class, 'publish'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/timetable/{settingId}/unpublish', [TimetableController::class, 'unpublish'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->get('/timetable/teacher/{teacherId}', [TimetableController::class, 'teacherSchedule'], [AuthMiddleware::class]);
+$router->get('/timetable/{settingId}/teacher/{teacherId}/pdf', [TimetableController::class, 'exportTeacherPdf'], [AuthMiddleware::class]);
 
 // === Import ===
 $router->get('/import', [ImportController::class, 'index'], [AuthMiddleware::class]);
