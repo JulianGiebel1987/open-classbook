@@ -2135,3 +2135,139 @@ a.widget:hover {
         flex-wrap: wrap;
     }
 }
+
+/* === Vertretungsplan === */
+
+.sub-day-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: var(--spacing-md, 16px);
+    padding: var(--spacing-md, 16px);
+}
+
+.sub-day-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: var(--spacing-md, 16px);
+    border: 2px solid var(--border-color, #dee2e6);
+    border-radius: var(--radius, 8px);
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.sub-day-card:hover {
+    border-color: var(--primary-color, #1976d2);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.sub-day-today {
+    border-color: var(--primary-color, #1976d2);
+    background: var(--primary-light, #e3f2fd);
+}
+
+.sub-day-pending {
+    border-color: var(--warning-color, #ffc107);
+}
+
+.sub-day-published {
+    border-color: var(--success-color, #28a745);
+}
+
+.sub-day-name {
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.sub-day-date {
+    font-size: 0.85rem;
+    color: var(--text-muted, #6c757d);
+}
+
+/* Publish bar */
+
+.sub-publish-bar {
+    padding: var(--spacing-sm, 8px) var(--spacing-md, 16px);
+}
+
+.sub-status {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-md, 16px);
+}
+
+.sub-status-published {
+    color: var(--success-color, #28a745);
+}
+
+.sub-status-draft {
+    color: var(--text-muted, #6c757d);
+}
+
+/* Absent teachers list */
+
+.sub-absent-list {
+    padding: var(--spacing-sm, 8px) var(--spacing-md, 16px);
+}
+
+.sub-absent-item {
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border-light, #eee);
+}
+
+.sub-absent-item:last-child {
+    border-bottom: none;
+}
+
+/* Substitution table */
+
+.sub-table .sub-row-cancelled {
+    background: #fff3cd;
+    text-decoration: line-through;
+    opacity: 0.7;
+}
+
+.sub-table .sub-row-cancelled .sub-cancelled-label {
+    text-decoration: none;
+    font-style: italic;
+    color: var(--warning-dark, #856404);
+    font-weight: 600;
+}
+
+.sub-cancelled-label {
+    font-style: italic;
+    color: var(--warning-dark, #856404);
+    font-weight: 600;
+}
+
+.sub-substitute-name {
+    font-weight: 600;
+    color: var(--success-color, #28a745);
+}
+
+/* Open slots table */
+
+.sub-open-table .open-slot-row {
+    background: #fff8e1;
+}
+
+.badge-info {
+    background: var(--primary-color, #1976d2);
+    color: #fff;
+}
+
+/* Responsive */
+
+@media (max-width: 640px) {
+    .sub-day-grid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    }
+
+    .sub-status {
+        flex-direction: column;
+        text-align: center;
+    }
+}

@@ -13,6 +13,7 @@ use OpenClassbook\Controllers\ImportController;
 use OpenClassbook\Controllers\ListController;
 use OpenClassbook\Controllers\MessageController;
 use OpenClassbook\Controllers\TimetableController;
+use OpenClassbook\Controllers\SubstitutionController;
 use OpenClassbook\Middleware\AuthMiddleware;
 use OpenClassbook\Middleware\CsrfMiddleware;
 
@@ -143,6 +144,20 @@ $router->post('/timetable/{settingId}/publish', [TimetableController::class, 'pu
 $router->post('/timetable/{settingId}/unpublish', [TimetableController::class, 'unpublish'], [AuthMiddleware::class, CsrfMiddleware::class]);
 $router->get('/timetable/teacher/{teacherId}', [TimetableController::class, 'teacherSchedule'], [AuthMiddleware::class]);
 $router->get('/timetable/{settingId}/teacher/{teacherId}/pdf', [TimetableController::class, 'exportTeacherPdf'], [AuthMiddleware::class]);
+
+// === Vertretungsplan ===
+$router->get('/substitution', [SubstitutionController::class, 'index'], [AuthMiddleware::class]);
+$router->get('/substitution/plan', [SubstitutionController::class, 'plan'], [AuthMiddleware::class]);
+$router->get('/substitution/my-substitutions', [SubstitutionController::class, 'teacherView'], [AuthMiddleware::class]);
+$router->post('/substitution/assign', [SubstitutionController::class, 'assign'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/substitution/cancel', [SubstitutionController::class, 'cancel'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/substitution/check-conflict', [SubstitutionController::class, 'checkConflict'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/substitution/available-teachers', [SubstitutionController::class, 'availableTeachers'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/substitution/publish', [SubstitutionController::class, 'publish'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/substitution/unpublish', [SubstitutionController::class, 'unpublish'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->get('/substitution/pdf', [SubstitutionController::class, 'exportPdf'], [AuthMiddleware::class]);
+$router->post('/substitution/{id}', [SubstitutionController::class, 'update'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/substitution/{id}/delete', [SubstitutionController::class, 'delete'], [AuthMiddleware::class, CsrfMiddleware::class]);
 
 // === Import ===
 $router->get('/import', [ImportController::class, 'index'], [AuthMiddleware::class]);
