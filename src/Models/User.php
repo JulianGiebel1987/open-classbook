@@ -6,6 +6,35 @@ use OpenClassbook\Database;
 
 class User
 {
+    /**
+     * Alle physischen Dateien eines Nutzers sammeln (private + eigene).
+     */
+    private static function collectUserFileNames(int $userId): array
+    {
+        $files = Database::query('SELECT stored_name FROM files WHERE owner_id = ?', [$userId]);
+        return array_column($files, 'stored_name');
+    }
+
+    /**
+     * Benutzer loeschen inkl. physischer Dateien.
+     * DB-Eintraege werden durch ON DELETE CASCADE automatisch entfernt.
+     */
+    public static function delete(int $id): void
+    {
+        // Physische Dateien vor dem DB-DELETE sammeln und loeschen
+        $storedNames = self::collectUserFileNames($id);
+        $storagePath = __DIR__ . '/../../storage/files/';
+
+        foreach ($storedNames as $name) {
+            $path = $storagePath . $name;
+            if (file_exists($path)) {
+                unlink($path);
+            }
+        }
+
+        Database::execute('DELETE FROM users WHERE id = ?', [$id]);
+    }
+
     public static function findById(int $id): ?array
     {
         return Database::queryOne(
