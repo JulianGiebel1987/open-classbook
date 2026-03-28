@@ -10,6 +10,7 @@ use OpenClassbook\Models\Student;
 use OpenClassbook\Models\SchoolClass;
 use OpenClassbook\Middleware\CsrfMiddleware;
 use OpenClassbook\Services\AuthService;
+use OpenClassbook\Services\Logger;
 
 class UserController
 {
@@ -324,6 +325,46 @@ class UserController
             'title' => 'Passwort zurueckgesetzt',
             'info' => $info,
         ]);
+    }
+
+    public function delete(string $id): void
+    {
+        $userId = (int) $id;
+        $user = User::findById($userId);
+        if (!$user) {
+            App::setFlash('error', 'Benutzer nicht gefunden.');
+            App::redirect('/users');
+            return;
+        }
+
+        // Eigenen Account nicht loeschen
+        if ($userId === (int) $_SESSION['user_id']) {
+            App::setFlash('error', 'Sie koennen Ihren eigenen Account nicht loeschen.');
+            App::redirect('/users');
+            return;
+        }
+
+        // Nur Admins duerfen Nutzer loeschen
+        if (App::currentUserRole() !== 'admin') {
+            App::setFlash('error', 'Nur Administratoren duerfen Benutzer loeschen.');
+            App::redirect('/users');
+            return;
+        }
+
+        $username = $user['username'];
+
+        Logger::audit(
+            'delete_user',
+            $_SESSION['user_id'] ?? null,
+            'User',
+            $userId,
+            'Benutzer geloescht: ' . $username . ' (Rolle: ' . $user['role'] . ')'
+        );
+
+        User::delete($userId);
+
+        App::setFlash('success', 'Benutzer "' . $username . '" und alle zugehoerigen Daten wurden geloescht.');
+        App::redirect('/users');
     }
 
     private function validateUser(array $data, ?int $excludeId = null): array
