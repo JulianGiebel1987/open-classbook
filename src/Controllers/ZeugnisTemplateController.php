@@ -59,16 +59,16 @@ class ZeugnisTemplateController
 
         CsrfMiddleware::generateToken();
 
-        $emptyCanvas = json_encode([
+        $emptyCanvas = [
             'pages' => [
                 ['id' => 'page-1', 'elements' => []],
             ],
-        ]);
+        ];
 
         View::render('zeugnis/templates/editor', [
             'title'       => 'Neue Zeugnisvorlage',
             'template'    => null,
-            'canvasJson'  => $emptyCanvas,
+            'canvasData'  => $emptyCanvas,
             'tokens'      => ZeugnisPlaceholderService::getAvailableTokens(),
             'images'      => [],
             'formAction'  => '/zeugnis/templates',
@@ -113,10 +113,13 @@ class ZeugnisTemplateController
 
         CsrfMiddleware::generateToken();
 
+        $canvasData = json_decode($template['template_canvas'] ?? '{}', true)
+            ?? ['pages' => [['id' => 'page-1', 'elements' => []]]];
+
         View::render('zeugnis/templates/editor', [
             'title'      => 'Vorlage bearbeiten: ' . htmlspecialchars($template['name']),
             'template'   => $template,
-            'canvasJson' => $template['template_canvas'],
+            'canvasData' => $canvasData,
             'tokens'     => ZeugnisPlaceholderService::getAvailableTokens(),
             'images'     => ZeugnisImage::findByTemplate((int) $id),
             'formAction' => '/zeugnis/templates/' . $id,

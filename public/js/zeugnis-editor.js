@@ -46,6 +46,7 @@
     var canvas, wrapper, propsPanel, pageIndicator;
     var dragState = null;   // { type: 'move'|'resize', elementId, startX, startY, origX, origY, origW, origH, handle }
     var dragOver  = false;  // palette drag
+    var preventDeselect = false; // suppress click-outside deselect after mouseup
 
     // -------------------------------------------------------------------------
     // Init
@@ -105,8 +106,9 @@
         document.addEventListener('mousemove', onMouseMove);
         document.addEventListener('mouseup', onMouseUp);
 
-        // Click outside deselects
+        // Click outside deselects (but not when coming from a drag/resize interaction)
         document.addEventListener('click', function (e) {
+            if (preventDeselect) { preventDeselect = false; return; }
             if (!e.target.closest('.zeugnis-element') && !e.target.closest('#props-panel')) {
                 deselectAll();
             }
@@ -524,6 +526,13 @@
         var div = e.currentTarget;
         var id  = div.dataset.id;
 
+        // Select element immediately on mousedown so props are visible right away
+        state.selectedId = id;
+        document.querySelectorAll('.zeugnis-element').forEach(function (node) {
+            node.classList.toggle('zeugnis-element--selected', node.dataset.id === id);
+        });
+        renderProps();
+
         // Resize handle?
         if (e.target.classList.contains('resize-handle')) {
             var el = findElement(id);
@@ -603,13 +612,15 @@
 
     function onMouseUp() {
         if (!dragState) return;
+        var elementId = dragState.elementId;
         // Full re-render to ensure resize handles and props panel are updated
         renderCanvas();
-        if (state.selectedId) {
-            selectElement(state.selectedId);
-            renderProps();
-        }
         dragState = null;
+        // Re-apply selection on the new DOM nodes; suppress the click event that
+        // follows mouseup so the "click outside" handler doesn't immediately deselect.
+        selectElement(elementId);
+        preventDeselect = true;
+        setTimeout(function() { preventDeselect = false; }, 0);
     }
 
     // -------------------------------------------------------------------------

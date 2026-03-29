@@ -46,9 +46,9 @@
         var pages = canvasData.pages || [];
         if (!pages.length) return;
 
-        // Determine page dimensions from first page's template metadata
-        var pageFormat      = window.ZEUGNIS_CANVAS_DATA.meta?.pageFormat      || 'A4';
-        var pageOrientation = window.ZEUGNIS_CANVAS_DATA.meta?.pageOrientation || 'P';
+        // Determine page dimensions from template settings
+        var pageFormat      = window.ZEUGNIS_PAGE_FORMAT      || 'A4';
+        var pageOrientation = window.ZEUGNIS_PAGE_ORIENTATION || 'P';
         var fmt = PAGE_FORMATS[pageFormat] || PAGE_FORMATS.A4;
         var pageDim = pageOrientation === 'L'
             ? { w: fmt.h, h: fmt.w }

@@ -87,11 +87,13 @@
 </div>
 
 <script>
-var ZEUGNIS_CANVAS_DATA   = <?= json_encode($canvas, JSON_UNESCAPED_UNICODE) ?>;
-var ZEUGNIS_FIELD_VALUES  = <?= json_encode($fieldValues, JSON_UNESCAPED_UNICODE) ?>;
-var ZEUGNIS_TOKENS        = <?= json_encode($tokens, JSON_UNESCAPED_UNICODE) ?>;
-var ZEUGNIS_CAN_EDIT      = <?= $canEdit ? 'true' : 'false' ?>;
-var ZEUGNIS_INSTANCE_ID   = <?= (int) $instance['id'] ?>;
-var ZEUGNIS_CSRF_TOKEN    = <?= json_encode($_SESSION['csrf_token'] ?? '') ?>;
+var ZEUGNIS_CANVAS_DATA      = <?= json_encode($canvas ?? ['pages' => []], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP) ?>;
+var ZEUGNIS_FIELD_VALUES     = <?= json_encode($fieldValues, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP) ?>;
+var ZEUGNIS_TOKENS           = <?= json_encode($tokens, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP) ?>;
+var ZEUGNIS_PAGE_FORMAT      = <?= json_encode($instance['page_format'] ?? 'A4') ?>;
+var ZEUGNIS_PAGE_ORIENTATION = <?= json_encode($instance['page_orientation'] ?? 'P') ?>;
+var ZEUGNIS_CAN_EDIT         = <?= $canEdit ? 'true' : 'false' ?>;
+var ZEUGNIS_INSTANCE_ID      = <?= (int) $instance['id'] ?>;
+var ZEUGNIS_CSRF_TOKEN       = <?= json_encode($_SESSION['csrf_token'] ?? '') ?>;
 </script>
 <script src="/js/zeugnis-fill.js"></script>

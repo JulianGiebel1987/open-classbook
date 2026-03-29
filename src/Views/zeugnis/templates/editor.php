@@ -167,7 +167,7 @@
 </form>
 
 <script>
-var ZEUGNIS_INITIAL_STATE = <?= $canvasJson ?>;
+var ZEUGNIS_INITIAL_STATE = <?= json_encode($canvasData, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP) ?>;
 var ZEUGNIS_TEMPLATE_ID   = <?= $template ? (int) $template['id'] : 'null' ?>;
 var ZEUGNIS_CSRF_TOKEN    = <?= json_encode($_SESSION['csrf_token'] ?? '') ?>;
 var ZEUGNIS_IMAGE_UPLOAD_URL = <?= $template ? json_encode('/zeugnis/templates/' . (int) $template['id'] . '/images') : 'null' ?>;
