@@ -60,7 +60,15 @@
 
         if (!canvas) return; // Not on editor page
 
-        loadState(window.ZEUGNIS_INITIAL_STATE || { pages: [{ id: 'page-1', elements: [] }] });
+        var _canvasEl = document.getElementById('zeugnis-canvas-data');
+        var _metaEl   = document.getElementById('zeugnis-meta');
+        var _meta     = _metaEl ? JSON.parse(_metaEl.textContent) : {};
+        window.ZEUGNIS_TEMPLATE_ID      = _meta.templateId || null;
+        window.ZEUGNIS_CSRF_TOKEN       = _meta.csrfToken || null;
+        window.ZEUGNIS_IMAGE_UPLOAD_URL = _meta.imageUploadUrl || null;
+        window.ZEUGNIS_PREVIEW_MODE     = _meta.previewMode || false;
+        var _initialCanvas = _canvasEl ? JSON.parse(_canvasEl.textContent) : null;
+        loadState(_initialCanvas || { pages: [{ id: 'page-1', elements: [] }] });
 
         // Format/orientation controls update canvas size
         var formatSel = document.getElementById('page_format');

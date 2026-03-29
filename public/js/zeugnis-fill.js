@@ -27,13 +27,20 @@
 
         if (!canvas) return;
 
-        instanceId = parseInt(canvas.dataset.instanceId, 10);
-        canEdit    = canvas.dataset.canEdit === '1';
-        csrfToken  = window.ZEUGNIS_CSRF_TOKEN || '';
+        var _fillEl   = document.getElementById('zeugnis-fill-data');
+        var _fillData = _fillEl ? JSON.parse(_fillEl.textContent) : {};
 
-        var canvasData  = window.ZEUGNIS_CANVAS_DATA  || { pages: [] };
-        var fieldValues = window.ZEUGNIS_FIELD_VALUES || {};
-        var tokens      = window.ZEUGNIS_TOKENS       || {};
+        instanceId = _fillData.instanceId || parseInt(canvas.dataset.instanceId, 10);
+        canEdit    = typeof _fillData.canEdit !== 'undefined' ? _fillData.canEdit : (canvas.dataset.canEdit === '1');
+        csrfToken  = _fillData.csrfToken || '';
+
+        var canvasData  = _fillData.canvas      || { pages: [] };
+        var fieldValues = _fillData.fieldValues || {};
+        var tokens      = _fillData.tokens      || {};
+
+        // Store page format/orientation for renderFillCanvas
+        window._ZEUGNIS_PAGE_FORMAT      = _fillData.pageFormat      || 'A4';
+        window._ZEUGNIS_PAGE_ORIENTATION = _fillData.pageOrientation || 'P';
 
         renderFillCanvas(canvasData, fieldValues, tokens);
     }
@@ -47,8 +54,8 @@
         if (!pages.length) return;
 
         // Determine page dimensions from template settings
-        var pageFormat      = window.ZEUGNIS_PAGE_FORMAT      || 'A4';
-        var pageOrientation = window.ZEUGNIS_PAGE_ORIENTATION || 'P';
+        var pageFormat      = window._ZEUGNIS_PAGE_FORMAT      || 'A4';
+        var pageOrientation = window._ZEUGNIS_PAGE_ORIENTATION || 'P';
         var fmt = PAGE_FORMATS[pageFormat] || PAGE_FORMATS.A4;
         var pageDim = pageOrientation === 'L'
             ? { w: fmt.h, h: fmt.w }

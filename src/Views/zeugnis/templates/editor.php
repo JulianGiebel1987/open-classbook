@@ -166,16 +166,15 @@
     </div><!-- /.zeugnis-editor-layout -->
 </form>
 
-<script>
-<?php
-$_canvasJs = json_encode(
-    $canvasData ?? ['pages' => [['id' => 'page-1', 'elements' => []]]],
-    JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP
-) ?: '{"pages":[{"id":"page-1","elements":[]}]}';
-?>
-var ZEUGNIS_INITIAL_STATE    = JSON.parse(<?= json_encode($_canvasJs) ?>);
-var ZEUGNIS_TEMPLATE_ID      = <?= $template ? (int) $template['id'] : 'null' ?>;
-var ZEUGNIS_CSRF_TOKEN       = <?= json_encode($_SESSION['csrf_token'] ?? '') ?>;
-var ZEUGNIS_IMAGE_UPLOAD_URL = <?= $template ? json_encode('/zeugnis/templates/' . (int) $template['id'] . '/images') : 'null' ?>;
+<script type="application/json" id="zeugnis-canvas-data">
+<?= json_encode($canvasData ?? ['pages' => [['id' => 'page-1', 'elements' => []]]], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP) ?: '{"pages":[{"id":"page-1","elements":[]}]}' ?>
+</script>
+<script type="application/json" id="zeugnis-meta">
+<?= json_encode([
+    'templateId'      => $template ? (int) $template['id'] : null,
+    'csrfToken'       => $_SESSION['csrf_token'] ?? '',
+    'imageUploadUrl'  => $template ? '/zeugnis/templates/' . (int) $template['id'] . '/images' : null,
+    'previewMode'     => false,
+], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP) ?>
 </script>
 <script src="/js/zeugnis-editor.js"></script>

@@ -47,15 +47,18 @@
 </div>
 <?php endif; ?>
 
-<script>
-<?php
-$_canvasJs = json_encode(
+<script type="application/json" id="zeugnis-canvas-data">
+<?= json_encode(
     json_decode($template['template_canvas'] ?? '{"pages":[]}', true) ?? ['pages' => []],
     JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP
-) ?: '{"pages":[]}';
-?>
-var ZEUGNIS_INITIAL_STATE = JSON.parse(<?= json_encode($_canvasJs) ?>);
-var ZEUGNIS_PREVIEW_MODE  = true;
-var ZEUGNIS_CSRF_TOKEN    = null;
+) ?: '{"pages":[]}' ?>
+</script>
+<script type="application/json" id="zeugnis-meta">
+<?= json_encode([
+    'templateId'     => (int) $template['id'],
+    'csrfToken'      => null,
+    'imageUploadUrl' => null,
+    'previewMode'    => true,
+], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP) ?>
 </script>
 <script src="/js/zeugnis-editor.js"></script>

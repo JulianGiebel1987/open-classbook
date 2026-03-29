@@ -86,19 +86,16 @@
 
 </div>
 
-<script>
-<?php
-$_canvasJs      = json_encode($canvas ?? ['pages' => []], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP) ?: '{"pages":[]}';
-$_fieldValuesJs = json_encode($fieldValues ?? new stdClass, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_FORCE_OBJECT) ?: '{}';
-$_tokensJs      = json_encode($tokens ?? new stdClass, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_FORCE_OBJECT) ?: '{}';
-?>
-var ZEUGNIS_CANVAS_DATA      = JSON.parse(<?= json_encode($_canvasJs) ?>);
-var ZEUGNIS_FIELD_VALUES     = JSON.parse(<?= json_encode($_fieldValuesJs) ?>);
-var ZEUGNIS_TOKENS           = JSON.parse(<?= json_encode($_tokensJs) ?>);
-var ZEUGNIS_PAGE_FORMAT      = <?= json_encode($instance['page_format'] ?? 'A4') ?>;
-var ZEUGNIS_PAGE_ORIENTATION = <?= json_encode($instance['page_orientation'] ?? 'P') ?>;
-var ZEUGNIS_CAN_EDIT         = <?= $canEdit ? 'true' : 'false' ?>;
-var ZEUGNIS_INSTANCE_ID      = <?= (int) $instance['id'] ?>;
-var ZEUGNIS_CSRF_TOKEN       = <?= json_encode($_SESSION['csrf_token'] ?? '') ?>;
+<script type="application/json" id="zeugnis-fill-data">
+<?= json_encode([
+    'canvas'          => $canvas ?? ['pages' => []],
+    'fieldValues'     => $fieldValues ?? (object)[],
+    'tokens'          => $tokens ?? (object)[],
+    'pageFormat'      => $instance['page_format'] ?? 'A4',
+    'pageOrientation' => $instance['page_orientation'] ?? 'P',
+    'canEdit'         => (bool) ($canEdit ?? false),
+    'instanceId'      => (int) ($instance['id'] ?? 0),
+    'csrfToken'       => $_SESSION['csrf_token'] ?? '',
+], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_FORCE_OBJECT) ?: '{}' ?>
 </script>
 <script src="/js/zeugnis-fill.js"></script>
