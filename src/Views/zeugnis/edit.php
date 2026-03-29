@@ -87,9 +87,14 @@
 </div>
 
 <script>
-var ZEUGNIS_CANVAS_DATA      = <?= json_encode($canvas ?? ['pages' => []], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP) ?>;
-var ZEUGNIS_FIELD_VALUES     = <?= json_encode($fieldValues, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP) ?>;
-var ZEUGNIS_TOKENS           = <?= json_encode($tokens, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP) ?>;
+<?php
+$_canvasJs      = json_encode($canvas ?? ['pages' => []], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP) ?: '{"pages":[]}';
+$_fieldValuesJs = json_encode($fieldValues ?? new stdClass, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_FORCE_OBJECT) ?: '{}';
+$_tokensJs      = json_encode($tokens ?? new stdClass, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_FORCE_OBJECT) ?: '{}';
+?>
+var ZEUGNIS_CANVAS_DATA      = JSON.parse(<?= json_encode($_canvasJs) ?>);
+var ZEUGNIS_FIELD_VALUES     = JSON.parse(<?= json_encode($_fieldValuesJs) ?>);
+var ZEUGNIS_TOKENS           = JSON.parse(<?= json_encode($_tokensJs) ?>);
 var ZEUGNIS_PAGE_FORMAT      = <?= json_encode($instance['page_format'] ?? 'A4') ?>;
 var ZEUGNIS_PAGE_ORIENTATION = <?= json_encode($instance['page_orientation'] ?? 'P') ?>;
 var ZEUGNIS_CAN_EDIT         = <?= $canEdit ? 'true' : 'false' ?>;

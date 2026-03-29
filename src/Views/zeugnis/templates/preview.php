@@ -48,7 +48,13 @@
 <?php endif; ?>
 
 <script>
-var ZEUGNIS_INITIAL_STATE = <?= $template['template_canvas'] ?>;
+<?php
+$_canvasJs = json_encode(
+    json_decode($template['template_canvas'] ?? '{"pages":[]}', true) ?? ['pages' => []],
+    JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP
+) ?: '{"pages":[]}';
+?>
+var ZEUGNIS_INITIAL_STATE = JSON.parse(<?= json_encode($_canvasJs) ?>);
 var ZEUGNIS_PREVIEW_MODE  = true;
 var ZEUGNIS_CSRF_TOKEN    = null;
 </script>

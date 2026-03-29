@@ -243,7 +243,8 @@ class ZeugnisController
 
         $canEdit = ZeugnisInstance::canEdit((int) $id, $_SESSION['user_id'], App::currentUserRole());
         $fieldValues = json_decode($instance['field_values'] ?? '{}', true) ?: [];
-        $canvas = json_decode($instance['template_canvas'], true);
+        $canvas = json_decode($instance['template_canvas'] ?? '{"pages":[]}', true)
+            ?? ['pages' => [['id' => 'page-1', 'elements' => []]]];
 
         // Pre-resolve student placeholders for read-only display
         $student = [
