@@ -8,6 +8,9 @@ Open-Classbook ist eine Open-Source-Loesung fuer digitale Klassenbuchfuehrung, F
 
 - **Digitales Klassenbuch** - Tageseintraege mit Thema, Stunde und Notizen; Filter nach Datum und Lehrer; CSV- und PDF-Export
 - **Fehlzeiten-Management** - Schueler- und Lehrer-Fehlzeiten erfassen, entschuldigt/unentschuldigt/offen verwalten
+- **Stundenplanung** - Wochenstundenplan je Klasse und Lehrkraft erstellen; Zeitslots konfigurieren; Konfliktpruefung bei Doppelbelegung; Plan fuer Lehrkraefte veroffentlichen
+- **Vertretungsplan** - Vertretungen bei Lehrerausfall erfassen und veroffentlichen; automatische Konfliktpruefung; Vertretungsplan als PDF exportieren; Lehrkraefte sehen ihre eigenen Vertretungen
+- **Zeugniserstellung** - WYSIWYG-Canvas-Editor fuer Zeugnisvorlagen (A4/A3, Hoch-/Querformat, Raster-Overlay, beliebig viele Seiten); 10 Elementtypen: statischer Text, Freitextfeld, Platzhalter (z.B. `{{student_name}}`), Bild/Logo, Notenfeld, Checkbox, Datumsfeld, Unterschriftsfeld, Trennlinie, Tabelle; Schriftart/Groesse/Farbe pro Element; Vorlagen veroffentlichen fuer Lehrkraefte; Lehrkraefte koennen Zeugnisse fuer einzelne Schueler oder ganze Klassen erstellen, ausfuellen, miteinander teilen und als PDF exportieren (Einzel oder ZIP-Batch)
 - **Listen** - Flexible, tabellarische Listen (Anwesenheit, Noten, etc.) mit Inline-Bearbeitung, 6 Feldtypen (Text, Checkbox, Zahl, Datum, Auswahl, Bewertung), Freigabe an einzelne Nutzer oder global
 - **Nachrichten** - Internes Nachrichtensystem mit Konversationen, Mehrfachempfaenger und Lesebestaetigung
 - **Dateiverwaltung** - Ordnerstruktur mit Upload/Download, Dateityp-Validierung und Groessenbegrenzung
@@ -82,10 +85,10 @@ Demo-Login: `admin` / `Admin2026!x`
 
 | Rolle        | Rechte |
 |-------------|--------|
-| Admin       | Vollzugriff, Benutzerverwaltung, Systemkonfiguration |
-| Schulleitung| Klassenbuecher einsehen, Berichte, Uebersichten |
-| Sekretariat | Schueler/Lehrer verwalten, Fehlzeiten, Import |
-| Lehrer/in   | Eigene Klassen: Klassenbuch, Fehlzeiten, Abwesenheitsmeldung |
+| Admin       | Vollzugriff, Benutzerverwaltung, Systemkonfiguration, Zeugnisvorlagen verwalten |
+| Schulleitung| Klassenbuecher einsehen, Berichte, Uebersichten, Zeugnisvorlagen verwalten |
+| Sekretariat | Schueler/Lehrer verwalten, Fehlzeiten, Import, Zeugnisvorlagen verwalten |
+| Lehrer/in   | Eigene Klassen: Klassenbuch, Fehlzeiten, Abwesenheitsmeldung, Stundenplan, Zeugnisse erstellen und exportieren |
 
 ## Projektstruktur
 
@@ -96,11 +99,11 @@ open-classbook/
 │   ├── css/             # Stylesheets
 │   └── js/              # JavaScript
 ├── src/
-│   ├── Controllers/     # Request-Handler (11 Controller)
-│   ├── Models/          # Datenbank-Modelle (15 Models)
-│   ├── Views/           # PHP-Templates (13 Bereiche)
+│   ├── Controllers/     # Request-Handler (15 Controller)
+│   ├── Models/          # Datenbank-Modelle (23 Models)
+│   ├── Views/           # PHP-Templates (15 Bereiche)
 │   ├── Middleware/       # Auth, CSRF, RBAC, Security Headers, Rate Limiting
-│   └── Services/        # Business-Logik (Import, Auth, Logger)
+│   └── Services/        # Business-Logik (Import, Auth, Logger, Zeugnis-Export)
 ├── config/              # Konfiguration
 ├── database/            # Migrationen und Seed-Skript
 ├── storage/             # Logs, Uploads, Cache
