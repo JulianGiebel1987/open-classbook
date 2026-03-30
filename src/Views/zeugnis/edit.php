@@ -89,13 +89,13 @@
 <script type="application/json" id="zeugnis-fill-data">
 <?= json_encode([
     'canvas'          => $canvas ?? ['pages' => []],
-    'fieldValues'     => $fieldValues ?? (object)[],
-    'tokens'          => $tokens ?? (object)[],
+    'fieldValues'     => $fieldValues ?: new \stdClass(),
+    'tokens'          => $tokens ?: new \stdClass(),
     'pageFormat'      => $instance['page_format'] ?? 'A4',
     'pageOrientation' => $instance['page_orientation'] ?? 'P',
     'canEdit'         => (bool) ($canEdit ?? false),
     'instanceId'      => (int) ($instance['id'] ?? 0),
     'csrfToken'       => $_SESSION['csrf_token'] ?? '',
-], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_FORCE_OBJECT) ?: '{}' ?>
+], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP) ?: '{}' ?>
 </script>
 <script src="/js/zeugnis-fill.js"></script>

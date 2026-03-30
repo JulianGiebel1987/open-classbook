@@ -51,6 +51,10 @@
 
     function renderFillCanvas(canvasData, fieldValues, tokens) {
         var pages = canvasData.pages || [];
+        // Handle object format (from JSON_FORCE_OBJECT) by converting to array
+        if (!Array.isArray(pages)) {
+            pages = Object.keys(pages).map(function (k) { return pages[k]; });
+        }
         if (!pages.length) return;
 
         // Determine page dimensions from template settings
@@ -81,7 +85,11 @@
                 offsetY += 24 / SCALE; // separator height in mm equivalent
             }
 
-            (page.elements || []).forEach(function (el) {
+            var elements = page.elements || [];
+            if (!Array.isArray(elements)) {
+                elements = Object.keys(elements).map(function (k) { return elements[k]; });
+            }
+            elements.forEach(function (el) {
                 var node = buildFillNode(el, fieldValues, tokens, offsetY);
                 if (node) canvas.appendChild(node);
             });
