@@ -139,9 +139,9 @@
             </div>
 
             <!-- Bild-Upload-Bereich -->
-            <?php if ($template): ?>
             <div id="image-upload-section" style="display:none;margin-top:var(--spacing-md)">
                 <h3>Bild hochladen</h3>
+                <?php if ($template): ?>
                 <input type="file" id="image-upload-input" accept="image/jpeg,image/png,image/gif,image/svg+xml,image/webp"
                        style="margin-bottom:var(--spacing-sm)">
                 <button type="button" id="btn-upload-image" class="btn btn-sm btn-secondary">Hochladen</button>
@@ -159,8 +159,12 @@
                     <?php endforeach; ?>
                 </div>
                 <?php endif; ?>
+                <?php else: ?>
+                <p class="text-muted" style="font-size:var(--font-size-sm)">
+                    Bitte speichern Sie die Vorlage zuerst, um Bilder hochladen zu können.
+                </p>
+                <?php endif; ?>
             </div>
-            <?php endif; ?>
         </div>
 
     </div><!-- /.zeugnis-editor-layout -->

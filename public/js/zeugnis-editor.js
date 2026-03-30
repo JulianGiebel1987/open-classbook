@@ -505,8 +505,19 @@
         }
 
         renderCanvas();
-        // Re-select to show updated handles
-        selectElement(state.selectedId);
+
+        // For text inputs during typing (input event), don't rebuild the
+        // props panel — that would destroy the focused field and lose the
+        // cursor position.  Only do a full re-select on "change" (blur /
+        // Enter) or for non-text controls where input == change.
+        if (e.type === 'input' && (e.target.tagName === 'TEXTAREA' || (e.target.tagName === 'INPUT' && e.target.type === 'text'))) {
+            // Keep selection highlight on canvas without rebuilding props
+            document.querySelectorAll('.zeugnis-element').forEach(function (node) {
+                node.classList.toggle('zeugnis-element--selected', node.dataset.id === state.selectedId);
+            });
+        } else {
+            selectElement(state.selectedId);
+        }
     }
 
     // -------------------------------------------------------------------------
