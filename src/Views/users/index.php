@@ -1,6 +1,11 @@
 <div class="page-header">
     <h1>Benutzerverwaltung</h1>
-    <a href="/users/create" class="btn">Neuer Benutzer</a>
+    <div class="btn-group">
+        <a href="/users/create" class="btn">Neuer Benutzer</a>
+        <?php if (in_array(\OpenClassbook\App::currentUserRole(), ['admin', 'sekretariat'], true)): ?>
+            <a href="/import" class="btn btn-secondary">Daten importieren</a>
+        <?php endif; ?>
+    </div>
 </div>
 
 <div class="card">
