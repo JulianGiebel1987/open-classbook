@@ -236,13 +236,20 @@ function markActiveNavItem() {
 
 /**
  * Chat-Funktionen: Scroll, aeltere Nachrichten laden, Enter-Senden
+ * Unterstuetzt sowohl 1:1-Chats (/messages/{id}) als auch Gruppen (/messages/groups/{id}).
  */
 function initChat() {
     var chatContainer = document.getElementById('chatContainer');
     if (!chatContainer) return;
 
+    // Gruppen-Chat hat data-group-id, 1:1-Chat hat data-conversation-id
+    var groupId = chatContainer.dataset.groupId;
     var conversationId = chatContainer.dataset.conversationId;
     var currentUser = parseInt(chatContainer.dataset.currentUser, 10);
+    var isGroup = !!groupId;
+    var olderUrl = isGroup
+        ? '/messages/groups/' + groupId + '/older'
+        : '/messages/' + conversationId + '/older';
 
     // Zum Ende scrollen
     chatContainer.scrollTop = chatContainer.scrollHeight;
@@ -261,6 +268,33 @@ function initChat() {
         });
     }
 
+    // Hilfsfunktion: Chat-Bubble DOM-Element erstellen
+    function buildBubble(m, isMine) {
+        var bubble = document.createElement('div');
+        bubble.className = 'chat-bubble ' + (isMine ? 'chat-bubble--mine' : 'chat-bubble--theirs');
+
+        // Absender-Name in Gruppen-Chats anzeigen
+        if (isGroup && !isMine && m.sender_username) {
+            var senderDiv = document.createElement('div');
+            senderDiv.className = 'chat-bubble-sender';
+            senderDiv.textContent = m.sender_username;
+            bubble.appendChild(senderDiv);
+        }
+
+        var bodyDiv = document.createElement('div');
+        bodyDiv.className = 'chat-bubble-body';
+        bodyDiv.textContent = m.body;
+        bubble.appendChild(bodyDiv);
+
+        var metaDiv = document.createElement('div');
+        metaDiv.className = 'chat-bubble-meta';
+        var date = new Date(m.created_at);
+        metaDiv.textContent = date.toLocaleDateString('de-DE', {day: '2-digit', month: '2-digit'}) + ' ' + date.toLocaleTimeString('de-DE', {hour: '2-digit', minute: '2-digit'});
+        bubble.appendChild(metaDiv);
+
+        return bubble;
+    }
+
     // Aeltere Nachrichten laden
     var loadMoreBtn = document.getElementById('loadMoreBtn');
     if (loadMoreBtn) {
@@ -269,7 +303,7 @@ function initChat() {
             loadMoreBtn.textContent = 'Laden...';
             loadMoreBtn.disabled = true;
 
-            fetch('/messages/' + conversationId + '/older?offset=' + offset)
+            fetch(olderUrl + '?offset=' + offset)
                 .then(function (res) { return res.json(); })
                 .then(function (data) {
                     if (!data.messages || data.messages.length === 0) {
@@ -279,25 +313,10 @@ function initChat() {
 
                     var fragment = document.createDocumentFragment();
                     data.messages.reverse().forEach(function (m) {
-                        var bubble = document.createElement('div');
                         var isMine = parseInt(m.sender_id, 10) === currentUser;
-                        bubble.className = 'chat-bubble ' + (isMine ? 'chat-bubble--mine' : 'chat-bubble--theirs');
-
-                        var bodyDiv = document.createElement('div');
-                        bodyDiv.className = 'chat-bubble-body';
-                        bodyDiv.textContent = m.body;
-                        bubble.appendChild(bodyDiv);
-
-                        var metaDiv = document.createElement('div');
-                        metaDiv.className = 'chat-bubble-meta';
-                        var date = new Date(m.created_at);
-                        metaDiv.textContent = date.toLocaleDateString('de-DE', {day: '2-digit', month: '2-digit'}) + ' ' + date.toLocaleTimeString('de-DE', {hour: '2-digit', minute: '2-digit'});
-                        bubble.appendChild(metaDiv);
-
-                        fragment.appendChild(bubble);
+                        fragment.appendChild(buildBubble(m, isMine));
                     });
 
-                    // Vor dem ersten Chat-Bubble einfuegen (nach dem Button)
                     var firstBubble = chatContainer.querySelector('.chat-bubble');
                     if (firstBubble) {
                         chatContainer.insertBefore(fragment, firstBubble);
@@ -324,13 +343,11 @@ function initChat() {
     // Polling: alle 15 Sekunden neue Nachrichten pruefen
     var messageCount = parseInt(chatContainer.dataset.messageCount, 10) || 0;
     setInterval(function () {
-        fetch('/messages/' + conversationId + '/older?offset=0')
+        fetch(olderUrl + '?offset=0')
             .then(function (res) { return res.json(); })
             .then(function (data) {
                 if (!data.messages) return;
-                var newCount = data.messages.length;
-                if (newCount > messageCount) {
-                    // Neue Nachrichten vorhanden - Seite neu laden
+                if (data.messages.length > messageCount) {
                     window.location.reload();
                 }
             })

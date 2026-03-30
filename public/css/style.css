@@ -1386,6 +1386,76 @@ a.widget:hover {
     margin-left: 2px;
 }
 
+/* Absender-Name in Gruppen-Chats */
+.chat-bubble-sender {
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    margin-bottom: 2px;
+    opacity: 0.8;
+}
+
+/* Gruppen-Avatar */
+.conversation-avatar--group {
+    background: var(--color-secondary, #6c757d);
+    font-size: 1.1rem;
+}
+
+.group-icon {
+    line-height: 1;
+}
+
+/* Mitglieder-Auswahl beim Gruppe erstellen */
+.group-member-list {
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius);
+    max-height: 300px;
+    overflow-y: auto;
+    padding: var(--spacing-xs);
+}
+
+.group-member-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.group-member-item:hover {
+    background: var(--color-primary-50);
+}
+
+.group-member-item input[type="checkbox"] {
+    flex-shrink: 0;
+    width: 1rem;
+    height: 1rem;
+    cursor: pointer;
+}
+
+.group-member-item input[type="checkbox"]:checked + .group-member-avatar {
+    background: var(--color-primary-dark);
+}
+
+.group-member-avatar {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.group-member-name {
+    font-size: var(--font-size-sm);
+}
+
 /* Chat-Eingabe */
 .chat-input-form {
     border-top: 1px solid var(--color-border);

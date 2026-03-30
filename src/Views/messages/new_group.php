@@ -1,0 +1,81 @@
+<div class="page-header">
+    <div>
+        <a href="/messages" class="btn btn-sm btn-secondary mb-05">Zurueck</a>
+        <h1>Neue Gruppe erstellen</h1>
+    </div>
+</div>
+
+<?php
+$roleLabels = [
+    'admin'        => 'Admin',
+    'schulleitung' => 'Schulleitung',
+    'sekretariat'  => 'Sekretariat',
+    'lehrer'       => 'Lehrer/in',
+    'schueler'     => 'Schueler/in',
+];
+?>
+
+<div class="card">
+    <form method="post" action="/messages/groups/new">
+        <?= \OpenClassbook\View::csrfField() ?>
+
+        <div class="form-group">
+            <label for="group_name">Gruppenname <span aria-hidden="true">*</span></label>
+            <input type="text" name="group_name" id="group_name" class="form-control"
+                   required maxlength="100" placeholder="z.B. Elternbeirat 4a, Lehrerkonferenz...">
+        </div>
+
+        <div class="form-group">
+            <label>Mitglieder auswaehlen <span aria-hidden="true">*</span></label>
+            <p class="text-muted" style="margin-bottom: 0.5rem; font-size: 0.875rem;">
+                Mindestens eine Person auswaehlen. Mehrere Personen per Klick auswaehlen.
+            </p>
+            <div class="group-member-list" id="memberList">
+                <?php foreach ($users as $u): ?>
+                    <label class="group-member-item">
+                        <input type="checkbox" name="member_ids[]" value="<?= (int) $u['id'] ?>">
+                        <span class="group-member-avatar" aria-hidden="true">
+                            <?= htmlspecialchars(mb_strtoupper(mb_substr($u['username'], 0, 1, 'UTF-8'), 'UTF-8'), ENT_QUOTES, 'UTF-8') ?>
+                        </span>
+                        <span class="group-member-name">
+                            <?= htmlspecialchars($u['username'], ENT_QUOTES, 'UTF-8') ?>
+                            <span class="badge badge-muted"><?= $roleLabels[$u['role']] ?? $u['role'] ?></span>
+                        </span>
+                    </label>
+                <?php endforeach; ?>
+            </div>
+            <div id="memberSelectCount" class="text-muted" style="font-size: 0.875rem; margin-top: 0.5rem;">
+                0 Personen ausgewaehlt
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="body">Erste Nachricht <span aria-hidden="true">*</span></label>
+            <textarea name="body" id="body" class="form-control" rows="4"
+                      required maxlength="5000" placeholder="Erste Nachricht an die Gruppe..."></textarea>
+        </div>
+
+        <div class="btn-group">
+            <button type="submit" class="btn" id="createGroupBtn" disabled>Gruppe erstellen</button>
+            <a href="/messages" class="btn btn-secondary">Abbrechen</a>
+        </div>
+    </form>
+</div>
+
+<script>
+(function () {
+    var checkboxes = document.querySelectorAll('#memberList input[type="checkbox"]');
+    var countLabel = document.getElementById('memberSelectCount');
+    var submitBtn = document.getElementById('createGroupBtn');
+
+    function updateCount() {
+        var checked = document.querySelectorAll('#memberList input[type="checkbox"]:checked').length;
+        countLabel.textContent = checked + (checked === 1 ? ' Person ausgewaehlt' : ' Personen ausgewaehlt');
+        submitBtn.disabled = checked < 1;
+    }
+
+    checkboxes.forEach(function (cb) {
+        cb.addEventListener('change', updateCount);
+    });
+})();
+</script>
