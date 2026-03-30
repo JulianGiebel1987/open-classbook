@@ -91,3 +91,9 @@
         </table>
     </div>
 </div>
+
+<?php if (!empty($filters['class_id'])): ?>
+<div class="mt-1">
+    <a href="/classbook/<?= (int) $filters['class_id'] ?>" class="btn btn-secondary">Zurueck zum Klassenbuch</a>
+</div>
+<?php endif; ?>
