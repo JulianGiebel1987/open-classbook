@@ -113,8 +113,23 @@ class ZeugnisTemplateController
 
         CsrfMiddleware::generateToken();
 
-        $canvasData = json_decode($template['template_canvas'] ?? '{}', true)
-            ?? ['pages' => [['id' => 'page-1', 'elements' => []]]];
+        $defaultCanvas = ['pages' => [['id' => 'page-1', 'elements' => []]]];
+        $canvasData = null;
+
+        $rawCanvas = $template['template_canvas'] ?? '';
+        if ($rawCanvas !== '' && $rawCanvas !== null) {
+            $canvasData = json_decode($rawCanvas, true);
+        }
+
+        // Ensure canvas has valid pages structure
+        if (!is_array($canvasData) || !isset($canvasData['pages']) || !is_array($canvasData['pages'])) {
+            Logger::warning('Zeugnis template canvas invalid or empty, using default', [
+                'template_id' => (int) $id,
+                'raw_value_length' => is_string($rawCanvas) ? strlen($rawCanvas) : 0,
+                'json_error' => json_last_error_msg(),
+            ]);
+            $canvasData = $defaultCanvas;
+        }
 
         View::render('zeugnis/templates/editor', [
             'title'      => 'Vorlage bearbeiten: ' . htmlspecialchars($template['name']),
@@ -414,10 +429,16 @@ class ZeugnisTemplateController
      */
     private function extractTemplateData(): ?array
     {
+        $referer = $_SERVER['HTTP_REFERER'] ?? '/zeugnis/templates';
+        $parsed = parse_url($referer);
+        if (!empty($parsed['host']) && $parsed['host'] !== ($_SERVER['HTTP_HOST'] ?? '')) {
+            $referer = '/zeugnis/templates';
+        }
+
         $name = trim($_POST['name'] ?? '');
         if ($name === '') {
             App::setFlash('error', 'Name der Vorlage ist erforderlich.');
-            App::redirect('/zeugnis/templates/create');
+            App::redirect($referer);
             return null;
         }
 
@@ -433,16 +454,32 @@ class ZeugnisTemplateController
 
         $canvasJson = $_POST['template_canvas'] ?? '';
         if ($canvasJson === '') {
+            Logger::warning('Zeugnis template canvas POST field was empty, using default empty canvas');
             $canvasJson = json_encode(['pages' => [['id' => 'page-1', 'elements' => []]]]);
         } else {
             // Validate JSON
             $decoded = json_decode($canvasJson, true);
             if ($decoded === null) {
                 App::setFlash('error', 'Ungültige Canvas-Daten.');
-                App::redirect('/zeugnis/templates/create');
+                App::redirect($referer);
                 return null;
             }
-            $canvasJson = json_encode($decoded); // re-encode normalized
+
+            // Ensure valid pages structure
+            if (!isset($decoded['pages']) || !is_array($decoded['pages'])) {
+                Logger::warning('Zeugnis template canvas missing pages structure', [
+                    'canvas_length' => strlen($canvasJson),
+                ]);
+                $decoded = ['pages' => [['id' => 'page-1', 'elements' => []]]];
+            }
+
+            $canvasJson = json_encode($decoded, JSON_INVALID_UTF8_SUBSTITUTE);
+            if ($canvasJson === false) {
+                Logger::error('json_encode failed for zeugnis canvas: ' . json_last_error_msg());
+                App::setFlash('error', 'Fehler beim Verarbeiten der Canvas-Daten.');
+                App::redirect($referer);
+                return null;
+            }
         }
 
         return [
