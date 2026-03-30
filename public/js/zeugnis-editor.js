@@ -91,8 +91,18 @@
 
         // Save button wires up canvas JSON before form submit
         var form = document.getElementById('zeugnis-editor-form');
-        if (form) form.addEventListener('submit', function () {
-            document.getElementById('template-canvas-input').value = JSON.stringify({ pages: state.pages });
+        if (form) form.addEventListener('submit', function (e) {
+            try {
+                var json = JSON.stringify({ pages: state.pages });
+                if (!json || json.length < 10) {
+                    console.warn('Zeugnis editor: canvas JSON unexpectedly short', json);
+                }
+                document.getElementById('template-canvas-input').value = json;
+            } catch (err) {
+                console.error('Zeugnis editor: failed to serialize canvas', err);
+                e.preventDefault();
+                alert('Fehler beim Speichern der Vorlagendaten. Bitte versuchen Sie es erneut.');
+            }
         });
 
         // Palette drag start

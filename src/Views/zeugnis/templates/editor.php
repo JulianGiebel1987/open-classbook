@@ -167,7 +167,17 @@
 </form>
 
 <script type="application/json" id="zeugnis-canvas-data">
-<?= json_encode($canvasData ?? ['pages' => [['id' => 'page-1', 'elements' => []]]], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP) ?: '{"pages":[{"id":"page-1","elements":[]}]}' ?>
+<?php
+$_canvasJsonOut = json_encode(
+    $canvasData ?? ['pages' => [['id' => 'page-1', 'elements' => []]]],
+    JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_INVALID_UTF8_SUBSTITUTE
+);
+if ($_canvasJsonOut === false) {
+    \OpenClassbook\Services\Logger::error('json_encode failed for zeugnis canvas in editor view: ' . json_last_error_msg());
+    $_canvasJsonOut = '{"pages":[{"id":"page-1","elements":[]}]}';
+}
+echo $_canvasJsonOut;
+?>
 </script>
 <script type="application/json" id="zeugnis-meta">
 <?= json_encode([
