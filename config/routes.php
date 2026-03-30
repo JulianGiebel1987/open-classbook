@@ -100,6 +100,11 @@ $router->post('/absences/teachers/{id}/delete', [AbsenceTeacherController::class
 $router->get('/messages', [MessageController::class, 'inbox'], [AuthMiddleware::class]);
 $router->get('/messages/new', [MessageController::class, 'newConversation'], [AuthMiddleware::class]);
 $router->post('/messages/new', [MessageController::class, 'createConversation'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->get('/messages/groups/new', [MessageController::class, 'newGroup'], [AuthMiddleware::class]);
+$router->post('/messages/groups/new', [MessageController::class, 'createGroup'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->get('/messages/groups/{id}', [MessageController::class, 'showGroup'], [AuthMiddleware::class]);
+$router->post('/messages/groups/{id}', [MessageController::class, 'sendGroup'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->get('/messages/groups/{id}/older', [MessageController::class, 'loadMoreGroup'], [AuthMiddleware::class]);
 $router->get('/messages/{id}', [MessageController::class, 'show'], [AuthMiddleware::class]);
 $router->post('/messages/{id}', [MessageController::class, 'send'], [AuthMiddleware::class, CsrfMiddleware::class]);
 $router->get('/messages/{id}/older', [MessageController::class, 'loadMore'], [AuthMiddleware::class]);
