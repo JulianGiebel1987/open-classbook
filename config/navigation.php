@@ -14,7 +14,7 @@ return [
         ['label' => 'Nachrichten', 'url' => '/messages'],
         ['label' => 'Listen', 'url' => '/lists'],
         ['label' => 'Dateien', 'url' => '/files'],
-        ['label' => 'Zeugnisse', 'url' => '/zeugnis/templates'],
+        ['label' => 'Vorlagen', 'url' => '/zeugnis/templates'],
     ],
     'schulleitung' => [
         ['label' => 'Dashboard', 'url' => '/dashboard'],
@@ -26,7 +26,7 @@ return [
         ['label' => 'Nachrichten', 'url' => '/messages'],
         ['label' => 'Listen', 'url' => '/lists'],
         ['label' => 'Dateien', 'url' => '/files'],
-        ['label' => 'Zeugnisse', 'url' => '/zeugnis/templates'],
+        ['label' => 'Vorlagen', 'url' => '/zeugnis/templates'],
     ],
     'sekretariat' => [
         ['label' => 'Dashboard', 'url' => '/dashboard'],
@@ -38,7 +38,7 @@ return [
         ['label' => 'Nachrichten', 'url' => '/messages'],
         ['label' => 'Listen', 'url' => '/lists'],
         ['label' => 'Dateien', 'url' => '/files'],
-        ['label' => 'Zeugnisse', 'url' => '/zeugnis/templates'],
+        ['label' => 'Vorlagen', 'url' => '/zeugnis/templates'],
     ],
     'lehrer' => [
         ['label' => 'Dashboard', 'url' => '/dashboard'],
@@ -49,7 +49,7 @@ return [
         ['label' => 'Nachrichten', 'url' => '/messages'],
         ['label' => 'Listen', 'url' => '/lists'],
         ['label' => 'Dateien', 'url' => '/files'],
-        ['label' => 'Zeugnisse', 'url' => '/zeugnis'],
+        ['label' => 'Vorlagen', 'url' => '/zeugnis'],
     ],
     'schueler' => [
         ['label' => 'Dashboard', 'url' => '/dashboard'],

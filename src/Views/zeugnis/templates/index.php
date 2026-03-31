@@ -1,5 +1,5 @@
 <div class="page-header">
-    <h1>Zeugnisvorlagen</h1>
+    <h1>Vorlagen</h1>
     <a href="/zeugnis/templates/create" class="btn">Neue Vorlage</a>
 </div>
 
@@ -30,7 +30,7 @@
 
 <div class="card">
     <div class="table-responsive">
-        <table aria-label="Zeugnisvorlagen">
+        <table aria-label="Vorlagen">
             <thead>
                 <tr>
                     <th scope="col">Name</th>

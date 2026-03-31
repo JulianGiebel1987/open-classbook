@@ -1,6 +1,6 @@
 <div class="page-header">
-    <h1>Zeugnisvorlagen</h1>
-    <a href="/zeugnis" class="btn btn-muted">← Meine Zeugnisse</a>
+    <h1>Vorlagen</h1>
+    <a href="/zeugnis" class="btn btn-muted">← Meine Dokumente</a>
 </div>
 
 <?php if (empty($templates)): ?>

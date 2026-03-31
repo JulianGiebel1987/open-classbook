@@ -53,7 +53,7 @@
 
         <div class="form-actions mt-3">
             <button type="submit" class="btn btn-primary">
-                Zeugnisse für Auswahl anlegen
+                Dokumente für Auswahl anlegen
             </button>
         </div>
     </form>
