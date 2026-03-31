@@ -2,6 +2,7 @@
     "name": "open-classbook/open-classbook",
     "description": "Schlanke Schulplattform fuer kleinere Schulen",
     "type": "project",
+    "version": "1.0.0",
     "license": "MIT",
     "require": {
         "php": ">=8.2",
