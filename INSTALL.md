@@ -305,7 +305,15 @@ openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
 
 ## E-Mail konfigurieren
 
-Fuer Passwort-Zuruecksetzung und Benachrichtigungen kann ein SMTP-Server konfiguriert werden.
+Fuer folgende Funktionen kann ein SMTP-Server konfiguriert werden:
+
+- **Abwesenheitsmeldungen:** Benachrichtigung an Schulleitung und Sekretariat bei Krankmeldungen
+- **Temporaere Passwoerter:** Nach dem Zuruecksetzen eines Passworts kann der Admin die Zugangsdaten
+  direkt per E-Mail an den betroffenen Nutzer senden (Button in der Nutzerverwaltung unter
+  *Benutzerverwaltung → Passwort zuruecksetzen*)
+
+> **Hinweis:** Ohne aktive Mail-Konfiguration wird in der Nutzerverwaltung kein E-Mail-Button
+> angezeigt. Das temporaere Passwort muss dann manuell an den Nutzer weitergegeben werden.
 
 Passen Sie die Mail-Einstellungen in `config/config.php` an:
 

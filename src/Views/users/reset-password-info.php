@@ -15,7 +15,20 @@
 
     <p class="text-muted" style="margin-top: var(--spacing-sm); font-size: var(--font-size-sm);">Der Nutzer wird beim naechsten Login aufgefordert, das Passwort zu aendern.</p>
 
-    <div style="margin-top: var(--spacing-lg);">
+    <div style="margin-top: var(--spacing-lg); display: flex; gap: var(--spacing-sm); flex-wrap: wrap; align-items: center;">
         <a href="/users" class="btn">Zurueck zur Nutzerverwaltung</a>
+
+        <?php if ($mailEnabled): ?>
+            <form method="post" action="/users/<?= (int) $info['user_id'] ?>/send-temp-password" style="display: inline;">
+                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8') ?>">
+                <button type="submit" class="btn btn-primary">
+                    Zugangsdaten per E-Mail senden an <?= htmlspecialchars($info['email'], ENT_QUOTES, 'UTF-8') ?>
+                </button>
+            </form>
+        <?php else: ?>
+            <span class="text-muted" style="font-size: var(--font-size-sm);">
+                E-Mail-Versand nicht konfiguriert &ndash; Passwort bitte manuell weitergeben.
+            </span>
+        <?php endif; ?>
     </div>
 </div>

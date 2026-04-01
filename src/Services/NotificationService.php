@@ -60,6 +60,30 @@ class NotificationService
     }
 
     /**
+     * Temporaeres Passwort per E-Mail an den betroffenen Nutzer senden
+     */
+    public static function sendTemporaryPasswordMail(string $to, string $username, string $tempPassword): bool
+    {
+        if (!App::config('mail.enabled')) {
+            Logger::warning('Mail deaktiviert - temporaeres Passwort nicht per E-Mail versendet', ['to' => $to]);
+            return false;
+        }
+
+        $subject = 'Ihre Zugangsdaten fuer Open-Classbook';
+
+        $body  = "Sehr geehrte/r " . $username . ",\n\n";
+        $body .= "Ihr Passwort in Open-Classbook wurde zurueckgesetzt.\n\n";
+        $body .= "Ihre neuen Zugangsdaten:\n";
+        $body .= "  Benutzername: " . $username . "\n";
+        $body .= "  Passwort:     " . $tempPassword . "\n\n";
+        $body .= "Bitte melden Sie sich an und aendern Sie das Passwort sofort beim ersten Login.\n\n";
+        $body .= "--\nDiese Nachricht wurde automatisch von Open-Classbook versendet.\n";
+        $body .= "Bitte antworten Sie nicht auf diese E-Mail.";
+
+        return self::sendMail($to, $subject, $body);
+    }
+
+    /**
      * Empfaenger fuer Abwesenheits-Benachrichtigungen: Schulleitung und Sekretariat
      */
     private static function getNotificationRecipients(): array
@@ -72,7 +96,7 @@ class NotificationService
     /**
      * E-Mail senden via PHPMailer oder mail()
      */
-    private static function sendMail(string $to, string $subject, string $body): void
+    private static function sendMail(string $to, string $subject, string $body): bool
     {
         try {
             $fromAddress = App::config('mail.from_address') ?? 'noreply@schule.de';
@@ -89,8 +113,11 @@ class NotificationService
             } else {
                 Logger::error('E-Mail-Versand fehlgeschlagen', ['to' => $to, 'subject' => $subject]);
             }
+
+            return $result;
         } catch (\Exception $e) {
             Logger::error('E-Mail-Versand Fehler: ' . $e->getMessage(), ['to' => $to]);
+            return false;
         }
     }
 }

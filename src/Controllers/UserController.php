@@ -11,6 +11,7 @@ use OpenClassbook\Models\SchoolClass;
 use OpenClassbook\Middleware\CsrfMiddleware;
 use OpenClassbook\Services\AuthService;
 use OpenClassbook\Services\Logger;
+use OpenClassbook\Services\NotificationService;
 
 class UserController
 {
@@ -299,13 +300,15 @@ class UserController
             return;
         }
 
-        $tempPassword = bin2hex(random_bytes(5));
+        $tempPassword = bin2hex(random_bytes(16));
         User::updatePassword($userId, $tempPassword);
         User::update($userId, ['must_change_password' => 1]);
 
         // Passwort einmalig in der Session speichern, nicht im Flash-Message (verhindert Browser-Verlauf-Exposition)
         $_SESSION['reset_password_info'] = [
+            'user_id'  => $userId,
             'username' => $user['username'],
+            'email'    => $user['email'] ?? '',
             'password' => $tempPassword,
         ];
         App::redirect('/users/reset-password-info');
@@ -321,10 +324,47 @@ class UserController
             return;
         }
 
+        // Fuer optionalen E-Mail-Versand in separater Session-Variable aufbewahren
+        $_SESSION['temp_password_for_email'] = $info;
+
+        $mailEnabled = (bool) App::config('mail.enabled') && !empty($info['email']);
+
         View::render('users/reset-password-info', [
-            'title' => 'Passwort zurueckgesetzt',
-            'info' => $info,
+            'title'       => 'Passwort zurueckgesetzt',
+            'info'        => $info,
+            'mailEnabled' => $mailEnabled,
+            'csrfToken'   => CsrfMiddleware::generateToken(),
         ]);
+    }
+
+    public function sendTempPassword(string $id): void
+    {
+        $userId = (int) $id;
+
+        $info = $_SESSION['temp_password_for_email'] ?? null;
+        unset($_SESSION['temp_password_for_email']);
+
+        if (!$info || (int) ($info['user_id'] ?? 0) !== $userId) {
+            App::setFlash('error', 'Zugangsdaten nicht mehr verfuegbar. Bitte Passwort erneut zuruecksetzen.');
+            App::redirect('/users');
+            return;
+        }
+
+        if (empty($info['email'])) {
+            App::setFlash('error', 'Fuer diesen Benutzer ist keine E-Mail-Adresse hinterlegt.');
+            App::redirect('/users');
+            return;
+        }
+
+        $sent = NotificationService::sendTemporaryPasswordMail($info['email'], $info['username'], $info['password']);
+
+        if ($sent) {
+            App::setFlash('success', 'Zugangsdaten wurden per E-Mail an ' . htmlspecialchars($info['email'], ENT_QUOTES, 'UTF-8') . ' gesendet.');
+        } else {
+            App::setFlash('error', 'E-Mail-Versand fehlgeschlagen. Bitte pruefen Sie die E-Mail-Konfiguration.');
+        }
+
+        App::redirect('/users');
     }
 
     public function delete(string $id): void

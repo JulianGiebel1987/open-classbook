@@ -5,6 +5,7 @@
 /storage/files/*
 !storage/logs/.gitkeep
 !storage/uploads/.gitkeep
+!storage/uploads/.htaccess
 !storage/cache/.gitkeep
 !storage/files/.gitkeep
 .env
