@@ -36,7 +36,7 @@
         </div>
 
         <div class="form-actions">
-            <button type="submit" class="btn btn-primary">Zeugnis anlegen</button>
+            <button type="submit" class="btn btn-primary">Dokument anlegen</button>
             <a href="/zeugnis/browse" class="btn btn-muted">Abbrechen</a>
         </div>
     </form>

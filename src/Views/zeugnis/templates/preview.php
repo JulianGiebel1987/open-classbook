@@ -42,7 +42,7 @@
 
 <?php if ($template['status'] === 'published'): ?>
 <div style="margin-top:var(--spacing-lg);text-align:center">
-    <a href="/zeugnis/create/<?= (int) $template['id'] ?>" class="btn btn-primary">Zeugnis erstellen</a>
+    <a href="/zeugnis/create/<?= (int) $template['id'] ?>" class="btn btn-primary">Dokument erstellen</a>
     <a href="/zeugnis/batch/<?= (int) $template['id'] ?>" class="btn btn-secondary">Für Klasse erstellen</a>
 </div>
 <?php endif; ?>

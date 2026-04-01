@@ -1,7 +1,7 @@
 <div class="page-header">
     <div>
-        <a href="/zeugnis/<?= (int) $instance['id'] ?>/edit" class="btn btn-sm btn-secondary mb-05">← Zurück zum Zeugnis</a>
-        <h1>Zeugnis teilen:
+        <a href="/zeugnis/<?= (int) $instance['id'] ?>/edit" class="btn btn-sm btn-secondary mb-05">← Zurück zum Dokument</a>
+        <h1>Dokument teilen:
             <?= htmlspecialchars($instance['student_first_name'] . ' ' . $instance['student_last_name'], ENT_QUOTES, 'UTF-8') ?>
         </h1>
     </div>

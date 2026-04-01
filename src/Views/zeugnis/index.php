@@ -1,6 +1,6 @@
 <div class="page-header">
-    <h1>Meine Zeugnisse</h1>
-    <a href="/zeugnis/browse" class="btn">Neues Zeugnis</a>
+    <h1>Meine Dokumente</h1>
+    <a href="/zeugnis/browse" class="btn">Neues Dokument</a>
 </div>
 
 <?php
@@ -10,7 +10,7 @@ $statusBadges = ['draft' => 'badge-draft', 'final' => 'badge-final'];
 
 <div class="card">
     <div class="table-responsive">
-        <table aria-label="Zeugnisse">
+        <table aria-label="Dokumente">
             <thead>
                 <tr>
                     <th scope="col">Schüler/in</th>
@@ -25,7 +25,7 @@ $statusBadges = ['draft' => 'badge-draft', 'final' => 'badge-final'];
             <tbody>
                 <?php if (empty($instances)): ?>
                     <tr><td colspan="7" class="text-center">
-                        Keine Zeugnisse vorhanden.
+                        Keine Dokumente vorhanden.
                         <a href="/zeugnis/browse">Jetzt Vorlage auswählen →</a>
                     </td></tr>
                 <?php endif; ?>
@@ -59,7 +59,7 @@ $statusBadges = ['draft' => 'badge-draft', 'final' => 'badge-final'];
                                 <form method="post" action="/zeugnis/<?= (int) $inst['id'] ?>/delete" class="d-inline">
                                     <?= \OpenClassbook\View::csrfField() ?>
                                     <button type="submit" class="btn btn-sm btn-danger"
-                                            data-confirm="Zeugnis wirklich löschen?">Löschen</button>
+                                            data-confirm="Dokument wirklich löschen?">Löschen</button>
                                 </form>
                             <?php endif; ?>
                         </div>
@@ -76,7 +76,7 @@ $statusBadges = ['draft' => 'badge-draft', 'final' => 'badge-final'];
     <h2 class="card-title">Batch-Export</h2>
     <form method="post" action="/zeugnis/batch-export" id="batch-export-form">
         <?= \OpenClassbook\View::csrfField() ?>
-        <p class="text-muted">Mehrere Zeugnisse als ZIP herunterladen:</p>
+        <p class="text-muted">Mehrere Dokumente als ZIP herunterladen:</p>
         <div class="form-row">
             <button type="button" id="btn-select-all" class="btn btn-sm btn-muted">Alle auswählen</button>
             <button type="submit" class="btn btn-sm btn-primary">Ausgewählte exportieren</button>

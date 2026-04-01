@@ -10,7 +10,7 @@
 </div>
 
 <?php if (!$canEdit): ?>
-<div class="alert alert-info">Dieses Zeugnis wurde mit Ihnen geteilt (nur Ansicht).</div>
+<div class="alert alert-info">Dieses Dokument wurde mit Ihnen geteilt (nur Ansicht).</div>
 <?php endif; ?>
 
 <div class="zeugnis-fill-layout">
@@ -31,7 +31,7 @@
             <div class="form-actions mt-3">
                 <button type="submit" name="status" value="draft" class="btn btn-secondary">Entwurf speichern</button>
                 <button type="submit" name="status" value="final" class="btn btn-primary"
-                        data-confirm="Zeugnis als fertig markieren? Dann noch einmal prüfen, ob alle Felder ausgefüllt sind.">
+                        data-confirm="Dokument als fertig markieren? Dann noch einmal prüfen, ob alle Felder ausgefüllt sind.">
                     Als fertig markieren
                 </button>
             </div>
@@ -43,7 +43,7 @@
     <!-- Seitenleiste -->
     <div class="zeugnis-fill-sidebar">
         <div class="card">
-            <h3 class="card-title" style="font-size:var(--font-size-base)">Zeugnis-Info</h3>
+            <h3 class="card-title" style="font-size:var(--font-size-base)">Dokument-Info</h3>
             <dl class="meta-list">
                 <dt>Schüler/in</dt>
                 <dd><?= htmlspecialchars($instance['student_first_name'] . ' ' . $instance['student_last_name'], ENT_QUOTES, 'UTF-8') ?></dd>
@@ -75,7 +75,7 @@
                 </a>
                 <?php if ((int) $instance['created_by'] === $_SESSION['user_id']): ?>
                 <a href="/zeugnis/<?= (int) $instance['id'] ?>/share" class="btn btn-muted">
-                    Zeugnis teilen
+                    Dokument teilen
                 </a>
                 <?php endif; ?>
             </div>
