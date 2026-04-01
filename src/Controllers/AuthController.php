@@ -93,6 +93,7 @@ class AuthController
         }
 
         User::updatePassword($user['id'], $newPassword);
+        session_regenerate_id(true);
         App::setFlash('success', 'Passwort erfolgreich geaendert.');
         App::redirect('/dashboard');
     }

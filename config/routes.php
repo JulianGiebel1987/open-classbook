@@ -188,7 +188,7 @@ $router->post('/zeugnis/templates/{id}/delete', [ZeugnisTemplateController::clas
 $router->post('/zeugnis/templates/{id}/publish', [ZeugnisTemplateController::class, 'publish'], [AuthMiddleware::class, ZeugnisAdminMiddleware::class, CsrfMiddleware::class]);
 $router->post('/zeugnis/templates/{id}/unpublish', [ZeugnisTemplateController::class, 'unpublish'], [AuthMiddleware::class, ZeugnisAdminMiddleware::class, CsrfMiddleware::class]);
 $router->get('/zeugnis/templates/{id}/preview', [ZeugnisTemplateController::class, 'preview'], [AuthMiddleware::class]);
-$router->post('/zeugnis/templates/{id}/images', [ZeugnisTemplateController::class, 'uploadImage'], [AuthMiddleware::class, ZeugnisAdminMiddleware::class]);
+$router->post('/zeugnis/templates/{id}/images', [ZeugnisTemplateController::class, 'uploadImage'], [AuthMiddleware::class, ZeugnisAdminMiddleware::class, CsrfMiddleware::class]);
 $router->get('/zeugnis/images/{imageId}', [ZeugnisTemplateController::class, 'serveImage'], [AuthMiddleware::class]);
 $router->post('/zeugnis/images/{imageId}/delete', [ZeugnisTemplateController::class, 'deleteImage'], [AuthMiddleware::class, ZeugnisAdminMiddleware::class, CsrfMiddleware::class]);
 

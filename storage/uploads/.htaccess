@@ -1,0 +1,5 @@
+# Deny direct web access to uploaded files
+# Files are served only through the application layer
+
+Order allow,deny
+Deny from all

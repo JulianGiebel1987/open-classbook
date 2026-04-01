@@ -299,7 +299,7 @@ class UserController
             return;
         }
 
-        $tempPassword = bin2hex(random_bytes(5));
+        $tempPassword = bin2hex(random_bytes(16));
         User::updatePassword($userId, $tempPassword);
         User::update($userId, ['must_change_password' => 1]);
 
