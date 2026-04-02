@@ -8,6 +8,7 @@
 !storage/uploads/.htaccess
 !storage/cache/.gitkeep
 !storage/files/.gitkeep
+config/config.php
 .env
 *.log
 .DS_Store
