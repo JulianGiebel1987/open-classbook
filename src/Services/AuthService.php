@@ -5,6 +5,7 @@ namespace OpenClassbook\Services;
 use OpenClassbook\App;
 use OpenClassbook\Database;
 use OpenClassbook\Models\User;
+use OpenClassbook\Models\Setting;
 
 class AuthService
 {
@@ -31,6 +32,55 @@ class AuthService
 
         // Erfolgreichen Login protokollieren
         self::logAttempt($username, true);
+
+        // 2FA-Pruefung: Ist 2FA global aktiviert und hat der Nutzer 2FA eingerichtet?
+        $twoFactorEnabled = Setting::get('two_factor_enabled') === '1';
+        $userHas2fa = $user['two_factor_method'] !== 'none' && !empty($user['two_factor_confirmed_at']);
+
+        if ($twoFactorEnabled && $userHas2fa) {
+            // Temporaere 2FA-Session setzen (KEIN voller Login)
+            session_regenerate_id(true);
+            $_SESSION['2fa_pending'] = true;
+            $_SESSION['2fa_user_id'] = $user['id'];
+            $_SESSION['2fa_method'] = $user['two_factor_method'];
+
+            // Bei E-Mail-2FA sofort Code versenden
+            if ($user['two_factor_method'] === 'email') {
+                TwoFactorService::generateEmailCode($user['id']);
+            }
+
+            return [
+                'success' => true,
+                'requires_2fa' => true,
+                'must_change_password' => (bool) $user['must_change_password'],
+            ];
+        }
+
+        // 2FA erzwungen fuer diese Rolle?
+        if ($twoFactorEnabled) {
+            $enforcedRoles = TwoFactorService::getEnforcedRoles();
+            if (in_array($user['role'], $enforcedRoles) && !$userHas2fa) {
+                // Normalen Login durchfuehren, aber 2FA-Setup erzwingen
+                User::updateLastLogin($user['id']);
+                session_regenerate_id(true);
+                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['user'] = [
+                    'id' => $user['id'],
+                    'username' => $user['username'],
+                    'email' => $user['email'],
+                    'role' => $user['role'],
+                ];
+                $_SESSION['last_activity'] = time();
+
+                return [
+                    'success' => true,
+                    'requires_2fa_setup' => true,
+                    'must_change_password' => (bool) $user['must_change_password'],
+                ];
+            }
+        }
+
+        // Kein 2FA noetig - normaler Login
         User::updateLastLogin($user['id']);
 
         // Session-ID VOR dem Setzen der Daten regenerieren (Session-Fixation verhindern)

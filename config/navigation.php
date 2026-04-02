@@ -15,6 +15,7 @@ return [
         ['label' => 'Listen', 'url' => '/lists'],
         ['label' => 'Dateien', 'url' => '/files'],
         ['label' => 'Vorlagen', 'url' => '/zeugnis/templates'],
+        ['label' => 'Einstellungen', 'url' => '/settings'],
     ],
     'schulleitung' => [
         ['label' => 'Dashboard', 'url' => '/dashboard'],

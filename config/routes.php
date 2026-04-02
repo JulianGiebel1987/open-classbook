@@ -4,6 +4,8 @@ use OpenClassbook\Router;
 use OpenClassbook\Controllers\AuthController;
 use OpenClassbook\Controllers\DashboardController;
 use OpenClassbook\Controllers\UserController;
+use OpenClassbook\Controllers\TwoFactorController;
+use OpenClassbook\Controllers\SettingsController;
 use OpenClassbook\Controllers\ClassController;
 use OpenClassbook\Controllers\ClassbookController;
 use OpenClassbook\Controllers\AbsenceStudentController;
@@ -33,10 +35,24 @@ $router->get('/reset-password/{token}', [AuthController::class, 'resetPasswordFo
 $router->post('/reset-password', [AuthController::class, 'resetPassword'], [CsrfMiddleware::class]);
 $router->get('/datenschutz', [AuthController::class, 'privacy']);
 
+// === Zwei-Faktor-Authentifizierung (2FA) ===
+// Verifizierung (halb-authentifiziert, kein AuthMiddleware)
+$router->get('/two-factor/verify', [TwoFactorController::class, 'verifyForm']);
+$router->post('/two-factor/verify', [TwoFactorController::class, 'verify'], [CsrfMiddleware::class]);
+$router->post('/two-factor/resend', [TwoFactorController::class, 'resendCode'], [CsrfMiddleware::class]);
+
 // === Geschuetzte Routen (Login erforderlich) ===
 $router->get('/dashboard', [DashboardController::class, 'index'], [AuthMiddleware::class]);
 $router->get('/change-password', [AuthController::class, 'changePasswordForm'], [AuthMiddleware::class]);
 $router->post('/change-password', [AuthController::class, 'changePassword'], [AuthMiddleware::class, CsrfMiddleware::class]);
+
+// 2FA-Setup und -Verwaltung (Login erforderlich)
+$router->get('/two-factor/setup', [TwoFactorController::class, 'setupForm'], [AuthMiddleware::class]);
+$router->post('/two-factor/setup', [TwoFactorController::class, 'setup'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/two-factor/confirm-totp', [TwoFactorController::class, 'confirmTotp'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->get('/two-factor/recovery-codes', [TwoFactorController::class, 'recoveryCodes'], [AuthMiddleware::class]);
+$router->post('/two-factor/regenerate-codes', [TwoFactorController::class, 'regenerateCodes'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/two-factor/disable', [TwoFactorController::class, 'disable'], [AuthMiddleware::class, CsrfMiddleware::class]);
 
 // === Benutzerverwaltung ===
 $router->get('/users', [UserController::class, 'index'], [AuthMiddleware::class]);
@@ -48,6 +64,7 @@ $router->post('/users/{id}/toggle', [UserController::class, 'toggleActive'], [Au
 $router->post('/users/{id}/reset-password', [UserController::class, 'resetPassword'], [AuthMiddleware::class, CsrfMiddleware::class]);
 $router->post('/users/{id}/send-temp-password', [UserController::class, 'sendTempPassword'], [AuthMiddleware::class, CsrfMiddleware::class]);
 $router->post('/users/{id}/delete', [UserController::class, 'delete'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/users/{id}/reset-2fa', [UserController::class, 'resetTwoFactor'], [AuthMiddleware::class, CsrfMiddleware::class]);
 $router->get('/users/reset-password-info', [UserController::class, 'resetPasswordInfo'], [AuthMiddleware::class]);
 
 // === Klassenverwaltung ===
@@ -210,3 +227,7 @@ $router->post('/zeugnis/{id}/share', [ZeugnisController::class, 'share'], [AuthM
 $router->post('/zeugnis/{id}/unshare', [ZeugnisController::class, 'unshare'], [AuthMiddleware::class, CsrfMiddleware::class]);
 $router->post('/zeugnis/{id}/delete', [ZeugnisController::class, 'delete'], [AuthMiddleware::class, CsrfMiddleware::class]);
 $router->get('/zeugnis/{id}/export-pdf', [ZeugnisController::class, 'exportPdf'], [AuthMiddleware::class]);
+
+// === Einstellungen (nur Admin) ===
+$router->get('/settings', [SettingsController::class, 'index'], [AuthMiddleware::class]);
+$router->post('/settings', [SettingsController::class, 'save'], [AuthMiddleware::class, CsrfMiddleware::class]);

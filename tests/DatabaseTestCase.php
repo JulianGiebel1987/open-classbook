@@ -49,6 +49,10 @@ abstract class DatabaseTestCase extends TestCase
                 role VARCHAR(20) NOT NULL,
                 active INTEGER NOT NULL DEFAULT 1,
                 must_change_password INTEGER NOT NULL DEFAULT 1,
+                two_factor_method VARCHAR(10) NOT NULL DEFAULT "none",
+                two_factor_secret VARCHAR(500) DEFAULT NULL,
+                two_factor_confirmed_at DATETIME DEFAULT NULL,
+                two_factor_recovery_codes TEXT DEFAULT NULL,
                 password_reset_token VARCHAR(255) DEFAULT NULL,
                 password_reset_expires DATETIME DEFAULT NULL,
                 last_login DATETIME DEFAULT NULL,
@@ -181,6 +185,28 @@ abstract class DatabaseTestCase extends TestCase
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (teacher_id) REFERENCES teachers(id),
                 FOREIGN KEY (created_by) REFERENCES users(id)
+            )
+        ');
+
+        self::$pdo->exec('
+            CREATE TABLE settings (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                setting_key VARCHAR(100) NOT NULL UNIQUE,
+                setting_value TEXT DEFAULT NULL,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ');
+
+        self::$pdo->exec('
+            CREATE TABLE two_factor_codes (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                code VARCHAR(255) NOT NULL,
+                type VARCHAR(10) NOT NULL DEFAULT "email",
+                expires_at DATETIME NOT NULL,
+                used_at DATETIME DEFAULT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id)
             )
         ');
     }

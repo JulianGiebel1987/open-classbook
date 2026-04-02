@@ -73,4 +73,25 @@
     </form>
 </div>
 
+<?php if (\OpenClassbook\App::currentUserRole() === 'admin' && !empty($twoFactorData)): ?>
+<div class="card" style="margin-top: var(--spacing-lg);">
+    <h2>Zwei-Faktor-Authentifizierung</h2>
+
+    <?php if ($twoFactorData['two_factor_method'] !== 'none' && !empty($twoFactorData['two_factor_confirmed_at'])): ?>
+        <p>
+            <strong>Status:</strong> Aktiv<br>
+            <strong>Methode:</strong> <?= $twoFactorData['two_factor_method'] === 'totp' ? 'Authenticator-App' : 'E-Mail' ?><br>
+            <strong>Eingerichtet am:</strong> <?= date('d.m.Y H:i', strtotime($twoFactorData['two_factor_confirmed_at'])) ?>
+        </p>
+
+        <form method="post" action="/users/<?= $user['id'] ?>/reset-2fa" style="display: inline;">
+            <?= \OpenClassbook\View::csrfField() ?>
+            <button type="submit" class="btn btn-danger" onclick="return confirm('Moechten Sie die 2FA fuer diesen Benutzer wirklich zuruecksetzen? Der Benutzer muss 2FA anschliessend neu einrichten.')">2FA zuruecksetzen</button>
+        </form>
+    <?php else: ?>
+        <p><strong>Status:</strong> Nicht eingerichtet</p>
+    <?php endif; ?>
+</div>
+<?php endif; ?>
+
 <script src="/js/user-form.js"></script>

@@ -33,6 +33,7 @@ return [
         'csp_report_only' => false,
         'rate_limit_requests' => 120,
         'rate_limit_window' => 60, // Sekunden
+        'two_factor_encryption_key' => '',
     ],
 
     'mail' => [
