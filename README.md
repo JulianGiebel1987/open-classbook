@@ -42,7 +42,7 @@ Open-Classbook ist eine Open-Source-Loesung fuer digitale Klassenbuchfuehrung, F
 # Auf Ubuntu/Debian: Pakete installieren (PHP-Version anpassen!)
 apt update
 apt install php php-cli mariadb-server composer
-apt install php8.3-mysql php8.3-mbstring php8.3-xml php8.3-zip
+apt install php8.3-mysql php8.3-mbstring php8.3-xml php8.3-zip php8.3-gd php8.3-curl
 
 # MariaDB-Benutzer und Datenbank anlegen
 systemctl start mariadb

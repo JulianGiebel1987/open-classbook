@@ -218,9 +218,9 @@
 
     // === Klasse wechseln ===
 
-    window.switchClass = function (newClassId) {
-        if (newClassId) {
-            window.location.href = '/timetable/' + settingId + '/class/' + newClassId;
+    window.switchClass = function (settingIdParam, newClassId) {
+        if (settingIdParam && newClassId) {
+            window.location.href = '/timetable/' + settingIdParam + '/class/' + newClassId;
         }
     };
 })();

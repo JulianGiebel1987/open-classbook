@@ -57,13 +57,23 @@ class Teacher
 
     public static function getClassesForTeacher(int $teacherId): array
     {
-        return Database::query(
+        $rows = Database::query(
             'SELECT c.* FROM classes c
              JOIN class_teacher ct ON ct.class_id = c.id
              WHERE ct.teacher_id = ?
-             ORDER BY c.name',
-            [$teacherId]
+             UNION
+             SELECT c.* FROM classes c
+             WHERE c.head_teacher_id = ?
+             ORDER BY name',
+            [$teacherId, $teacherId]
         );
+
+        // Deduplizieren nach ID
+        $unique = [];
+        foreach ($rows as $row) {
+            $unique[$row['id']] = $row;
+        }
+        return array_values($unique);
     }
 
     public static function getTeacherIdByUserId(int $userId): ?int
