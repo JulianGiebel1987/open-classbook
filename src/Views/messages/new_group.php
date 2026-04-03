@@ -67,15 +67,21 @@ $roleLabels = [
     var checkboxes = document.querySelectorAll('#memberList input[type="checkbox"]');
     var countLabel = document.getElementById('memberSelectCount');
     var submitBtn = document.getElementById('createGroupBtn');
+    var groupNameInput = document.getElementById('group_name');
+    var bodyTextarea = document.getElementById('body');
 
-    function updateCount() {
+    function updateSubmitState() {
         var checked = document.querySelectorAll('#memberList input[type="checkbox"]:checked').length;
         countLabel.textContent = checked + (checked === 1 ? ' Person ausgewaehlt' : ' Personen ausgewaehlt');
-        submitBtn.disabled = checked < 1;
+        var hasName = groupNameInput.value.trim().length > 0;
+        var hasBody = bodyTextarea.value.trim().length > 0;
+        submitBtn.disabled = checked < 1 || !hasName || !hasBody;
     }
 
     checkboxes.forEach(function (cb) {
-        cb.addEventListener('change', updateCount);
+        cb.addEventListener('change', updateSubmitState);
     });
+    groupNameInput.addEventListener('input', updateSubmitState);
+    bodyTextarea.addEventListener('input', updateSubmitState);
 })();
 </script>
