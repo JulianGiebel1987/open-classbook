@@ -36,6 +36,9 @@ return [
         'lockout_duration' => 900,      // 15 Minuten in Sekunden
         'password_min_length' => 10,
         'password_reset_token_lifetime' => 3600, // 1 Stunde
+        // 2FA: 32-Byte Hex-Key fuer Verschluesselung der TOTP-Secrets
+        // Generieren mit: php -r "echo bin2hex(random_bytes(32));"
+        'two_factor_encryption_key' => '',
     ],
 
     // E-Mail-Konfiguration fuer Passwort-Zuruecksetzung und Benachrichtigungen

@@ -140,6 +140,8 @@ class UserController
             $profile = Student::findByUserId($user['id']);
         }
 
+        $twoFactorData = User::getTwoFactorData($user['id']);
+
         CsrfMiddleware::generateToken();
         View::render('users/edit', [
             'title' => 'Benutzer bearbeiten',
@@ -147,6 +149,7 @@ class UserController
             'profile' => $profile,
             'roles' => ['admin', 'schulleitung', 'sekretariat', 'lehrer', 'schueler'],
             'classes' => SchoolClass::findAll(),
+            'twoFactorData' => $twoFactorData,
         ]);
     }
 
@@ -365,6 +368,35 @@ class UserController
         }
 
         App::redirect('/users');
+    }
+
+    public function resetTwoFactor(string $id): void
+    {
+        if (App::currentUserRole() !== 'admin') {
+            App::setFlash('error', 'Nur Administratoren duerfen die 2FA eines Benutzers zuruecksetzen.');
+            App::redirect('/users');
+            return;
+        }
+
+        $userId = (int) $id;
+        $user = User::findById($userId);
+        if (!$user) {
+            App::setFlash('error', 'Benutzer nicht gefunden.');
+            App::redirect('/users');
+            return;
+        }
+
+        User::clearTwoFactor($userId);
+        Logger::audit(
+            'reset_2fa',
+            $_SESSION['user_id'] ?? null,
+            'User',
+            $userId,
+            '2FA zurueckgesetzt fuer: ' . $user['username']
+        );
+
+        App::setFlash('success', 'Zwei-Faktor-Authentifizierung fuer "' . htmlspecialchars($user['username'], ENT_QUOTES, 'UTF-8') . '" wurde zurueckgesetzt.');
+        App::redirect('/users/' . $userId . '/edit');
     }
 
     public function delete(string $id): void

@@ -94,6 +94,29 @@ class NotificationService
     }
 
     /**
+     * 2FA-Verifizierungscode per E-Mail senden
+     */
+    public static function sendTwoFactorCode(string $to, string $code): bool
+    {
+        if (!App::config('mail.enabled')) {
+            Logger::warning('Mail deaktiviert - 2FA-Code nicht per E-Mail versendet', ['to' => $to]);
+            return false;
+        }
+
+        $subject = 'Ihr Anmeldecode fuer Open-Classbook';
+
+        $body  = "Sehr geehrte/r Nutzer/in,\n\n";
+        $body .= "Ihr Verifizierungscode fuer die Anmeldung bei Open-Classbook lautet:\n\n";
+        $body .= "    " . $code . "\n\n";
+        $body .= "Dieser Code ist 10 Minuten gueltig.\n\n";
+        $body .= "Falls Sie diese Anmeldung nicht selbst durchgefuehrt haben, ignorieren Sie diese E-Mail.\n\n";
+        $body .= "--\nDiese Nachricht wurde automatisch von Open-Classbook versendet.\n";
+        $body .= "Bitte antworten Sie nicht auf diese E-Mail.";
+
+        return self::sendMail($to, $subject, $body);
+    }
+
+    /**
      * E-Mail senden via PHPMailer oder mail()
      */
     private static function sendMail(string $to, string $subject, string $body): bool

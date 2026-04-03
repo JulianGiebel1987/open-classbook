@@ -25,6 +25,11 @@ class AuthMiddleware
         $_SESSION['last_activity'] = time();
 
         if (!App::isLoggedIn()) {
+            // 2FA-Pending: Nutzer ist halb-authentifiziert, darf nur /two-factor/verify
+            if (!empty($_SESSION['2fa_pending'])) {
+                App::redirect('/two-factor/verify');
+                return false;
+            }
             App::redirect('/login');
             return false;
         }

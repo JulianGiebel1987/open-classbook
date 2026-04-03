@@ -40,6 +40,23 @@ class AuthController
             return;
         }
 
+        // 2FA erforderlich - Redirect zur Code-Eingabe
+        if (!empty($result['requires_2fa'])) {
+            App::redirect('/two-factor/verify');
+            return;
+        }
+
+        // 2FA-Setup erzwungen (Rolle erfordert 2FA, aber noch nicht eingerichtet)
+        if (!empty($result['requires_2fa_setup'])) {
+            if ($result['must_change_password']) {
+                App::redirect('/change-password');
+                return;
+            }
+            App::setFlash('warning', 'Fuer Ihre Rolle ist die Zwei-Faktor-Authentifizierung verpflichtend. Bitte richten Sie diese jetzt ein.');
+            App::redirect('/two-factor/setup');
+            return;
+        }
+
         if ($result['must_change_password']) {
             App::redirect('/change-password');
             return;

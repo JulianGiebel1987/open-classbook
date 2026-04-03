@@ -157,6 +157,28 @@ class User
         );
     }
 
+    /**
+     * 2FA-Daten eines Nutzers laden
+     */
+    public static function getTwoFactorData(int $id): ?array
+    {
+        return Database::queryOne(
+            'SELECT two_factor_method, two_factor_secret, two_factor_confirmed_at, two_factor_recovery_codes FROM users WHERE id = ?',
+            [$id]
+        );
+    }
+
+    /**
+     * 2FA komplett zuruecksetzen
+     */
+    public static function clearTwoFactor(int $id): void
+    {
+        Database::execute(
+            'UPDATE users SET two_factor_method = ?, two_factor_secret = NULL, two_factor_confirmed_at = NULL, two_factor_recovery_codes = NULL WHERE id = ?',
+            ['none', $id]
+        );
+    }
+
     public static function usernameExists(string $username, ?int $excludeId = null): bool
     {
         $sql = 'SELECT COUNT(*) as cnt FROM users WHERE username = ?';
