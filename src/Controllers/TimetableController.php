@@ -10,6 +10,7 @@ use OpenClassbook\Models\Teacher;
 use OpenClassbook\Models\TimetableSetting;
 use OpenClassbook\Models\TimetableSlot;
 use OpenClassbook\Services\Logger;
+use OpenClassbook\Services\ModuleSettings;
 
 class TimetableController
 {
@@ -372,6 +373,11 @@ class TimetableController
             App::redirect('/dashboard');
             return;
         }
+        if (!ModuleSettings::isModuleEnabled('timetable')) {
+            App::setFlash('error', 'Das Modul Stundenplanung ist derzeit deaktiviert.');
+            App::redirect('/dashboard');
+            return;
+        }
 
         $teacherId = Teacher::getTeacherIdByUserId($_SESSION['user_id']);
         if (!$teacherId) {
@@ -583,6 +589,11 @@ class TimetableController
         $role = App::currentUserRole();
         if (!in_array($role, self::ADMIN_ROLES)) {
             App::setFlash('error', 'Kein Zugriff.');
+            App::redirect('/dashboard');
+            exit;
+        }
+        if (!ModuleSettings::canAccess('timetable', $role)) {
+            App::setFlash('error', 'Das Modul Stundenplanung ist fuer Ihre Rolle nicht zugaenglich.');
             App::redirect('/dashboard');
             exit;
         }

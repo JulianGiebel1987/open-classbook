@@ -7,6 +7,7 @@ use OpenClassbook\View;
 use OpenClassbook\Middleware\CsrfMiddleware;
 use OpenClassbook\Models\Folder;
 use OpenClassbook\Models\FileEntry;
+use OpenClassbook\Services\ModuleSettings;
 
 class FileController
 {
@@ -35,6 +36,11 @@ class FileController
     {
         if (!in_array(App::currentUserRole(), self::ALLOWED_ROLES)) {
             App::setFlash('error', 'Zugriff verweigert.');
+            App::redirect('/dashboard');
+            return false;
+        }
+        if (!ModuleSettings::canAccess('files', App::currentUserRole())) {
+            App::setFlash('error', 'Das Modul Dateien ist derzeit deaktiviert.');
             App::redirect('/dashboard');
             return false;
         }

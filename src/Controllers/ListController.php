@@ -12,6 +12,7 @@ use OpenClassbook\Models\ListCell;
 use OpenClassbook\Models\SchoolClass;
 use OpenClassbook\Models\User;
 use OpenClassbook\Models\Teacher;
+use OpenClassbook\Services\ModuleSettings;
 
 class ListController
 {
@@ -22,6 +23,11 @@ class ListController
     {
         if (!in_array(App::currentUserRole(), self::ALLOWED_ROLES)) {
             App::setFlash('error', 'Zugriff verweigert.');
+            App::redirect('/dashboard');
+            return false;
+        }
+        if (!ModuleSettings::canAccess('lists', App::currentUserRole())) {
+            App::setFlash('error', 'Das Modul Listen ist derzeit deaktiviert.');
             App::redirect('/dashboard');
             return false;
         }

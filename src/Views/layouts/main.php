@@ -22,7 +22,24 @@
             <?php
             $role = \OpenClassbook\App::currentUserRole();
             $navConfig = require __DIR__ . '/../../../config/navigation.php';
-            $nav = $navConfig[$role] ?? [];
+            $navAll = $navConfig[$role] ?? [];
+
+            // Filter navigation items based on module settings
+            $nav = array_filter($navAll, function (array $item) use ($role): bool {
+                // Global module check (admin bypasses global disable)
+                if (isset($item['module']) && $role !== 'admin') {
+                    if (!\OpenClassbook\Services\ModuleSettings::isModuleEnabled($item['module'])) {
+                        return false;
+                    }
+                }
+                // Role-specific module check
+                if (isset($item['role_module'])) {
+                    if (!\OpenClassbook\Services\ModuleSettings::isRoleModuleAccessible($item['role_module'], $role)) {
+                        return false;
+                    }
+                }
+                return true;
+            });
             ?>
             <?php
             $unreadMessages = 0;
