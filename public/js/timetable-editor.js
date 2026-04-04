@@ -4,6 +4,13 @@
 (function () {
     'use strict';
 
+    // === Klasse wechseln (muss vor dem Grid-Guard definiert sein) ===
+    window.switchClass = function (settingIdParam, newClassId) {
+        if (settingIdParam && newClassId) {
+            window.location.href = '/timetable/' + settingIdParam + '/class/' + newClassId;
+        }
+    };
+
     var grid = document.getElementById('timetableGrid');
     var modal = document.getElementById('slotModal');
     var form = document.getElementById('slotForm');
@@ -216,11 +223,4 @@
         });
     }
 
-    // === Klasse wechseln ===
-
-    window.switchClass = function (settingIdParam, newClassId) {
-        if (settingIdParam && newClassId) {
-            window.location.href = '/timetable/' + settingIdParam + '/class/' + newClassId;
-        }
-    };
 })();

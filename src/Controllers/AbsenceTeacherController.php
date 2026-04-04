@@ -8,11 +8,31 @@ use OpenClassbook\Middleware\CsrfMiddleware;
 use OpenClassbook\Models\AbsenceTeacher;
 use OpenClassbook\Models\Teacher;
 use OpenClassbook\Services\NotificationService;
+use OpenClassbook\Services\ModuleSettings;
 
 class AbsenceTeacherController
 {
+    private const MANAGER_ROLES = ['admin', 'schulleitung', 'sekretariat'];
+
+    private function requireTeacherAbsenceAccess(): void
+    {
+        $role = App::currentUserRole();
+        if (!in_array($role, self::MANAGER_ROLES)) {
+            App::setFlash('error', 'Kein Zugriff.');
+            App::redirect('/dashboard');
+            exit;
+        }
+        if (!ModuleSettings::isRoleModuleAccessible('teacher_absences', $role)) {
+            App::setFlash('error', 'Das Modul Lehrerfehlzeiten ist fuer Ihre Rolle nicht zugaenglich.');
+            App::redirect('/dashboard');
+            exit;
+        }
+    }
+
     public function index(): void
     {
+        $this->requireTeacherAbsenceAccess();
+
         $filters = [
             'type' => $_GET['type'] ?? '',
             'date_from' => $_GET['date_from'] ?? '',
@@ -32,6 +52,8 @@ class AbsenceTeacherController
 
     public function createForm(): void
     {
+        $this->requireTeacherAbsenceAccess();
+
         $teachers = Teacher::findAll();
 
         CsrfMiddleware::generateToken();
@@ -43,6 +65,8 @@ class AbsenceTeacherController
 
     public function create(): void
     {
+        $this->requireTeacherAbsenceAccess();
+
         $data = [
             'teacher_id' => (int) ($_POST['teacher_id'] ?? 0),
             'date_from' => $_POST['date_from'] ?? '',
@@ -122,6 +146,8 @@ class AbsenceTeacherController
 
     public function editForm(string $id): void
     {
+        $this->requireTeacherAbsenceAccess();
+
         $absence = AbsenceTeacher::findById((int) $id);
         if (!$absence) {
             App::setFlash('error', 'Abwesenheit nicht gefunden.');
@@ -138,6 +164,8 @@ class AbsenceTeacherController
 
     public function update(string $id): void
     {
+        $this->requireTeacherAbsenceAccess();
+
         $absence = AbsenceTeacher::findById((int) $id);
         if (!$absence) {
             App::setFlash('error', 'Abwesenheit nicht gefunden.');
@@ -160,6 +188,8 @@ class AbsenceTeacherController
 
     public function delete(string $id): void
     {
+        $this->requireTeacherAbsenceAccess();
+
         AbsenceTeacher::delete((int) $id);
         App::setFlash('success', 'Abwesenheit geloescht.');
         App::redirect('/absences/teachers');

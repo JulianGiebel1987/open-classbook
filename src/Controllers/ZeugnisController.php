@@ -15,6 +15,7 @@ use OpenClassbook\Models\Teacher;
 use OpenClassbook\Services\Logger;
 use OpenClassbook\Services\ZeugnisExportService;
 use OpenClassbook\Services\ZeugnisPlaceholderService;
+use OpenClassbook\Services\ModuleSettings;
 
 class ZeugnisController
 {
@@ -25,6 +26,11 @@ class ZeugnisController
     {
         if (!in_array(App::currentUserRole(), self::ALLOWED_ROLES, true)) {
             App::setFlash('error', 'Zugriff verweigert.');
+            App::redirect('/dashboard');
+            return false;
+        }
+        if (!ModuleSettings::canAccess('templates', App::currentUserRole())) {
+            App::setFlash('error', 'Das Modul Vorlagen ist derzeit deaktiviert.');
             App::redirect('/dashboard');
             return false;
         }

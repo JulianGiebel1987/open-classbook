@@ -10,14 +10,26 @@ use OpenClassbook\Models\Message;
 use OpenClassbook\Models\GroupConversation;
 use OpenClassbook\Models\GroupMessage;
 use OpenClassbook\Models\User;
+use OpenClassbook\Services\ModuleSettings;
 
 class MessageController
 {
+    private function requireModuleEnabled(): void
+    {
+        $role = App::currentUserRole();
+        if (!ModuleSettings::canAccess('messages', $role)) {
+            App::setFlash('error', 'Das Modul Nachrichten ist derzeit deaktiviert.');
+            App::redirect('/dashboard');
+            exit;
+        }
+    }
+
     /**
      * Inbox: alle Konversationen (1:1 und Gruppen) des eingeloggten Nutzers
      */
     public function inbox(): void
     {
+        $this->requireModuleEnabled();
         $userId = $_SESSION['user_id'];
 
         $conversations = Conversation::findByUserId($userId);
@@ -70,6 +82,7 @@ class MessageController
      */
     public function show(string $id): void
     {
+        $this->requireModuleEnabled();
         $userId = $_SESSION['user_id'];
         $conversationId = (int) $id;
 
@@ -101,6 +114,7 @@ class MessageController
      */
     public function send(string $id): void
     {
+        $this->requireModuleEnabled();
         $userId = $_SESSION['user_id'];
         $conversationId = (int) $id;
 
@@ -134,6 +148,7 @@ class MessageController
      */
     public function newConversation(): void
     {
+        $this->requireModuleEnabled();
         $userId = $_SESSION['user_id'];
         $users = User::findAll(['active' => 1]);
         $users = array_filter($users, fn($u) => (int) $u['id'] !== $userId);
@@ -150,6 +165,7 @@ class MessageController
      */
     public function createConversation(): void
     {
+        $this->requireModuleEnabled();
         $userId = $_SESSION['user_id'];
         $recipientId = (int) ($_POST['recipient_id'] ?? 0);
         $body = trim($_POST['body'] ?? '');
@@ -220,6 +236,7 @@ class MessageController
      */
     public function newGroup(): void
     {
+        $this->requireModuleEnabled();
         $userId = $_SESSION['user_id'];
         $users = User::findAll(['active' => 1]);
         $users = array_filter($users, fn($u) => (int) $u['id'] !== $userId);
@@ -236,6 +253,7 @@ class MessageController
      */
     public function createGroup(): void
     {
+        $this->requireModuleEnabled();
         $userId = $_SESSION['user_id'];
         $name = trim($_POST['group_name'] ?? '');
         $memberIds = $_POST['member_ids'] ?? [];
@@ -272,12 +290,6 @@ class MessageController
             return;
         }
 
-        if ($body === '') {
-            App::setFlash('error', 'Erste Nachricht darf nicht leer sein.');
-            App::redirect('/messages/groups/new');
-            return;
-        }
-
         if (mb_strlen($body) > 5000) {
             App::setFlash('error', 'Nachricht darf maximal 5000 Zeichen lang sein.');
             App::redirect('/messages/groups/new');
@@ -285,8 +297,10 @@ class MessageController
         }
 
         $group = GroupConversation::create($name, $userId, $validMemberIds);
-        GroupMessage::create($group['id'], $userId, $body);
-        GroupConversation::updateLastMessageAt($group['id']);
+        if ($body !== '') {
+            GroupMessage::create($group['id'], $userId, $body);
+            GroupConversation::updateLastMessageAt($group['id']);
+        }
 
         App::redirect('/messages/groups/' . $group['id']);
     }
@@ -296,6 +310,7 @@ class MessageController
      */
     public function showGroup(string $id): void
     {
+        $this->requireModuleEnabled();
         $userId = $_SESSION['user_id'];
         $groupId = (int) $id;
 
@@ -329,6 +344,7 @@ class MessageController
      */
     public function sendGroup(string $id): void
     {
+        $this->requireModuleEnabled();
         $userId = $_SESSION['user_id'];
         $groupId = (int) $id;
 
