@@ -290,12 +290,6 @@ class MessageController
             return;
         }
 
-        if ($body === '') {
-            App::setFlash('error', 'Erste Nachricht darf nicht leer sein.');
-            App::redirect('/messages/groups/new');
-            return;
-        }
-
         if (mb_strlen($body) > 5000) {
             App::setFlash('error', 'Nachricht darf maximal 5000 Zeichen lang sein.');
             App::redirect('/messages/groups/new');
@@ -303,8 +297,10 @@ class MessageController
         }
 
         $group = GroupConversation::create($name, $userId, $validMemberIds);
-        GroupMessage::create($group['id'], $userId, $body);
-        GroupConversation::updateLastMessageAt($group['id']);
+        if ($body !== '') {
+            GroupMessage::create($group['id'], $userId, $body);
+            GroupConversation::updateLastMessageAt($group['id']);
+        }
 
         App::redirect('/messages/groups/' . $group['id']);
     }

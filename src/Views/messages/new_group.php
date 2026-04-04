@@ -50,9 +50,9 @@ $roleLabels = [
         </div>
 
         <div class="form-group">
-            <label for="body">Erste Nachricht <span aria-hidden="true">*</span></label>
+            <label for="body">Erste Nachricht <span class="text-muted" style="font-weight:normal;">(optional)</span></label>
             <textarea name="body" id="body" class="form-control" rows="4"
-                      required maxlength="5000" placeholder="Erste Nachricht an die Gruppe..."></textarea>
+                      maxlength="5000" placeholder="Optionale erste Nachricht an die Gruppe..."></textarea>
         </div>
 
         <div class="btn-group">
@@ -68,20 +68,17 @@ $roleLabels = [
     var countLabel = document.getElementById('memberSelectCount');
     var submitBtn = document.getElementById('createGroupBtn');
     var groupNameInput = document.getElementById('group_name');
-    var bodyTextarea = document.getElementById('body');
 
     function updateSubmitState() {
         var checked = document.querySelectorAll('#memberList input[type="checkbox"]:checked').length;
         countLabel.textContent = checked + (checked === 1 ? ' Person ausgewaehlt' : ' Personen ausgewaehlt');
         var hasName = groupNameInput.value.trim().length > 0;
-        var hasBody = bodyTextarea.value.trim().length > 0;
-        submitBtn.disabled = checked < 1 || !hasName || !hasBody;
+        submitBtn.disabled = checked < 1 || !hasName;
     }
 
     checkboxes.forEach(function (cb) {
         cb.addEventListener('change', updateSubmitState);
     });
     groupNameInput.addEventListener('input', updateSubmitState);
-    bodyTextarea.addEventListener('input', updateSubmitState);
 })();
 </script>
