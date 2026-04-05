@@ -8,7 +8,7 @@ $days = $setting['days_of_week'];
     <div class="page-header-actions">
         <form method="get" action="" class="inline-form" id="classSelectForm">
             <label for="classSelect" class="sr-only">Klasse waehlen</label>
-            <select id="classSelect" class="form-control" onchange="switchClass(<?= (int) $setting['id'] ?>, this.value)">
+            <select id="classSelect" class="form-control" data-setting-id="<?= (int) $setting['id'] ?>">
                 <?php foreach ($classes as $c): ?>
                 <option value="<?= (int) $c['id'] ?>" <?= (int) $c['id'] === (int) $class['id'] ? 'selected' : '' ?>>
                     <?= htmlspecialchars($c['name'], ENT_QUOTES, 'UTF-8') ?>

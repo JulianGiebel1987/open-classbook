@@ -57,13 +57,29 @@ class Teacher
 
     public static function getClassesForTeacher(int $teacherId): array
     {
-        return Database::query(
-            'SELECT DISTINCT c.* FROM classes c
-             LEFT JOIN class_teacher ct ON ct.class_id = c.id AND ct.teacher_id = ?
-             WHERE ct.teacher_id IS NOT NULL OR c.head_teacher_id = ?
+        // Fachlehrer: Klassen aus der class_teacher Tabelle
+        $fach = Database::query(
+            'SELECT c.* FROM classes c
+             JOIN class_teacher ct ON ct.class_id = c.id
+             WHERE ct.teacher_id = ?
              ORDER BY c.name',
-            [$teacherId, $teacherId]
+            [$teacherId]
         );
+
+        // Klassenlehrer: Klassen ueber head_teacher_id
+        $head = Database::query(
+            'SELECT c.* FROM classes c
+             WHERE c.head_teacher_id = ?
+             ORDER BY c.name',
+            [$teacherId]
+        );
+
+        // Deduplizieren nach ID
+        $unique = [];
+        foreach (array_merge($fach, $head) as $class) {
+            $unique[$class['id']] = $class;
+        }
+        return array_values($unique);
     }
 
     public static function getTeacherIdByUserId(int $userId): ?int

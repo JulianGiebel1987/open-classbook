@@ -2,8 +2,6 @@
     <div>
         <a href="/messages" class="btn btn-sm btn-secondary mb-05">Zurueck</a>
         <h1>Neue Gruppe erstellen</h1>
-        <!-- CODE-VERSION: 2026-04-05-FIX -->
-        <p style="color:red;font-weight:bold;">TEST: Wenn Sie diesen roten Text sehen, ist der aktuelle Code aktiv.</p>
     </div>
 </div>
 
@@ -18,7 +16,7 @@ $roleLabels = [
 ?>
 
 <div class="card">
-    <form method="post" action="/messages/groups/new">
+    <form method="post" action="/messages/groups/new" id="createGroupForm">
         <?= \OpenClassbook\View::csrfField() ?>
 
         <div class="form-group">
@@ -49,6 +47,9 @@ $roleLabels = [
             <div id="memberSelectCount" class="text-muted" style="font-size: 0.875rem; margin-top: 0.5rem;">
                 0 Personen ausgewaehlt
             </div>
+            <div id="memberError" class="form-error" style="display:none; color: #c0392b; font-size: 0.875rem; margin-top: 0.25rem;">
+                Bitte mindestens eine Person auswaehlen.
+            </div>
         </div>
 
         <div class="form-group">
@@ -58,29 +59,38 @@ $roleLabels = [
         </div>
 
         <div class="btn-group">
-            <button type="submit" class="btn" id="createGroupBtn" disabled>Gruppe erstellen</button>
+            <button type="submit" class="btn" id="createGroupBtn">Gruppe erstellen</button>
             <a href="/messages" class="btn btn-secondary">Abbrechen</a>
         </div>
     </form>
 </div>
 
 <script>
-(function () {
-    var checkboxes = document.querySelectorAll('#memberList input[type="checkbox"]');
+document.addEventListener('DOMContentLoaded', function () {
+    var form = document.getElementById('createGroupForm');
+    var memberList = document.getElementById('memberList');
     var countLabel = document.getElementById('memberSelectCount');
-    var submitBtn = document.getElementById('createGroupBtn');
-    var groupNameInput = document.getElementById('group_name');
+    var memberError = document.getElementById('memberError');
 
-    function updateSubmitState() {
-        var checked = document.querySelectorAll('#memberList input[type="checkbox"]:checked').length;
+    if (!form || !memberList) return;
+
+    // Zaehler aktualisieren bei Checkbox-Aenderung
+    memberList.addEventListener('change', function () {
+        var checked = memberList.querySelectorAll('input[type="checkbox"]:checked').length;
         countLabel.textContent = checked + (checked === 1 ? ' Person ausgewaehlt' : ' Personen ausgewaehlt');
-        var hasName = groupNameInput.value.trim().length > 0;
-        submitBtn.disabled = checked < 1 || !hasName;
-    }
-
-    checkboxes.forEach(function (cb) {
-        cb.addEventListener('change', updateSubmitState);
+        if (checked > 0) {
+            memberError.style.display = 'none';
+        }
     });
-    groupNameInput.addEventListener('input', updateSubmitState);
-})();
+
+    // Validierung beim Absenden
+    form.addEventListener('submit', function (e) {
+        var checked = memberList.querySelectorAll('input[type="checkbox"]:checked').length;
+        if (checked < 1) {
+            e.preventDefault();
+            memberError.style.display = 'block';
+            memberList.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    });
+});
 </script>
