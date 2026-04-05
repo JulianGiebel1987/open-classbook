@@ -2,6 +2,8 @@
     <div>
         <a href="/messages" class="btn btn-sm btn-secondary mb-05">Zurueck</a>
         <h1>Neue Gruppe erstellen</h1>
+        <!-- CODE-VERSION: 2026-04-05-FIX -->
+        <p style="color:red;font-weight:bold;">TEST: Wenn Sie diesen roten Text sehen, ist der aktuelle Code aktiv.</p>
     </div>
 </div>
 
