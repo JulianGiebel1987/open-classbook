@@ -63,6 +63,14 @@ $days = $setting['days_of_week'];
                     </td>
                     <?php endforeach; ?>
                 </tr>
+                <?php if (!empty($time['break_after'])): ?>
+                <tr class="timetable-break-row">
+                    <td colspan="<?= count($days) + 1 ?>">
+                        <small><?= htmlspecialchars($time['break_after']['label'], ENT_QUOTES, 'UTF-8') ?>
+                        (<?= (int) $time['break_after']['duration'] ?> Min.)</small>
+                    </td>
+                </tr>
+                <?php endif; ?>
                 <?php endforeach; ?>
             </tbody>
         </table>

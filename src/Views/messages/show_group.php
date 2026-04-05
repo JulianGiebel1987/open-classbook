@@ -6,9 +6,23 @@
             <span class="badge badge-muted" style="font-size: 0.75rem; vertical-align: middle;">Gruppe</span>
         </h1>
     </div>
-    <button type="button" class="btn btn-sm btn-secondary" id="toggleMembersBtn" aria-expanded="false" aria-controls="groupMembersPanel">
-        Mitglieder (<?= count($members) ?>)
-    </button>
+    <div class="group-members-bar">
+        <?php
+        $maxShow = 5;
+        $shown = array_slice($members, 0, $maxShow);
+        $remaining = count($members) - $maxShow;
+        foreach ($shown as $m): ?>
+            <span class="group-member-avatar-sm" title="<?= htmlspecialchars($m['username'], ENT_QUOTES, 'UTF-8') ?>">
+                <?= htmlspecialchars(mb_strtoupper(mb_substr($m['username'], 0, 1, 'UTF-8'), 'UTF-8'), ENT_QUOTES, 'UTF-8') ?>
+            </span>
+        <?php endforeach; ?>
+        <?php if ($remaining > 0): ?>
+            <span class="text-muted" style="font-size:0.8rem;">+<?= $remaining ?></span>
+        <?php endif; ?>
+        <button type="button" class="btn btn-sm btn-secondary" id="toggleMembersBtn" aria-expanded="false" aria-controls="groupMembersPanel">
+            Alle Mitglieder (<?= count($members) ?>)
+        </button>
+    </div>
 </div>
 
 <div id="groupMembersPanel" class="card" style="display: none; margin-bottom: 1rem;">

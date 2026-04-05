@@ -74,13 +74,23 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!form || !memberList) return;
 
-    // Zaehler aktualisieren bei Checkbox-Aenderung
-    memberList.addEventListener('change', function () {
+    function updateMemberCount() {
         var checked = memberList.querySelectorAll('input[type="checkbox"]:checked').length;
         countLabel.textContent = checked + (checked === 1 ? ' Person ausgewaehlt' : ' Personen ausgewaehlt');
         if (checked > 0) {
             memberError.style.display = 'none';
         }
+    }
+
+    // Direkte Listener auf jede Checkbox (robust gegen Browser-Quirks bei Labels)
+    var checkboxes = memberList.querySelectorAll('input[type="checkbox"]');
+    for (var i = 0; i < checkboxes.length; i++) {
+        checkboxes[i].addEventListener('change', updateMemberCount);
+    }
+
+    // Zusaetzlich: Click-Event auf Container als Fallback
+    memberList.addEventListener('click', function () {
+        setTimeout(updateMemberCount, 0);
     });
 
     // Validierung beim Absenden

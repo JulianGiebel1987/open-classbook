@@ -29,14 +29,15 @@ class TimetableSetting
     public static function create(array $data): int
     {
         Database::execute(
-            'INSERT INTO timetable_settings (school_year, unit_duration, units_per_day, day_start_time, days_of_week, created_by)
-             VALUES (?, ?, ?, ?, ?, ?)',
+            'INSERT INTO timetable_settings (school_year, unit_duration, units_per_day, day_start_time, days_of_week, breaks, created_by)
+             VALUES (?, ?, ?, ?, ?, ?, ?)',
             [
                 $data['school_year'],
                 $data['unit_duration'],
                 $data['units_per_day'],
                 $data['day_start_time'],
                 json_encode($data['days_of_week']),
+                json_encode($data['breaks'] ?? []),
                 $data['created_by'],
             ]
         );
@@ -46,13 +47,14 @@ class TimetableSetting
     public static function update(int $id, array $data): void
     {
         Database::execute(
-            'UPDATE timetable_settings SET school_year = ?, unit_duration = ?, units_per_day = ?, day_start_time = ?, days_of_week = ? WHERE id = ?',
+            'UPDATE timetable_settings SET school_year = ?, unit_duration = ?, units_per_day = ?, day_start_time = ?, days_of_week = ?, breaks = ? WHERE id = ?',
             [
                 $data['school_year'],
                 $data['unit_duration'],
                 $data['units_per_day'],
                 $data['day_start_time'],
                 json_encode($data['days_of_week']),
+                json_encode($data['breaks'] ?? []),
                 $id,
             ]
         );

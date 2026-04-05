@@ -1456,6 +1456,26 @@ a.widget:hover {
     font-size: var(--font-size-sm);
 }
 
+.group-members-bar {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs, 4px);
+    flex-wrap: wrap;
+}
+
+.group-member-avatar-sm {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
 /* Chat-Eingabe */
 .chat-input-form {
     border-top: 1px solid var(--color-border);
@@ -2184,6 +2204,16 @@ a.widget:hover {
 
 .timetable-readonly .slot-cell {
     padding-bottom: var(--spacing-xs, 4px);
+}
+
+.timetable-break-row td {
+    background: var(--color-gray-100, #f5f5f5);
+    text-align: center;
+    padding: var(--spacing-xs, 4px);
+    font-style: italic;
+    color: var(--color-gray-600, #666);
+    height: auto;
+    min-height: 0;
 }
 
 /* Responsive */
