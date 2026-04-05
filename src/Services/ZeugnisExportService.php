@@ -257,9 +257,9 @@ class ZeugnisExportService
     {
         $pdf->SetDrawColor(180, 180, 180);
         $pdf->SetLineWidth(0.3);
-        $pdf->SetLineDash('3,2');
+        $pdf->SetLineStyle(['dash' => '3,2']);
         $pdf->Rect($x, $y, $w, $h);
-        $pdf->SetLineDash('');
+        $pdf->SetLineStyle(['dash' => 0]);
 
         // Signature line near bottom
         $lineY = $y + $h - 6;
