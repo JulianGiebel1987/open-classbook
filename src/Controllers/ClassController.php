@@ -17,7 +17,7 @@ class ClassController
         $classes = SchoolClass::findAll($filters);
         $schoolYears = SchoolClass::getSchoolYears();
 
-        // Schueleranzahl pro Klasse
+        // Schüleranzahl pro Klasse
         foreach ($classes as &$class) {
             $class['student_count'] = Student::countByClassId($class['id']);
         }
@@ -123,7 +123,7 @@ class ClassController
         $students = Student::findByClassId($class['id']);
         $teachers = SchoolClass::getTeachers($class['id']);
 
-        // Alle Klassen fuer Versetzungs-Dropdown laden (ausser aktuelle)
+        // Alle Klassen für Versetzungs-Dropdown laden (ausser aktuelle)
         $allClasses = SchoolClass::findAll();
         $otherClasses = array_filter($allClasses, fn($c) => $c['id'] !== $class['id']);
 
@@ -145,7 +145,7 @@ class ClassController
         // Rollenprüfung
         $role = App::currentUserRole();
         if (!in_array($role, ['admin', 'sekretariat', 'schulleitung'])) {
-            App::setFlash('error', 'Keine Berechtigung fuer diese Aktion.');
+            App::setFlash('error', 'Keine Berechtigung für diese Aktion.');
             App::redirect('/classes/' . $classId);
             return;
         }
@@ -155,7 +155,7 @@ class ClassController
 
         $student = Student::findById($studentId);
         if (!$student || $student['class_id'] !== (int) $classId) {
-            App::setFlash('error', 'Schueler/in nicht gefunden.');
+            App::setFlash('error', 'Schüler:in nicht gefunden.');
             App::redirect('/classes/' . $classId);
             return;
         }

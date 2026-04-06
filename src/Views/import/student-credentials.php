@@ -1,14 +1,14 @@
 <div class="page-header">
-    <h1>Schueler-Zugangsdaten</h1>
+    <h1>Schüler-Zugangsdaten</h1>
 </div>
 
 <div class="alert alert-warning" role="alert">
-    <strong>Wichtig:</strong> Notieren oder drucken Sie diese Zugangsdaten jetzt! Sie werden nach Verlassen dieser Seite nicht erneut angezeigt. Alle Schueler muessen ihr Passwort beim ersten Login aendern.
+    <strong>Wichtig:</strong> Notieren oder drucken Sie diese Zugangsdaten jetzt! Sie werden nach Verlassen dieser Seite nicht erneut angezeigt. Alle Schüler müssen ihr Passwort beim ersten Login ändern.
 </div>
 
 <div class="card">
     <div class="table-responsive">
-        <table aria-label="Schueler-Zugangsdaten">
+        <table aria-label="Schüler-Zugangsdaten">
             <thead>
                 <tr>
                     <th scope="col">Name</th>

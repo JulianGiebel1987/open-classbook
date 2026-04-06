@@ -11,8 +11,8 @@ $roleLabels = [
     'admin'        => 'Admin',
     'schulleitung' => 'Schulleitung',
     'sekretariat'  => 'Sekretariat',
-    'lehrer'       => 'Lehrer/in',
-    'schueler'     => 'Schueler/in',
+    'lehrer'       => 'Lehrkraft',
+    'schueler'     => 'Schüler:in',
 ];
 ?>
 

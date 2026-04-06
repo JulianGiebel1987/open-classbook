@@ -14,7 +14,7 @@ class AbsenceStudentController
 {
     public function index(): void
     {
-        // Schueler: nur eigene Fehlzeiten anzeigen
+        // Schüler: nur eigene Fehlzeiten anzeigen
         if (App::currentUserRole() === 'schueler') {
             App::redirect('/absences/students/mine');
             return;
@@ -45,11 +45,11 @@ class AbsenceStudentController
         $currentRole = App::currentUserRole();
 
         View::render('absences/students-index', [
-            'title' => 'Schueler-Fehlzeiten',
+            'title' => 'Schüler-Fehlzeiten',
             'absences' => $absences,
             'classes' => $accessibleClasses,
             'filters' => $filters,
-            // Fehlzeitengruende nur fuer Sekretariat/Admin sichtbar (Art. 5 Abs. 1 lit. c DSGVO)
+            // Fehlzeitengruende nur für Sekretariat/Admin sichtbar (Art. 5 Abs. 1 lit. c DSGVO)
             'canViewReason' => in_array($currentRole, ['admin', 'schulleitung', 'sekretariat'], true),
         ]);
     }
@@ -94,7 +94,7 @@ class AbsenceStudentController
         ];
 
         if (empty($data['student_id']) || empty($data['date_from']) || empty($data['date_to'])) {
-            App::setFlash('error', 'Schueler, Von-Datum und Bis-Datum sind erforderlich.');
+            App::setFlash('error', 'Schüler, Von-Datum und Bis-Datum sind erforderlich.');
             App::redirect('/absences/students/create');
             return;
         }
@@ -166,12 +166,12 @@ class AbsenceStudentController
         }
 
         AbsenceStudent::delete((int) $id);
-        App::setFlash('success', 'Fehlzeit geloescht.');
+        App::setFlash('success', 'Fehlzeit gelöscht.');
         App::redirect('/absences/students');
     }
 
     /**
-     * API: Schueler einer Klasse als JSON zurueckgeben
+     * API: Schüler einer Klasse als JSON zurückgeben
      */
     public function studentsByClass(string $classId): void
     {
@@ -195,13 +195,13 @@ class AbsenceStudentController
     }
 
     /**
-     * Schueler-Selbst-Krankmeldung: Formular anzeigen
+     * Schüler-Selbst-Krankmeldung: Formular anzeigen
      */
     public function selfReportForm(): void
     {
         $student = Student::findByUserId($_SESSION['user_id']);
         if (!$student) {
-            App::setFlash('error', 'Kein Schueler-Profil gefunden. Bitte wenden Sie sich an das Sekretariat.');
+            App::setFlash('error', 'Kein Schüler-Profil gefunden. Bitte wenden Sie sich an das Sekretariat.');
             App::redirect('/dashboard');
             return;
         }
@@ -214,13 +214,13 @@ class AbsenceStudentController
     }
 
     /**
-     * Schueler-Selbst-Krankmeldung: absenden
+     * Schüler-Selbst-Krankmeldung: absenden
      */
     public function selfReport(): void
     {
         $student = Student::findByUserId($_SESSION['user_id']);
         if (!$student) {
-            App::setFlash('error', 'Kein Schueler-Profil gefunden.');
+            App::setFlash('error', 'Kein Schüler-Profil gefunden.');
             App::redirect('/dashboard');
             return;
         }
@@ -253,13 +253,13 @@ class AbsenceStudentController
     }
 
     /**
-     * Eigene Fehlzeiten anzeigen (fuer Schueler)
+     * Eigene Fehlzeiten anzeigen (für Schüler)
      */
     public function myAbsences(): void
     {
         $student = Student::findByUserId($_SESSION['user_id']);
         if (!$student) {
-            App::setFlash('error', 'Kein Schueler-Profil gefunden.');
+            App::setFlash('error', 'Kein Schüler-Profil gefunden.');
             App::redirect('/dashboard');
             return;
         }

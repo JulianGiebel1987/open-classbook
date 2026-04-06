@@ -1,5 +1,5 @@
 <div class="page-header">
-    <h1>Import-Vorschau: Lehrkraefte</h1>
+    <h1>Import-Vorschau: Lehrkräfte</h1>
 </div>
 
 <?php if (!empty($preview['errors'])): ?>
@@ -17,13 +17,13 @@
 
 <div class="card">
     <div class="table-responsive">
-        <table aria-label="Import-Vorschau Lehrkraefte">
+        <table aria-label="Import-Vorschau Lehrkräfte">
             <thead>
                 <tr>
                     <th scope="col">Zeile</th>
                     <th scope="col">Vorname</th>
                     <th scope="col">Nachname</th>
-                    <th scope="col">Kuerzel</th>
+                    <th scope="col">Kürzel</th>
                     <th scope="col">E-Mail</th>
                     <th scope="col">Faecher</th>
                     <th scope="col">Status</th>
@@ -56,7 +56,7 @@
     <form method="post" action="/import/teachers/confirm" class="d-inline">
         <?= \OpenClassbook\View::csrfField() ?>
         <input type="hidden" name="stored_file" value="<?= htmlspecialchars($storedFile, ENT_QUOTES, 'UTF-8') ?>">
-        <button type="submit" class="btn" data-confirm="Import jetzt durchfuehren? Fehlerhafte Zeilen werden uebersprungen.">Import durchfuehren</button>
+        <button type="submit" class="btn" data-confirm="Import jetzt durchführen? Fehlerhafte Zeilen werden übersprungen.">Import durchführen</button>
     </form>
     <a href="/import" class="btn btn-secondary">Abbrechen</a>
 </div>

@@ -17,7 +17,7 @@ class TimetableController
     private const ADMIN_ROLES = ['admin', 'schulleitung', 'sekretariat'];
 
     /**
-     * Uebersicht aller Stundenplan-Konfigurationen.
+     * Übersicht aller Stundenplan-Konfigurationen.
      */
     public function index(): void
     {
@@ -89,14 +89,14 @@ class TimetableController
             $errors[] = 'Anzahl Einheiten pro Tag muss zwischen 1 und 15 liegen.';
         }
         if (empty($data['days_of_week'])) {
-            $errors[] = 'Mindestens ein Wochentag muss ausgewaehlt werden.';
+            $errors[] = 'Mindestens ein Wochentag muss ausgewählt werden.';
         }
 
         // Pausen validieren
         $seenAfterSlots = [];
         foreach ($data['breaks'] as $brk) {
             if ($brk['after_slot'] < 1 || $brk['after_slot'] >= $data['units_per_day']) {
-                $errors[] = 'Pause nach Einheit ' . $brk['after_slot'] . ' ist ungueltig (muss zwischen 1 und ' . ($data['units_per_day'] - 1) . ' liegen).';
+                $errors[] = 'Pause nach Einheit ' . $brk['after_slot'] . ' ist ungültig (muss zwischen 1 und ' . ($data['units_per_day'] - 1) . ' liegen).';
             }
             if ($brk['duration'] < 5 || $brk['duration'] > 90) {
                 $errors[] = 'Pausendauer muss zwischen 5 und 90 Minuten liegen.';
@@ -111,7 +111,7 @@ class TimetableController
         if (!$id) {
             $existing = TimetableSetting::findBySchoolYear($data['school_year']);
             if ($existing) {
-                $errors[] = 'Fuer dieses Schuljahr existiert bereits ein Stundenplan.';
+                $errors[] = 'Für dieses Schuljahr existiert bereits ein Stundenplan.';
             }
         }
 
@@ -141,7 +141,7 @@ class TimetableController
     }
 
     /**
-     * Klassenauswahl fuer einen Stundenplan.
+     * Klassenauswahl für einen Stundenplan.
      */
     public function selectClass(string $settingId): void
     {
@@ -159,14 +159,14 @@ class TimetableController
         $classes = SchoolClass::findAll();
 
         View::render('timetable/select-class', [
-            'title' => 'Klasse waehlen – ' . $setting['school_year'],
+            'title' => 'Klasse wählen – ' . $setting['school_year'],
             'setting' => $setting,
             'classes' => $classes,
         ]);
     }
 
     /**
-     * Stundenplan-Editor fuer eine Klasse.
+     * Stundenplan-Editor für eine Klasse.
      */
     public function editClass(string $settingId, string $classId): void
     {
@@ -327,7 +327,7 @@ class TimetableController
     }
 
     /**
-     * Stundenplan veroeffentlichen.
+     * Stundenplan veröffentlichen.
      */
     public function publish(string $settingId): void
     {
@@ -347,15 +347,15 @@ class TimetableController
             $_SESSION['user_id'] ?? null,
             'TimetableSetting',
             (int) $settingId,
-            'Stundenplan veroeffentlicht: ' . $setting['school_year']
+            'Stundenplan veröffentlicht: ' . $setting['school_year']
         );
 
-        App::setFlash('success', 'Stundenplan wurde veroeffentlicht. Lehrkraefte koennen ihn jetzt einsehen.');
+        App::setFlash('success', 'Stundenplan wurde veröffentlicht. Lehrkräfte können ihn jetzt einsehen.');
         App::redirect('/timetable');
     }
 
     /**
-     * Veroeffentlichung zurueckziehen.
+     * Veröffentlichung zurückziehen.
      */
     public function unpublish(string $settingId): void
     {
@@ -375,15 +375,15 @@ class TimetableController
             $_SESSION['user_id'] ?? null,
             'TimetableSetting',
             (int) $settingId,
-            'Stundenplan-Veroeffentlichung zurueckgezogen: ' . $setting['school_year']
+            'Stundenplan-Veröffentlichung zurückgezogen: ' . $setting['school_year']
         );
 
-        App::setFlash('success', 'Veroeffentlichung zurueckgezogen.');
+        App::setFlash('success', 'Veröffentlichung zurückgezogen.');
         App::redirect('/timetable');
     }
 
     /**
-     * Lehrer-Ansicht: eigener Stundenplan (nur veroeffentlichte).
+     * Lehrer-Ansicht: eigener Stundenplan (nur veröffentlichte).
      */
     public function teacherView(): void
     {
@@ -406,7 +406,7 @@ class TimetableController
             return;
         }
 
-        // Veroeffentlichten Stundenplan finden
+        // Veröffentlichten Stundenplan finden
         $allSettings = TimetableSetting::findAll();
         $setting = null;
         foreach ($allSettings as $s) {
@@ -571,9 +571,9 @@ class TimetableController
             return;
         }
 
-        // Lehrer darf nur veroeffentlichte Plaene sehen
+        // Lehrer darf nur veröffentlichte Plaene sehen
         if ($role === 'lehrer' && !$setting['is_published']) {
-            App::setFlash('error', 'Stundenplan ist noch nicht veroeffentlicht.');
+            App::setFlash('error', 'Stundenplan ist noch nicht veröffentlicht.');
             App::redirect('/timetable/my-schedule');
             return;
         }
@@ -617,7 +617,7 @@ class TimetableController
             exit;
         }
         if (!ModuleSettings::canAccess('timetable', $role)) {
-            App::setFlash('error', 'Das Modul Stundenplanung ist fuer Ihre Rolle nicht zugaenglich.');
+            App::setFlash('error', 'Das Modul Stundenplanung ist für Ihre Rolle nicht zugänglich.');
             App::redirect('/dashboard');
             exit;
         }
@@ -691,7 +691,7 @@ class TimetableController
     }
 
     /**
-     * Gemeinsame PDF-Render-Logik fuer Klassen- und Lehrer-Stundenplaene.
+     * Gemeinsame PDF-Render-Logik für Klassen- und Lehrer-Stundenplaene.
      */
     private function renderSchedulePdf(
         string $title,

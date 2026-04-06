@@ -1,5 +1,5 @@
 <div class="page-header">
-    <h1>Import-Vorschau: Schueler/innen</h1>
+    <h1>Import-Vorschau: Schüler:innen</h1>
 </div>
 <p class="text-muted mb-1">Schuljahr: <?= htmlspecialchars($schoolYear, ENT_QUOTES, 'UTF-8') ?></p>
 
@@ -18,7 +18,7 @@
 
 <div class="card">
     <div class="table-responsive">
-        <table aria-label="Import-Vorschau Schueler">
+        <table aria-label="Import-Vorschau Schüler">
             <thead>
                 <tr>
                     <th scope="col">Zeile</th>
@@ -56,7 +56,7 @@
         <?= \OpenClassbook\View::csrfField() ?>
         <input type="hidden" name="stored_file" value="<?= htmlspecialchars($storedFile, ENT_QUOTES, 'UTF-8') ?>">
         <input type="hidden" name="school_year" value="<?= htmlspecialchars($schoolYear, ENT_QUOTES, 'UTF-8') ?>">
-        <button type="submit" class="btn" data-confirm="Import jetzt durchfuehren? Fehlerhafte Zeilen werden uebersprungen.">Import durchfuehren</button>
+        <button type="submit" class="btn" data-confirm="Import jetzt durchführen? Fehlerhafte Zeilen werden übersprungen.">Import durchführen</button>
     </form>
     <a href="/import" class="btn btn-secondary">Abbrechen</a>
 </div>

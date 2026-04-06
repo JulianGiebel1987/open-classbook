@@ -52,7 +52,7 @@ class AuthController
                 App::redirect('/change-password');
                 return;
             }
-            App::setFlash('warning', 'Fuer Ihre Rolle ist die Zwei-Faktor-Authentifizierung verpflichtend. Bitte richten Sie diese jetzt ein.');
+            App::setFlash('warning', 'Für Ihre Rolle ist die Zwei-Faktor-Authentifizierung verpflichtend. Bitte richten Sie diese jetzt ein.');
             App::redirect('/two-factor/setup');
             return;
         }
@@ -77,7 +77,7 @@ class AuthController
     {
         CsrfMiddleware::generateToken();
         View::render('auth/change-password', [
-            'title' => 'Passwort aendern',
+            'title' => 'Passwort ändern',
             'forced' => (bool) ($_SESSION['user']['must_change_password'] ?? false),
         ]);
     }
@@ -89,7 +89,7 @@ class AuthController
         $confirmPassword = $_POST['confirm_password'] ?? '';
 
         if ($newPassword !== $confirmPassword) {
-            App::setFlash('error', 'Die Passwoerter stimmen nicht ueberein.');
+            App::setFlash('error', 'Die Passwörter stimmen nicht überein.');
             App::redirect('/change-password');
             return;
         }
@@ -111,14 +111,14 @@ class AuthController
 
         User::updatePassword($user['id'], $newPassword);
         session_regenerate_id(true);
-        App::setFlash('success', 'Passwort erfolgreich geaendert.');
+        App::setFlash('success', 'Passwort erfolgreich geändert.');
         App::redirect('/dashboard');
     }
 
     public function forgotPasswordForm(): void
     {
         CsrfMiddleware::generateToken();
-        View::render('auth/forgot-password', ['title' => 'Passwort zuruecksetzen'], 'auth');
+        View::render('auth/forgot-password', ['title' => 'Passwort zurücksetzen'], 'auth');
     }
 
     public function forgotPassword(): void
@@ -131,7 +131,7 @@ class AuthController
             return;
         }
 
-        // Token generieren (gibt null zurueck wenn E-Mail nicht gefunden)
+        // Token generieren (gibt null zurück wenn E-Mail nicht gefunden)
         AuthService::createResetToken($email);
 
         // Immer gleiche Meldung anzeigen (verhindert User-Enumeration)
@@ -144,7 +144,7 @@ class AuthController
         $user = User::findByResetToken(hash('sha256', $token));
 
         if (!$user) {
-            App::setFlash('error', 'Ungueltiger oder abgelaufener Link.');
+            App::setFlash('error', 'Ungültiger oder abgelaufener Link.');
             App::redirect('/login');
             return;
         }
@@ -165,13 +165,13 @@ class AuthController
         $user = User::findByResetToken(hash('sha256', $token));
 
         if (!$user) {
-            App::setFlash('error', 'Ungueltiger oder abgelaufener Link.');
+            App::setFlash('error', 'Ungültiger oder abgelaufener Link.');
             App::redirect('/login');
             return;
         }
 
         if ($newPassword !== $confirmPassword) {
-            App::setFlash('error', 'Die Passwoerter stimmen nicht ueberein.');
+            App::setFlash('error', 'Die Passwörter stimmen nicht überein.');
             App::redirect('/reset-password/' . $token);
             return;
         }
@@ -186,7 +186,7 @@ class AuthController
         User::updatePassword($user['id'], $newPassword);
         User::clearResetToken($user['id']);
 
-        App::setFlash('success', 'Passwort erfolgreich geaendert. Sie koennen sich jetzt anmelden.');
+        App::setFlash('success', 'Passwort erfolgreich geändert. Sie können sich jetzt anmelden.');
         App::redirect('/login');
     }
 

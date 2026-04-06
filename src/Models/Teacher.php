@@ -66,7 +66,7 @@ class Teacher
             [$teacherId]
         );
 
-        // Klassenlehrer: Klassen ueber head_teacher_id
+        // Klassenleitung: Klassen über head_teacher_id
         $head = Database::query(
             'SELECT c.* FROM classes c
              WHERE c.head_teacher_id = ?

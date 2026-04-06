@@ -431,7 +431,7 @@
                 html += '<button type="button" id="btn-remove-image" class="btn btn-sm btn-muted">Bild entfernen</button>';
                 html += '</div>';
             } else {
-                html += '<div class="zeugnis-props-group"><p class="text-muted" style="font-size:var(--font-size-sm)">Kein Bild ausgewaehlt. Bild hochladen oder aus Galerie waehlen.</p></div>';
+                html += '<div class="zeugnis-props-group"><p class="text-muted" style="font-size:var(--font-size-sm)">Kein Bild ausgewählt. Bild hochladen oder aus Galerie wählen.</p></div>';
             }
         }
 

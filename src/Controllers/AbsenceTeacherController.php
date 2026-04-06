@@ -23,7 +23,7 @@ class AbsenceTeacherController
             exit;
         }
         if (!ModuleSettings::isRoleModuleAccessible('teacher_absences', $role)) {
-            App::setFlash('error', 'Das Modul Lehrerfehlzeiten ist fuer Ihre Rolle nicht zugaenglich.');
+            App::setFlash('error', 'Das Modul Lehrerfehlzeiten ist für Ihre Rolle nicht zugänglich.');
             App::redirect('/dashboard');
             exit;
         }
@@ -191,7 +191,7 @@ class AbsenceTeacherController
         $this->requireTeacherAbsenceAccess();
 
         AbsenceTeacher::delete((int) $id);
-        App::setFlash('success', 'Abwesenheit geloescht.');
+        App::setFlash('success', 'Abwesenheit gelöscht.');
         App::redirect('/absences/teachers');
     }
 }

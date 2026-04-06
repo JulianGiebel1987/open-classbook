@@ -42,7 +42,7 @@
 
         <div id="teacher-fields" style="display: none;">
             <div class="form-group">
-                <label for="abbreviation">Kuerzel <span aria-hidden="true">*</span><span class="sr-only">(Pflichtfeld)</span></label>
+                <label for="abbreviation">Kürzel <span aria-hidden="true">*</span><span class="sr-only">(Pflichtfeld)</span></label>
                 <input type="text" id="abbreviation" name="abbreviation" class="form-control" maxlength="10" value="<?= htmlspecialchars($profile['abbreviation'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
             </div>
 
@@ -56,7 +56,7 @@
             <div class="form-group">
                 <label for="class_id">Klasse <span aria-hidden="true">*</span><span class="sr-only">(Pflichtfeld)</span></label>
                 <select name="class_id" id="class_id" class="form-control">
-                    <option value="">- Klasse waehlen -</option>
+                    <option value="">- Klasse wählen -</option>
                     <?php foreach ($classes ?? [] as $c): ?>
                         <option value="<?= $c['id'] ?>" <?= ($profile['class_id'] ?? '') == $c['id'] ? 'selected' : '' ?>>
                             <?= htmlspecialchars($c['name'], ENT_QUOTES, 'UTF-8') ?>
@@ -86,7 +86,7 @@
 
         <form method="post" action="/users/<?= $user['id'] ?>/reset-2fa" style="display: inline;">
             <?= \OpenClassbook\View::csrfField() ?>
-            <button type="submit" class="btn btn-danger" onclick="return confirm('Moechten Sie die 2FA fuer diesen Benutzer wirklich zuruecksetzen? Der Benutzer muss 2FA anschliessend neu einrichten.')">2FA zuruecksetzen</button>
+            <button type="submit" class="btn btn-danger" onclick="return confirm('Möchten Sie die 2FA für diesen Benutzer wirklich zurücksetzen? Der Benutzer muss 2FA anschließend neu einrichten.')">2FA zurücksetzen</button>
         </form>
     <?php else: ?>
         <p><strong>Status:</strong> Nicht eingerichtet</p>

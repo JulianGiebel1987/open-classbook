@@ -55,32 +55,32 @@ class UserController
         // Validierung
         $errors = $this->validateUser($data);
 
-        // Zusaetzliche Validierung fuer Lehrer
+        // Zusaetzliche Validierung für Lehrer
         if ($data['role'] === 'lehrer') {
             if (empty(trim($_POST['firstname'] ?? ''))) {
-                $errors[] = 'Vorname ist fuer Lehrer erforderlich.';
+                $errors[] = 'Vorname ist für Lehrer erforderlich.';
             }
             if (empty(trim($_POST['lastname'] ?? ''))) {
-                $errors[] = 'Nachname ist fuer Lehrer erforderlich.';
+                $errors[] = 'Nachname ist für Lehrer erforderlich.';
             }
             $abbreviation = trim($_POST['abbreviation'] ?? '');
             if (empty($abbreviation)) {
-                $errors[] = 'Kuerzel ist fuer Lehrer erforderlich.';
+                $errors[] = 'Kürzel ist für Lehrer erforderlich.';
             } elseif (Teacher::abbreviationExists($abbreviation)) {
-                $errors[] = 'Dieses Kuerzel ist bereits vergeben.';
+                $errors[] = 'Dieses Kürzel ist bereits vergeben.';
             }
         }
 
-        // Zusaetzliche Validierung fuer Schueler
+        // Zusaetzliche Validierung für Schüler
         if ($data['role'] === 'schueler') {
             if (empty(trim($_POST['firstname'] ?? ''))) {
-                $errors[] = 'Vorname ist fuer Schueler erforderlich.';
+                $errors[] = 'Vorname ist für Schüler erforderlich.';
             }
             if (empty(trim($_POST['lastname'] ?? ''))) {
-                $errors[] = 'Nachname ist fuer Schueler erforderlich.';
+                $errors[] = 'Nachname ist für Schüler erforderlich.';
             }
             if (empty($_POST['class_id'] ?? '')) {
-                $errors[] = 'Klasse ist fuer Schueler erforderlich.';
+                $errors[] = 'Klasse ist für Schüler erforderlich.';
             }
         }
 
@@ -109,7 +109,7 @@ class UserController
             ]);
         }
 
-        // Schueler-Profil anlegen
+        // Schüler-Profil anlegen
         if ($data['role'] === 'schueler') {
             Student::create([
                 'user_id' => $userId,
@@ -132,7 +132,7 @@ class UserController
             return;
         }
 
-        // Profildaten laden (Lehrer oder Schueler)
+        // Profildaten laden (Lehrer oder Schüler)
         $profile = null;
         if ($user['role'] === 'lehrer') {
             $profile = Teacher::findByUserId($user['id']);
@@ -171,43 +171,43 @@ class UserController
 
         $errors = [];
 
-        // Username-Duplikat pruefen
+        // Username-Duplikat prüfen
         if ($data['username'] !== $user['username'] && User::usernameExists($data['username'], $userId)) {
             $errors[] = 'Dieser Benutzername ist bereits vergeben.';
         }
 
-        // E-Mail-Pflicht fuer Lehrer
+        // E-Mail-Pflicht für Lehrer
         if ($data['role'] === 'lehrer' && empty($data['email'])) {
-            $errors[] = 'Fuer Lehrer-Accounts ist eine E-Mail-Adresse erforderlich.';
+            $errors[] = 'Für Lehrer-Accounts ist eine E-Mail-Adresse erforderlich.';
         }
 
         // Validierung Lehrer-Profil
         if ($data['role'] === 'lehrer') {
             if (empty(trim($_POST['firstname'] ?? ''))) {
-                $errors[] = 'Vorname ist fuer Lehrer erforderlich.';
+                $errors[] = 'Vorname ist für Lehrer erforderlich.';
             }
             if (empty(trim($_POST['lastname'] ?? ''))) {
-                $errors[] = 'Nachname ist fuer Lehrer erforderlich.';
+                $errors[] = 'Nachname ist für Lehrer erforderlich.';
             }
             $abbreviation = trim($_POST['abbreviation'] ?? '');
             $existingTeacher = Teacher::findByUserId($userId);
             if (empty($abbreviation)) {
-                $errors[] = 'Kuerzel ist fuer Lehrer erforderlich.';
+                $errors[] = 'Kürzel ist für Lehrer erforderlich.';
             } elseif (Teacher::abbreviationExists($abbreviation, $existingTeacher['id'] ?? null)) {
-                $errors[] = 'Dieses Kuerzel ist bereits vergeben.';
+                $errors[] = 'Dieses Kürzel ist bereits vergeben.';
             }
         }
 
-        // Validierung Schueler-Profil
+        // Validierung Schüler-Profil
         if ($data['role'] === 'schueler') {
             if (empty(trim($_POST['firstname'] ?? ''))) {
-                $errors[] = 'Vorname ist fuer Schueler erforderlich.';
+                $errors[] = 'Vorname ist für Schüler erforderlich.';
             }
             if (empty(trim($_POST['lastname'] ?? ''))) {
-                $errors[] = 'Nachname ist fuer Schueler erforderlich.';
+                $errors[] = 'Nachname ist für Schüler erforderlich.';
             }
             if (empty($_POST['class_id'] ?? '')) {
-                $errors[] = 'Klasse ist fuer Schueler erforderlich.';
+                $errors[] = 'Klasse ist für Schüler erforderlich.';
             }
         }
 
@@ -250,7 +250,7 @@ class UserController
             }
         }
 
-        // Schueler-Profil erstellen oder aktualisieren
+        // Schüler-Profil erstellen oder aktualisieren
         if ($data['role'] === 'schueler') {
             $studentData = [
                 'user_id' => $userId,
@@ -282,7 +282,7 @@ class UserController
 
         // Eigenen Account nicht deaktivieren
         if ($userId === (int) $_SESSION['user_id']) {
-            App::setFlash('error', 'Sie koennen Ihren eigenen Account nicht deaktivieren.');
+            App::setFlash('error', 'Sie können Ihren eigenen Account nicht deaktivieren.');
             App::redirect('/users');
             return;
         }
@@ -327,13 +327,13 @@ class UserController
             return;
         }
 
-        // Fuer optionalen E-Mail-Versand in separater Session-Variable aufbewahren
+        // Für optionalen E-Mail-Versand in separater Session-Variable aufbewahren
         $_SESSION['temp_password_for_email'] = $info;
 
         $mailEnabled = (bool) App::config('mail.enabled') && !empty($info['email']);
 
         View::render('users/reset-password-info', [
-            'title'       => 'Passwort zurueckgesetzt',
+            'title'       => 'Passwort zurückgesetzt',
             'info'        => $info,
             'mailEnabled' => $mailEnabled,
             'csrfToken'   => CsrfMiddleware::generateToken(),
@@ -348,13 +348,13 @@ class UserController
         unset($_SESSION['temp_password_for_email']);
 
         if (!$info || (int) ($info['user_id'] ?? 0) !== $userId) {
-            App::setFlash('error', 'Zugangsdaten nicht mehr verfuegbar. Bitte Passwort erneut zuruecksetzen.');
+            App::setFlash('error', 'Zugangsdaten nicht mehr verfügbar. Bitte Passwort erneut zurücksetzen.');
             App::redirect('/users');
             return;
         }
 
         if (empty($info['email'])) {
-            App::setFlash('error', 'Fuer diesen Benutzer ist keine E-Mail-Adresse hinterlegt.');
+            App::setFlash('error', 'Für diesen Benutzer ist keine E-Mail-Adresse hinterlegt.');
             App::redirect('/users');
             return;
         }
@@ -364,7 +364,7 @@ class UserController
         if ($sent) {
             App::setFlash('success', 'Zugangsdaten wurden per E-Mail an ' . htmlspecialchars($info['email'], ENT_QUOTES, 'UTF-8') . ' gesendet.');
         } else {
-            App::setFlash('error', 'E-Mail-Versand fehlgeschlagen. Bitte pruefen Sie die E-Mail-Konfiguration.');
+            App::setFlash('error', 'E-Mail-Versand fehlgeschlagen. Bitte prüfen Sie die E-Mail-Konfiguration.');
         }
 
         App::redirect('/users');
@@ -373,7 +373,7 @@ class UserController
     public function resetTwoFactor(string $id): void
     {
         if (App::currentUserRole() !== 'admin') {
-            App::setFlash('error', 'Nur Administratoren duerfen die 2FA eines Benutzers zuruecksetzen.');
+            App::setFlash('error', 'Nur Administratoren dürfen die 2FA eines Benutzers zurücksetzen.');
             App::redirect('/users');
             return;
         }
@@ -392,10 +392,10 @@ class UserController
             $_SESSION['user_id'] ?? null,
             'User',
             $userId,
-            '2FA zurueckgesetzt fuer: ' . $user['username']
+            '2FA zurückgesetzt für: ' . $user['username']
         );
 
-        App::setFlash('success', 'Zwei-Faktor-Authentifizierung fuer "' . htmlspecialchars($user['username'], ENT_QUOTES, 'UTF-8') . '" wurde zurueckgesetzt.');
+        App::setFlash('success', 'Zwei-Faktor-Authentifizierung für "' . htmlspecialchars($user['username'], ENT_QUOTES, 'UTF-8') . '" wurde zurückgesetzt.');
         App::redirect('/users/' . $userId . '/edit');
     }
 
@@ -409,16 +409,16 @@ class UserController
             return;
         }
 
-        // Eigenen Account nicht loeschen
+        // Eigenen Account nicht löschen
         if ($userId === (int) $_SESSION['user_id']) {
-            App::setFlash('error', 'Sie koennen Ihren eigenen Account nicht loeschen.');
+            App::setFlash('error', 'Sie können Ihren eigenen Account nicht löschen.');
             App::redirect('/users');
             return;
         }
 
-        // Nur Admins duerfen Nutzer loeschen
+        // Nur Admins dürfen Nutzer löschen
         if (App::currentUserRole() !== 'admin') {
-            App::setFlash('error', 'Nur Administratoren duerfen Benutzer loeschen.');
+            App::setFlash('error', 'Nur Administratoren dürfen Benutzer löschen.');
             App::redirect('/users');
             return;
         }
@@ -430,12 +430,12 @@ class UserController
             $_SESSION['user_id'] ?? null,
             'User',
             $userId,
-            'Benutzer geloescht: ' . $username . ' (Rolle: ' . $user['role'] . ')'
+            'Benutzer gelöscht: ' . $username . ' (Rolle: ' . $user['role'] . ')'
         );
 
         User::delete($userId);
 
-        App::setFlash('success', 'Benutzer "' . $username . '" und alle zugehoerigen Daten wurden geloescht.');
+        App::setFlash('success', 'Benutzer "' . $username . '" und alle zugehörigen Daten wurden gelöscht.');
         App::redirect('/users');
     }
 
@@ -450,11 +450,11 @@ class UserController
         }
 
         if (!in_array($data['role'], ['admin', 'schulleitung', 'sekretariat', 'lehrer', 'schueler'])) {
-            $errors[] = 'Ungueltige Rolle.';
+            $errors[] = 'Ungültige Rolle.';
         }
 
         if ($data['role'] === 'lehrer' && empty($data['email'])) {
-            $errors[] = 'Fuer Lehrer-Accounts ist eine E-Mail-Adresse erforderlich.';
+            $errors[] = 'Für Lehrer-Accounts ist eine E-Mail-Adresse erforderlich.';
         }
 
         if (isset($data['password']) && !empty($data['password'])) {

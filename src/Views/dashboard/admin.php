@@ -5,11 +5,11 @@
 <div class="dashboard-grid">
     <div class="widget">
         <div class="widget-value"><?= $stats['teachers'] ?? 0 ?></div>
-        <div class="widget-label">Lehrkraefte</div>
+        <div class="widget-label">Lehrkräfte</div>
     </div>
     <div class="widget">
         <div class="widget-value"><?= $stats['students'] ?? 0 ?></div>
-        <div class="widget-label">Schueler/innen</div>
+        <div class="widget-label">Schüler:innen</div>
     </div>
     <div class="widget">
         <div class="widget-value"><?= $stats['classes'] ?? 0 ?></div>
@@ -17,11 +17,11 @@
     </div>
     <div class="widget">
         <div class="widget-value"><?= $stats['absent_teachers_today'] ?? 0 ?></div>
-        <div class="widget-label">Abwesende Lehrkraefte heute</div>
+        <div class="widget-label">Abwesende Lehrkräfte heute</div>
     </div>
     <div class="widget">
         <div class="widget-value"><?= $stats['absent_students_today'] ?? 0 ?></div>
-        <div class="widget-label">Abwesende Schueler heute</div>
+        <div class="widget-label">Abwesende Schüler heute</div>
     </div>
     <div class="widget">
         <div class="widget-value"><?= $stats['unexcused_absences'] ?? 0 ?></div>
@@ -37,7 +37,7 @@
         <a href="/users" class="btn">Benutzerverwaltung</a>
         <a href="/classes" class="btn btn-secondary">Klassenverwaltung</a>
         <a href="/classbook" class="btn btn-secondary">Klassenbuecher</a>
-        <a href="/absences/students" class="btn btn-secondary">Schueler-Fehlzeiten</a>
+        <a href="/absences/students" class="btn btn-secondary">Schüler-Fehlzeiten</a>
         <a href="/absences/teachers" class="btn btn-secondary">Lehrer-Fehlzeiten</a>
     </div>
 </div>

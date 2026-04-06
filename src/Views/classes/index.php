@@ -30,8 +30,8 @@
                 <tr>
                     <th scope="col">Klasse</th>
                     <th scope="col">Schuljahr</th>
-                    <th scope="col">Klassenlehrer</th>
-                    <th scope="col">Schueler</th>
+                    <th scope="col">Klassenleitung</th>
+                    <th scope="col">Schüler</th>
                     <th scope="col">Aktionen</th>
                 </tr>
             </thead>

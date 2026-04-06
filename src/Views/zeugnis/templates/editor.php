@@ -142,7 +142,7 @@
             <div id="image-upload-section" style="display:none;margin-top:var(--spacing-md)">
                 <h3>Bild hochladen</h3>
                 <p class="text-muted" style="font-size:var(--font-size-xs);margin-bottom:var(--spacing-sm)">
-                    Bild waehlen und hochladen. Es wird in das ausgewaehlte Bild-Element eingefuegt.
+                    Bild wählen und hochladen. Es wird in das ausgewählte Bild-Element eingefügt.
                 </p>
                 <input type="file" id="image-upload-input" accept="image/jpeg,image/png,image/gif,image/webp"
                        style="margin-bottom:var(--spacing-sm)">
@@ -151,7 +151,7 @@
 
                 <?php if (!empty($images)): ?>
                 <p class="palette-section-label" style="margin-top:var(--spacing-sm)">Vorhandene Bilder</p>
-                <p class="text-muted" style="font-size:var(--font-size-xs)">Klicken, um in das ausgewaehlte Element einzufuegen.</p>
+                <p class="text-muted" style="font-size:var(--font-size-xs)">Klicken, um in das ausgewählte Element einzufügen.</p>
                 <div id="image-gallery">
                     <?php foreach ($images as $img): ?>
                     <div class="image-gallery-item" data-image-id="<?= (int) $img['id'] ?>">

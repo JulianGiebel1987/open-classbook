@@ -13,11 +13,11 @@ $statusBadges = ['draft' => 'badge-draft', 'final' => 'badge-final'];
         <table aria-label="Dokumente">
             <thead>
                 <tr>
-                    <th scope="col">Schüler/in</th>
+                    <th scope="col">Schüler:in</th>
                     <th scope="col">Klasse</th>
                     <th scope="col">Vorlage</th>
                     <th scope="col">Status</th>
-                    <th scope="col">Ersteller</th>
+                    <th scope="col">Ersteller:in</th>
                     <th scope="col">Aktualisiert</th>
                     <th scope="col">Aktionen</th>
                 </tr>
@@ -86,7 +86,7 @@ $statusBadges = ['draft' => 'badge-draft', 'final' => 'badge-final'];
                 <thead>
                     <tr>
                         <th><input type="checkbox" id="select-all-cb"></th>
-                        <th>Schüler/in</th>
+                        <th>Schüler:in</th>
                         <th>Klasse</th>
                         <th>Status</th>
                     </tr>

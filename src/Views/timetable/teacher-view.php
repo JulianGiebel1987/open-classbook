@@ -12,11 +12,11 @@ $dayNames = [1 => 'Montag', 2 => 'Dienstag', 3 => 'Mittwoch', 4 => 'Donnerstag',
 
 <?php if (!$setting): ?>
     <div class="card">
-        <p class="text-muted">Es ist aktuell kein Stundenplan veroeffentlicht.</p>
+        <p class="text-muted">Es ist aktuell kein Stundenplan veröffentlicht.</p>
     </div>
 <?php elseif (empty($slotGrid)): ?>
     <div class="card">
-        <p class="text-muted">Fuer Sie sind im aktuellen Stundenplan (<?= htmlspecialchars($setting['school_year'], ENT_QUOTES, 'UTF-8') ?>) noch keine Einheiten eingetragen.</p>
+        <p class="text-muted">Für Sie sind im aktuellen Stundenplan (<?= htmlspecialchars($setting['school_year'], ENT_QUOTES, 'UTF-8') ?>) noch keine Einheiten eingetragen.</p>
     </div>
 <?php else: ?>
     <div class="card">

@@ -17,7 +17,7 @@ $visibilityBadges = ['private' => 'badge-muted', 'global' => 'badge-success', 's
                     <th scope="col">Beschreibung</th>
                     <th scope="col">Sichtbarkeit</th>
                     <th scope="col">Klasse</th>
-                    <th scope="col">Ersteller</th>
+                    <th scope="col">Ersteller:in</th>
                     <th scope="col">Aktionen</th>
                 </tr>
             </thead>
@@ -38,7 +38,7 @@ $visibilityBadges = ['private' => 'badge-muted', 'global' => 'badge-success', 's
                             <?php if ((int) $l['owner_id'] === $currentUserId): ?>
                                 <form method="post" action="/lists/<?= (int) $l['id'] ?>/delete" class="d-inline">
                                     <?= \OpenClassbook\View::csrfField() ?>
-                                    <button type="submit" class="btn btn-sm btn-danger" data-confirm="Liste wirklich loeschen?">Loeschen</button>
+                                    <button type="submit" class="btn btn-sm btn-danger" data-confirm="Liste wirklich löschen?">Löschen</button>
                                 </form>
                             <?php endif; ?>
                         </div>

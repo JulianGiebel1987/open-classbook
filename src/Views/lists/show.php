@@ -1,6 +1,6 @@
 <div class="page-header">
     <div>
-        <a href="/lists" class="btn btn-sm btn-secondary mb-05">Zurueck</a>
+        <a href="/lists" class="btn btn-sm btn-secondary mb-05">Zurück</a>
         <h1><?= htmlspecialchars($list['title'], ENT_QUOTES, 'UTF-8') ?></h1>
         <?php if ($list['description']): ?>
             <p class="text-muted"><?= htmlspecialchars($list['description'], ENT_QUOTES, 'UTF-8') ?></p>
@@ -46,8 +46,8 @@
 <?php if ($canEdit): ?>
 <div class="card mb-1">
     <div class="list-actions-bar">
-        <button type="button" class="btn btn-sm btn-secondary" id="toggleAddColumn">Spalte hinzufuegen</button>
-        <button type="button" class="btn btn-sm btn-secondary" id="toggleAddRow">Zeile hinzufuegen</button>
+        <button type="button" class="btn btn-sm btn-secondary" id="toggleAddColumn">Spalte hinzufügen</button>
+        <button type="button" class="btn btn-sm btn-secondary" id="toggleAddRow">Zeile hinzufügen</button>
     </div>
 
     <form method="post" action="/lists/<?= (int) $list['id'] ?>/column" class="list-inline-form" id="addColumnForm" style="display:none">
@@ -63,7 +63,7 @@
                 <option value="rating">Bewertung (1-6)</option>
             </select>
             <input type="text" name="col_options" class="form-control list-col-options" placeholder="Optionen (kommasepariert)" style="display:none">
-            <button type="submit" class="btn btn-sm">Hinzufuegen</button>
+            <button type="submit" class="btn btn-sm">Hinzufügen</button>
         </div>
     </form>
 
@@ -71,7 +71,7 @@
         <?= \OpenClassbook\View::csrfField() ?>
         <div class="list-inline-form-row">
             <input type="text" name="row_label" class="form-control" placeholder="Zeilenbeschriftung (optional)">
-            <button type="submit" class="btn btn-sm">Hinzufuegen</button>
+            <button type="submit" class="btn btn-sm">Hinzufügen</button>
         </div>
     </form>
 </div>
@@ -95,7 +95,7 @@
                             <?php if ($canEdit): ?>
                                 <form method="post" action="/lists/column/<?= (int) $col['id'] ?>/delete" class="d-inline">
                                     <?= \OpenClassbook\View::csrfField() ?>
-                                    <button type="submit" class="btn-icon btn-icon-danger" data-confirm="Spalte und alle Werte loeschen?" title="Spalte loeschen">&times;</button>
+                                    <button type="submit" class="btn-icon btn-icon-danger" data-confirm="Spalte und alle Werte löschen?" title="Spalte löschen">&times;</button>
                                 </form>
                             <?php endif; ?>
                         </th>
@@ -149,7 +149,7 @@
                         <td>
                             <form method="post" action="/lists/row/<?= (int) $row['id'] ?>/delete" class="d-inline">
                                 <?= \OpenClassbook\View::csrfField() ?>
-                                <button type="submit" class="btn-icon btn-icon-danger" data-confirm="Zeile loeschen?" title="Zeile loeschen">&times;</button>
+                                <button type="submit" class="btn-icon btn-icon-danger" data-confirm="Zeile löschen?" title="Zeile löschen">&times;</button>
                             </form>
                         </td>
                         <?php endif; ?>

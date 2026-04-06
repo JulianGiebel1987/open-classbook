@@ -35,7 +35,7 @@ class ListController
     }
 
     /**
-     * Alle zugaenglichen Listen anzeigen.
+     * Alle zugänglichen Listen anzeigen.
      */
     public function index(): void
     {
@@ -127,7 +127,7 @@ class ListController
                 ]);
             }
 
-            // Schuelerliste vorbefuellen
+            // Schülerliste vorbefuellen
             if ($classId) {
                 ListRow::createFromClass($listId, $classId);
             }
@@ -135,7 +135,7 @@ class ListController
             App::setFlash('success', 'Liste erstellt.');
             App::redirect('/lists/' . $listId);
         } catch (\PDOException $e) {
-            App::setFlash('error', 'Fehler beim Erstellen der Liste. Bitte pruefen Sie, ob die Datenbank-Migrationen ausgefuehrt wurden (php database/migrate.php).');
+            App::setFlash('error', 'Fehler beim Erstellen der Liste. Bitte prüfen Sie, ob die Datenbank-Migrationen ausgeführt wurden (php database/migrate.php).');
             App::redirect('/lists/create');
         }
     }
@@ -218,7 +218,7 @@ class ListController
     }
 
     /**
-     * Liste loeschen.
+     * Liste löschen.
      */
     public function delete(string $id): void
     {
@@ -233,12 +233,12 @@ class ListController
         }
 
         ListModel::delete($listId);
-        App::setFlash('success', 'Liste geloescht.');
+        App::setFlash('success', 'Liste gelöscht.');
         App::redirect('/lists');
     }
 
     /**
-     * Spalte hinzufuegen.
+     * Spalte hinzufügen.
      */
     public function addColumn(string $id): void
     {
@@ -275,15 +275,15 @@ class ListController
                 'type' => $type,
                 'options' => $options,
             ]);
-            App::setFlash('success', 'Spalte hinzugefuegt.');
+            App::setFlash('success', 'Spalte hinzugefügt.');
         } catch (\PDOException $e) {
-            App::setFlash('error', 'Fehler beim Hinzufuegen der Spalte.');
+            App::setFlash('error', 'Fehler beim Hinzufügen der Spalte.');
         }
         App::redirect('/lists/' . $listId);
     }
 
     /**
-     * Spalte loeschen.
+     * Spalte löschen.
      */
     public function deleteColumn(string $colId): void
     {
@@ -304,12 +304,12 @@ class ListController
         }
 
         ListColumn::delete((int) $colId);
-        App::setFlash('success', 'Spalte geloescht.');
+        App::setFlash('success', 'Spalte gelöscht.');
         App::redirect('/lists/' . $listId);
     }
 
     /**
-     * Zeile hinzufuegen.
+     * Zeile hinzufügen.
      */
     public function addRow(string $id): void
     {
@@ -327,15 +327,15 @@ class ListController
                 'list_id' => $listId,
                 'label' => trim($_POST['row_label'] ?? '') ?: null,
             ]);
-            App::setFlash('success', 'Zeile hinzugefuegt.');
+            App::setFlash('success', 'Zeile hinzugefügt.');
         } catch (\PDOException $e) {
-            App::setFlash('error', 'Fehler beim Hinzufuegen der Zeile.');
+            App::setFlash('error', 'Fehler beim Hinzufügen der Zeile.');
         }
         App::redirect('/lists/' . $listId);
     }
 
     /**
-     * Zeile loeschen.
+     * Zeile löschen.
      */
     public function deleteRow(string $rowId): void
     {
@@ -356,7 +356,7 @@ class ListController
         }
 
         ListRow::delete((int) $rowId);
-        App::setFlash('success', 'Zeile geloescht.');
+        App::setFlash('success', 'Zeile gelöscht.');
         App::redirect('/lists/' . $listId);
     }
 
@@ -374,12 +374,12 @@ class ListController
             $input = $_POST;
         }
 
-        // CSRF-Pruefung fuer AJAX-Anfragen
+        // CSRF-Pruefung für AJAX-Anfragen
         $csrfToken = $input['csrf_token'] ?? ($_SERVER['HTTP_X_CSRF_TOKEN'] ?? '');
         $sessionToken = $_SESSION['csrf_token'] ?? '';
         if (empty($csrfToken) || !hash_equals($sessionToken, $csrfToken)) {
             http_response_code(403);
-            echo json_encode(['error' => 'Ungueltige Anfrage']);
+            echo json_encode(['error' => 'Ungültige Anfrage']);
             return;
         }
 
@@ -436,7 +436,7 @@ class ListController
         header('Content-Disposition: attachment; filename="' . $filename . '"');
 
         $output = fopen('php://output', 'w');
-        // BOM fuer Excel UTF-8
+        // BOM für Excel UTF-8
         fwrite($output, "\xEF\xBB\xBF");
 
         // Kopfzeile
@@ -580,7 +580,7 @@ class ListController
     }
 
     /**
-     * Freigabe hinzufuegen.
+     * Freigabe hinzufügen.
      */
     public function share(string $id): void
     {
@@ -596,7 +596,7 @@ class ListController
 
         $shareUserId = (int) ($_POST['user_id'] ?? 0);
         if ($shareUserId === 0 || $shareUserId === $_SESSION['user_id']) {
-            App::setFlash('error', 'Ungueltiger Nutzer.');
+            App::setFlash('error', 'Ungültiger Nutzer.');
             App::redirect('/lists/' . $listId . '/share');
             return;
         }
@@ -613,7 +613,7 @@ class ListController
             ]);
         }
 
-        App::setFlash('success', 'Freigabe hinzugefuegt.');
+        App::setFlash('success', 'Freigabe hinzugefügt.');
         App::redirect('/lists/' . $listId . '/share');
     }
 

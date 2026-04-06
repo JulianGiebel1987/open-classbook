@@ -18,7 +18,7 @@
 
 // Nur CLI erlauben
 if (php_sapi_name() !== 'cli') {
-    echo "Dieses Skript darf nur ueber die Kommandozeile ausgefuehrt werden.\n";
+    echo "Dieses Skript darf nur über die Kommandozeile ausgeführt werden.\n";
     exit(1);
 }
 
@@ -345,9 +345,9 @@ if (strtolower($createAdmin) === 'j') {
             continue;
         }
 
-        $confirm = promptPassword('Passwort bestaetigen');
+        $confirm = promptPassword('Passwort bestätigen');
         if ($adminPassword !== $confirm) {
-            echo "  Passwoerter stimmen nicht ueberein.\n";
+            echo "  Passwörter stimmen nicht überein.\n";
             continue;
         }
 
@@ -422,7 +422,7 @@ echo "╚═══════════════════════�
 echo "Naechste Schritte:\n";
 echo "  1. Webserver auf public/ als DocumentRoot konfigurieren\n";
 echo "  2. HTTPS aktivieren (dringend empfohlen)\n";
-echo "  3. Anwendung im Browser oeffnen: {$appUrl}\n";
+echo "  3. Anwendung im Browser öffnen: {$appUrl}\n";
 echo "  4. Mit dem Admin-Account einloggen\n";
 echo "\nEntwicklungsserver starten:\n";
 echo "  php -S localhost:8080 -t public/\n\n";

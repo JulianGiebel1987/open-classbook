@@ -129,7 +129,7 @@ class ClassbookController
         }
 
         if (!ClassbookEntry::canEdit($entry, $_SESSION['user_id'], App::currentUserRole())) {
-            App::setFlash('error', 'Sie koennen diesen Eintrag nicht mehr bearbeiten.');
+            App::setFlash('error', 'Sie können diesen Eintrag nicht mehr bearbeiten.');
             App::redirect('/classbook/' . $entry['class_id']);
             return;
         }
@@ -220,12 +220,12 @@ class ClassbookController
             $startY = $pdf->GetY();
             $startPage = $pdf->getPage();
 
-            // Berechne benoetigte Hoehe fuer mehrzeilige Zellen
+            // Berechne benoetigte Hoehe für mehrzeilige Zellen
             $topicHeight = $pdf->getStringHeight(110, $e['topic']);
             $notesHeight = $pdf->getStringHeight(87, $e['notes'] ?? '');
             $rowHeight = max(8, $topicHeight, $notesHeight);
 
-            // Seitenumbruch pruefen
+            // Seitenumbruch prüfen
             if ($pdf->GetY() + $rowHeight > $pdf->getPageHeight() - 15) {
                 $pdf->AddPage();
             }
@@ -281,7 +281,7 @@ class ClassbookController
         header('Content-Disposition: attachment; filename="klassenbuch_' . $class['name'] . '_' . date('Y-m-d') . '.csv"');
 
         $output = fopen('php://output', 'w');
-        // BOM fuer Excel UTF-8
+        // BOM für Excel UTF-8
         fprintf($output, chr(0xEF) . chr(0xBB) . chr(0xBF));
         fputcsv($output, ['Datum', 'Stunde', 'Lehrkraft', 'Thema', 'Notizen'], ';');
 
@@ -299,7 +299,7 @@ class ClassbookController
         exit;
     }
 
-    // === Schuelerbemerkungen ===
+    // === Schülerbemerkungen ===
 
     public function remarksIndex(string $classId): void
     {
@@ -320,7 +320,7 @@ class ClassbookController
         $students = Student::findByClassId((int) $classId);
 
         View::render('classbook/remarks-index', [
-            'title'    => 'Schuelerbemerkungen – ' . $class['name'],
+            'title'    => 'Schülerbemerkungen – ' . $class['name'],
             'class'    => $class,
             'remarks'  => $remarks,
             'students' => $students,
@@ -378,10 +378,10 @@ class ClassbookController
         $remark     = trim($_POST['remark'] ?? '');
         $remarkDate = $_POST['remark_date'] ?? date('Y-m-d');
 
-        // Schueler muss zur Klasse gehoeren
+        // Schüler muss zur Klasse gehoeren
         $student = Student::findById($studentId);
         if (!$student || (int) $student['class_id'] !== (int) $classId) {
-            App::setFlash('error', 'Schueler nicht in dieser Klasse.');
+            App::setFlash('error', 'Schüler nicht in dieser Klasse.');
             App::redirect('/classbook/' . $classId . '/remarks/create');
             return;
         }
@@ -411,7 +411,7 @@ class ClassbookController
             $_SESSION['user_id'] ?? null,
             'Student',
             $studentId,
-            'Bemerkung fuer Schueler-ID ' . $studentId . ' in Klasse ' . $class['name']
+            'Bemerkung für Schüler-ID ' . $studentId . ' in Klasse ' . $class['name']
         );
 
         App::setFlash('success', 'Bemerkung gespeichert.');
@@ -428,7 +428,7 @@ class ClassbookController
         }
 
         if (!StudentRemark::canDelete($remark, $_SESSION['user_id'], App::currentUserRole())) {
-            App::setFlash('error', 'Keine Berechtigung zum Loeschen.');
+            App::setFlash('error', 'Keine Berechtigung zum Löschen.');
             App::redirect('/classbook/' . $classId . '/remarks');
             return;
         }
@@ -440,10 +440,10 @@ class ClassbookController
             $_SESSION['user_id'] ?? null,
             'Student',
             $remark['student_id'],
-            'Bemerkung geloescht, Schueler-ID ' . $remark['student_id']
+            'Bemerkung gelöscht, Schüler-ID ' . $remark['student_id']
         );
 
-        App::setFlash('success', 'Bemerkung geloescht.');
+        App::setFlash('success', 'Bemerkung gelöscht.');
         App::redirect('/classbook/' . $classId . '/remarks');
     }
 

@@ -1,6 +1,6 @@
 <div class="page-header">
     <div>
-        <a href="/messages" class="btn btn-sm btn-secondary mb-05">Zurueck</a>
+        <a href="/messages" class="btn btn-sm btn-secondary mb-05">Zurück</a>
         <h1>
             <?= htmlspecialchars($group['name'], ENT_QUOTES, 'UTF-8') ?>
             <span class="badge badge-muted" style="font-size: 0.75rem; vertical-align: middle;">Gruppe</span>
@@ -33,8 +33,8 @@
             'admin'        => 'Admin',
             'schulleitung' => 'Schulleitung',
             'sekretariat'  => 'Sekretariat',
-            'lehrer'       => 'Lehrer/in',
-            'schueler'     => 'Schueler/in',
+            'lehrer'       => 'Lehrkraft',
+            'schueler'     => 'Schüler:in',
         ];
         foreach ($members as $m): ?>
             <li>
@@ -57,7 +57,7 @@
         <?php if (count($messages) >= 50): ?>
             <div class="text-center mb-1">
                 <button type="button" class="btn btn-sm btn-secondary" id="loadMoreBtn" data-offset="50">
-                    Aeltere Nachrichten laden
+                    Ältere Nachrichten laden
                 </button>
             </div>
         <?php endif; ?>

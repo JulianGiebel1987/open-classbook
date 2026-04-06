@@ -12,7 +12,7 @@
             <a href="/two-factor/recovery-codes" class="btn btn-secondary">Recovery-Codes anzeigen</a>
             <form method="post" action="/two-factor/disable" style="display: inline;">
                 <?= \OpenClassbook\View::csrfField() ?>
-                <button type="submit" class="btn btn-danger" onclick="return confirm('Moechten Sie die Zwei-Faktor-Authentifizierung wirklich deaktivieren?')">2FA deaktivieren</button>
+                <button type="submit" class="btn btn-danger" onclick="return confirm('Möchten Sie die Zwei-Faktor-Authentifizierung wirklich deaktivieren?')">2FA deaktivieren</button>
             </form>
         </div>
     <?php else: ?>
@@ -39,7 +39,7 @@
                         <button type="submit" class="btn">E-Mail-2FA aktivieren</button>
                     </form>
                 <?php else: ?>
-                    <p class="text-muted">Sie benoetigen eine hinterlegte E-Mail-Adresse. Bitte aktualisieren Sie Ihr Profil.</p>
+                    <p class="text-muted">Sie benötigen eine hinterlegte E-Mail-Adresse. Bitte aktualisieren Sie Ihr Profil.</p>
                 <?php endif; ?>
             </div>
         </div>

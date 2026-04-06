@@ -14,7 +14,7 @@ class SecurityHeadersMiddleware
         // Clickjacking-Schutz
         header('X-Frame-Options: SAMEORIGIN');
 
-        // XSS-Filter fuer aeltere Browser
+        // XSS-Filter für ältere Browser
         header('X-XSS-Protection: 1; mode=block');
 
         // Referrer-Informationen einschraenken

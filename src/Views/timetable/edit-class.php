@@ -7,7 +7,7 @@ $days = $setting['days_of_week'];
     <h1>Stundenplan: <?= htmlspecialchars($class['name'], ENT_QUOTES, 'UTF-8') ?></h1>
     <div class="page-header-actions">
         <form method="get" action="" class="inline-form" id="classSelectForm">
-            <label for="classSelect" class="sr-only">Klasse waehlen</label>
+            <label for="classSelect" class="sr-only">Klasse wählen</label>
             <select id="classSelect" class="form-control" data-setting-id="<?= (int) $setting['id'] ?>">
                 <?php foreach ($classes as $c): ?>
                 <option value="<?= (int) $c['id'] ?>" <?= (int) $c['id'] === (int) $class['id'] ? 'selected' : '' ?>>
@@ -18,7 +18,7 @@ $days = $setting['days_of_week'];
         </form>
         <a href="/timetable/<?= (int) $setting['id'] ?>/class/<?= (int) $class['id'] ?>/pdf"
            class="btn btn-secondary">PDF-Export</a>
-        <a href="/timetable" class="btn btn-secondary">Zurueck</a>
+        <a href="/timetable" class="btn btn-secondary">Zurück</a>
     </div>
 </div>
 
@@ -59,7 +59,7 @@ $days = $setting['days_of_week'];
                         </div>
                         <?php endforeach; ?>
                         <button type="button" class="slot-add-btn" data-day="<?= $day ?>" data-slot="<?= $slotNum ?>"
-                                aria-label="Lehrkraft hinzufuegen" title="Lehrkraft hinzufuegen">+</button>
+                                aria-label="Lehrkraft hinzufügen" title="Lehrkraft hinzufügen">+</button>
                     </td>
                     <?php endforeach; ?>
                 </tr>
@@ -78,7 +78,7 @@ $days = $setting['days_of_week'];
 
     <!-- Lehrer-Sidebar -->
     <aside class="timetable-sidebar" id="teacherSidebar">
-        <h3>Lehrkraefte</h3>
+        <h3>Lehrkräfte</h3>
         <input type="text" id="teacherSearch" class="form-control" placeholder="Suchen..." aria-label="Lehrkraft suchen">
         <ul class="teacher-list" id="teacherList">
             <?php foreach ($teachers as $t): ?>
@@ -97,7 +97,7 @@ $days = $setting['days_of_week'];
     </aside>
 </div>
 
-<!-- Modal: Slot hinzufuegen -->
+<!-- Modal: Slot hinzufügen -->
 <div class="modal-overlay" id="slotModal" role="dialog" aria-modal="true" aria-labelledby="slotModalTitle" aria-hidden="true">
     <div class="modal">
         <h3 id="slotModalTitle">Lehrkraft zuweisen</h3>
@@ -113,7 +113,7 @@ $days = $setting['days_of_week'];
             <div class="form-group">
                 <label for="slotTeacher">Lehrkraft <span class="required">*</span></label>
                 <select id="slotTeacher" name="teacher_id" class="form-control" required>
-                    <option value="">– Lehrkraft waehlen –</option>
+                    <option value="">– Lehrkraft wählen –</option>
                     <?php foreach ($teachers as $t): ?>
                     <option value="<?= (int) $t['id'] ?>">
                         <?= htmlspecialchars($t['abbreviation'] . ' – ' . $t['lastname'] . ', ' . $t['firstname'], ENT_QUOTES, 'UTF-8') ?>

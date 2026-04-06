@@ -1,7 +1,7 @@
 <div class="auth-form">
-    <h2>Passwort zuruecksetzen</h2>
+    <h2>Passwort zurücksetzen</h2>
     <p class="text-muted auth-hint">
-        Geben Sie Ihre E-Mail-Adresse ein. Sie erhalten einen Link zum Zuruecksetzen Ihres Passworts.
+        Geben Sie Ihre E-Mail-Adresse ein. Sie erhalten einen Link zum Zurücksetzen Ihres Passworts.
     </p>
     <form method="post" action="/forgot-password">
         <?= \OpenClassbook\View::csrfField() ?>
@@ -16,7 +16,7 @@
         </div>
 
         <div class="text-center">
-            <a href="/login">Zurueck zur Anmeldung</a>
+            <a href="/login">Zurück zur Anmeldung</a>
         </div>
     </form>
 </div>

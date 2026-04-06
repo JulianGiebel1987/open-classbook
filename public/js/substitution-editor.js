@@ -42,7 +42,7 @@
         }
     });
 
-    // === Modal oeffnen ===
+    // === Modal öffnen ===
 
     function openAssignModal(row) {
         document.getElementById('assignSlotNumber').value = row.dataset.slotNumber;
@@ -90,7 +90,7 @@
         fetch('/substitution/available-teachers', { method: 'POST', body: data })
             .then(function (res) { return res.json(); })
             .then(function (result) {
-                teacherSelect.innerHTML = '<option value="">– Lehrkraft waehlen –</option>';
+                teacherSelect.innerHTML = '<option value="">– Lehrkraft wählen –</option>';
 
                 var available = 0;
                 (result.teachers || []).forEach(function (t) {
@@ -112,7 +112,7 @@
                     teacherSelect.appendChild(option);
                 });
 
-                teacherHint.textContent = available + ' Lehrkraefte frei in dieser Einheit';
+                teacherHint.textContent = available + ' Lehrkräfte frei in dieser Einheit';
                 teacherSelect.focus();
             })
             .catch(function () {
@@ -208,7 +208,7 @@
             });
     }
 
-    // === Vertretung loeschen ===
+    // === Vertretung löschen ===
 
     function deleteSubstitution(subId) {
         if (!confirm('Vertretung wirklich entfernen?')) return;

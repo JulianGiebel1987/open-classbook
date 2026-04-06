@@ -384,7 +384,7 @@ class ZeugnisTemplateController
             exit;
         }
 
-        // Zugriffspruefung: Admins immer, andere nur bei veroeffentlichten Vorlagen
+        // Zugriffspruefung: Admins immer, andere nur bei veröffentlichten Vorlagen
         $role = App::currentUserRole();
         if (!in_array($role, self::ADMIN_ROLES, true)) {
             $template = ZeugnisTemplate::findById($image['template_id']);

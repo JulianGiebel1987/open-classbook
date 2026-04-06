@@ -78,7 +78,7 @@
                 </div>
                 <?php endforeach; ?>
             </div>
-            <button type="button" class="btn btn-sm btn-secondary" id="addBreakBtn" style="margin-top:0.25rem;">+ Pause hinzufuegen</button>
+            <button type="button" class="btn btn-sm btn-secondary" id="addBreakBtn" style="margin-top:0.25rem;">+ Pause hinzufügen</button>
         </div>
 
         <div class="form-group">

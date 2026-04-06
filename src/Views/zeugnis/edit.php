@@ -45,7 +45,7 @@
         <div class="card">
             <h3 class="card-title" style="font-size:var(--font-size-base)">Dokument-Info</h3>
             <dl class="meta-list">
-                <dt>Schüler/in</dt>
+                <dt>Schüler:in</dt>
                 <dd><?= htmlspecialchars($instance['student_first_name'] . ' ' . $instance['student_last_name'], ENT_QUOTES, 'UTF-8') ?></dd>
                 <dt>Klasse</dt>
                 <dd><?= htmlspecialchars($instance['class_name'] ?? '—', ENT_QUOTES, 'UTF-8') ?></dd>

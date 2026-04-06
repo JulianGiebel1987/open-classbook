@@ -4,7 +4,7 @@
 
 <?php if (!$setting): ?>
     <div class="card">
-        <p class="text-muted">Es ist aktuell kein Stundenplan veroeffentlicht.</p>
+        <p class="text-muted">Es ist aktuell kein Stundenplan veröffentlicht.</p>
     </div>
 <?php else: ?>
 

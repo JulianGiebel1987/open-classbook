@@ -1,6 +1,6 @@
 <div class="page-header">
     <div>
-        <a href="/lists/<?= (int) $list['id'] ?>" class="btn btn-sm btn-secondary mb-05">Zurueck zur Liste</a>
+        <a href="/lists/<?= (int) $list['id'] ?>" class="btn btn-sm btn-secondary mb-05">Zurück zur Liste</a>
         <h1>Freigabe: <?= htmlspecialchars($list['title'], ENT_QUOTES, 'UTF-8') ?></h1>
     </div>
 </div>
@@ -10,13 +10,13 @@ $roleLabels = [
     'admin' => 'Admin',
     'schulleitung' => 'Schulleitung',
     'sekretariat' => 'Sekretariat',
-    'lehrer' => 'Lehrer/in',
+    'lehrer' => 'Lehrkraft',
 ];
 ?>
 
 <div class="card mb-1">
     <div class="card-header">
-        <h2>Nutzer hinzufuegen</h2>
+        <h2>Nutzer hinzufügen</h2>
     </div>
     <?php if (empty($availableUsers)): ?>
         <p class="text-muted">Alle Nutzer haben bereits Zugriff.</p>
@@ -25,7 +25,7 @@ $roleLabels = [
             <?= \OpenClassbook\View::csrfField() ?>
             <div class="list-inline-form-row">
                 <select name="user_id" class="form-control" required>
-                    <option value="">— Nutzer waehlen —</option>
+                    <option value="">— Nutzer wählen —</option>
                     <?php foreach ($availableUsers as $u): ?>
                         <option value="<?= (int) $u['id'] ?>">
                             <?= htmlspecialchars($u['username'], ENT_QUOTES, 'UTF-8') ?> (<?= $roleLabels[$u['role']] ?? $u['role'] ?>)

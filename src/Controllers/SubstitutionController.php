@@ -17,7 +17,7 @@ class SubstitutionController
     private const ADMIN_ROLES = ['admin', 'schulleitung', 'sekretariat'];
 
     /**
-     * Uebersicht: Datumsauswahl + Status.
+     * Übersicht: Datumsauswahl + Status.
      */
     public function index(): void
     {
@@ -147,7 +147,7 @@ class SubstitutionController
         }
 
         if (!$isCancelled && !$substituteTeacherId) {
-            echo json_encode(['success' => false, 'error' => 'Bitte Vertretungslehrkraft waehlen oder als Entfall markieren.']);
+            echo json_encode(['success' => false, 'error' => 'Bitte Vertretungslehrkraft wählen oder als Entfall markieren.']);
             return;
         }
 
@@ -194,7 +194,7 @@ class SubstitutionController
     }
 
     /**
-     * AJAX: Vertretung aendern.
+     * AJAX: Vertretung ändern.
      */
     public function update(string $id): void
     {
@@ -284,7 +284,7 @@ class SubstitutionController
     }
 
     /**
-     * AJAX: Konfliktpruefung fuer Vertretungslehrer.
+     * AJAX: Konfliktpruefung für Vertretungslehrer.
      */
     public function checkConflict(): void
     {
@@ -311,7 +311,7 @@ class SubstitutionController
     }
 
     /**
-     * AJAX: Verfuegbare Lehrer fuer einen Slot.
+     * AJAX: Verfuegbare Lehrer für einen Slot.
      */
     public function availableTeachers(): void
     {
@@ -333,7 +333,7 @@ class SubstitutionController
     }
 
     /**
-     * Vertretungsplan veroeffentlichen.
+     * Vertretungsplan veröffentlichen.
      */
     public function publish(): void
     {
@@ -356,15 +356,15 @@ class SubstitutionController
             $_SESSION['user_id'] ?? null,
             'SubstitutionPlan',
             $planId,
-            'Vertretungsplan veroeffentlicht: ' . $date
+            'Vertretungsplan veröffentlicht: ' . $date
         );
 
-        App::setFlash('success', 'Vertretungsplan fuer ' . date('d.m.Y', strtotime($date)) . ' veroeffentlicht.');
+        App::setFlash('success', 'Vertretungsplan für ' . date('d.m.Y', strtotime($date)) . ' veröffentlicht.');
         App::redirect('/substitution/plan?date=' . $date);
     }
 
     /**
-     * Veroeffentlichung zurueckziehen.
+     * Veröffentlichung zurückziehen.
      */
     public function unpublish(): void
     {
@@ -388,11 +388,11 @@ class SubstitutionController
                 $_SESSION['user_id'] ?? null,
                 'SubstitutionPlan',
                 $plan['id'],
-                'Vertretungsplan zurueckgezogen: ' . $date
+                'Vertretungsplan zurückgezogen: ' . $date
             );
         }
 
-        App::setFlash('success', 'Veroeffentlichung zurueckgezogen.');
+        App::setFlash('success', 'Veröffentlichung zurückgezogen.');
         App::redirect('/substitution/plan?date=' . $date);
     }
 
@@ -447,7 +447,7 @@ class SubstitutionController
         $role = App::currentUserRole();
         $date = $_GET['date'] ?? date('Y-m-d');
 
-        // Lehrer duerfen nur veroeffentlichte Plaene exportieren
+        // Lehrer dürfen nur veröffentlichte Plaene exportieren
         if ($role === 'lehrer') {
             $setting = $this->getPublishedTimetableSetting();
         } elseif (in_array($role, self::ADMIN_ROLES)) {
@@ -464,11 +464,11 @@ class SubstitutionController
             return;
         }
 
-        // Lehrer: Pruefen ob Plan veroeffentlicht ist
+        // Lehrer: Pruefen ob Plan veröffentlicht ist
         if ($role === 'lehrer') {
             $plan = SubstitutionPlan::findByDate($setting['id'], $date);
             if (!$plan || !$plan['is_published']) {
-                App::setFlash('error', 'Vertretungsplan nicht verfuegbar.');
+                App::setFlash('error', 'Vertretungsplan nicht verfügbar.');
                 App::redirect('/substitution/my-substitutions');
                 return;
             }
@@ -501,7 +501,7 @@ class SubstitutionController
             exit;
         }
         if (!ModuleSettings::canAccess('substitution', $role)) {
-            App::setFlash('error', 'Das Modul Vertretung ist fuer Ihre Rolle nicht zugaenglich.');
+            App::setFlash('error', 'Das Modul Vertretung ist für Ihre Rolle nicht zugänglich.');
             App::redirect('/dashboard');
             exit;
         }
@@ -584,7 +584,7 @@ class SubstitutionController
         if (!empty($absentTeachers)) {
             $pdf->Ln(2);
             $pdf->SetFont('helvetica', 'B', 10);
-            $pdf->Cell(0, 7, 'Abwesende Lehrkraefte:', 0, 1);
+            $pdf->Cell(0, 7, 'Abwesende Lehrkräfte:', 0, 1);
             $pdf->SetFont('helvetica', '', 9);
             foreach ($absentTeachers as $at) {
                 $typeLabels = ['krank' => 'krank', 'fortbildung' => 'Fortbildung', 'sonstiges' => 'sonstiges'];

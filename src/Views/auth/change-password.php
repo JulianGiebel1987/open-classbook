@@ -1,11 +1,11 @@
 <div class="page-header">
-    <h1>Passwort aendern</h1>
+    <h1>Passwort ändern</h1>
 </div>
 
 <div class="card">
     <?php if (!empty($forced)): ?>
         <div class="alert alert-warning" role="alert">
-            <span>Sie muessen Ihr Passwort bei der ersten Anmeldung aendern.</span>
+            <span>Sie müssen Ihr Passwort bei der ersten Anmeldung ändern.</span>
         </div>
     <?php endif; ?>
 
@@ -28,6 +28,6 @@
             <input type="password" id="confirm_password" name="confirm_password" class="form-control" required autocomplete="new-password">
         </div>
 
-        <button type="submit" class="btn">Passwort aendern</button>
+        <button type="submit" class="btn">Passwort ändern</button>
     </form>
 </div>

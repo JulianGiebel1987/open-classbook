@@ -10,7 +10,7 @@
             $backUrl = '/files';
         }
         ?>
-        <a href="<?= $backUrl ?>" class="btn btn-sm btn-secondary mb-05">Zurueck</a>
+        <a href="<?= $backUrl ?>" class="btn btn-sm btn-secondary mb-05">Zurück</a>
         <h1><?= $isShared ? 'Gemeinschaftliche Dateien' : 'Meine Dateien' ?></h1>
     </div>
 </div>
@@ -98,7 +98,7 @@
                         <td>
                             <form method="post" action="/files/folder/<?= (int) $f['id'] ?>/delete" class="d-inline">
                                 <?= \OpenClassbook\View::csrfField() ?>
-                                <button type="submit" class="btn btn-sm btn-danger" data-confirm="Ordner und gesamten Inhalt wirklich loeschen?">Loeschen</button>
+                                <button type="submit" class="btn btn-sm btn-danger" data-confirm="Ordner und gesamten Inhalt wirklich löschen?">Löschen</button>
                             </form>
                         </td>
                     </tr>
@@ -117,7 +117,7 @@
                                 <a href="/files/<?= (int) $file['id'] ?>/download" class="btn btn-sm btn-secondary">Download</a>
                                 <form method="post" action="/files/<?= (int) $file['id'] ?>/delete" class="d-inline">
                                     <?= \OpenClassbook\View::csrfField() ?>
-                                    <button type="submit" class="btn btn-sm btn-danger" data-confirm="Datei wirklich loeschen?">Loeschen</button>
+                                    <button type="submit" class="btn btn-sm btn-danger" data-confirm="Datei wirklich löschen?">Löschen</button>
                                 </form>
                             </div>
                         </td>
