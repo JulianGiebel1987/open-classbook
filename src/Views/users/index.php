@@ -1,3 +1,12 @@
+<?php
+$roleLabels = [
+    'admin'        => 'Admin',
+    'schulleitung' => 'Schulleitung',
+    'sekretariat'  => 'Sekretariat',
+    'lehrer'       => 'Lehrkraft',
+    'schueler'     => 'Schüler:in',
+];
+?>
 <div class="page-header">
     <h1>Benutzerverwaltung</h1>
     <div class="btn-group">
@@ -18,7 +27,7 @@
             <select name="role" id="role" class="form-control">
                 <option value="">Alle Rollen</option>
                 <?php foreach ($roles as $r): ?>
-                    <option value="<?= $r ?>" <?= ($filters['role'] ?? '') === $r ? 'selected' : '' ?>><?= ucfirst($r) ?></option>
+                    <option value="<?= $r ?>" <?= ($filters['role'] ?? '') === $r ? 'selected' : '' ?>><?= $roleLabels[$r] ?? ucfirst($r) ?></option>
                 <?php endforeach; ?>
             </select>
         </div>
@@ -58,7 +67,7 @@
                 <tr>
                     <td><?= htmlspecialchars($u['username'], ENT_QUOTES, 'UTF-8') ?></td>
                     <td><?= htmlspecialchars($u['email'] ?? '-', ENT_QUOTES, 'UTF-8') ?></td>
-                    <td><span class="badge badge-info"><?= ucfirst(htmlspecialchars($u['role'], ENT_QUOTES, 'UTF-8')) ?></span></td>
+                    <td><span class="badge badge-info"><?= htmlspecialchars($roleLabels[$u['role']] ?? ucfirst($u['role']), ENT_QUOTES, 'UTF-8') ?></span></td>
                     <td>
                         <?php if ($u['active']): ?>
                             <span class="badge badge-success">Aktiv</span>

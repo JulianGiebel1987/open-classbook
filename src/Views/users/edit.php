@@ -1,3 +1,12 @@
+<?php
+$roleLabels = [
+    'admin'        => 'Admin',
+    'schulleitung' => 'Schulleitung',
+    'sekretariat'  => 'Sekretariat',
+    'lehrer'       => 'Lehrkraft',
+    'schueler'     => 'Schüler:in',
+];
+?>
 <div class="page-header">
     <h1>Benutzer bearbeiten</h1>
 </div>
@@ -23,7 +32,7 @@
             <select name="role" id="role" class="form-control" required>
                 <?php $selectedRole = $old['role'] ?? $user['role']; ?>
                 <?php foreach ($roles as $r): ?>
-                    <option value="<?= $r ?>" <?= $selectedRole === $r ? 'selected' : '' ?>><?= ucfirst($r) ?></option>
+                    <option value="<?= $r ?>" <?= $selectedRole === $r ? 'selected' : '' ?>><?= $roleLabels[$r] ?? ucfirst($r) ?></option>
                 <?php endforeach; ?>
             </select>
         </div>

@@ -55,32 +55,32 @@ class UserController
         // Validierung
         $errors = $this->validateUser($data);
 
-        // Zusaetzliche Validierung für Lehrer
+        // Zusätzliche Validierung für Lehrkräfte
         if ($data['role'] === 'lehrer') {
             if (empty(trim($_POST['firstname'] ?? ''))) {
-                $errors[] = 'Vorname ist für Lehrer erforderlich.';
+                $errors[] = 'Vorname ist für Lehrkräfte erforderlich.';
             }
             if (empty(trim($_POST['lastname'] ?? ''))) {
-                $errors[] = 'Nachname ist für Lehrer erforderlich.';
+                $errors[] = 'Nachname ist für Lehrkräfte erforderlich.';
             }
             $abbreviation = trim($_POST['abbreviation'] ?? '');
             if (empty($abbreviation)) {
-                $errors[] = 'Kürzel ist für Lehrer erforderlich.';
+                $errors[] = 'Kürzel ist für Lehrkräfte erforderlich.';
             } elseif (Teacher::abbreviationExists($abbreviation)) {
                 $errors[] = 'Dieses Kürzel ist bereits vergeben.';
             }
         }
 
-        // Zusaetzliche Validierung für Schüler
+        // Zusätzliche Validierung für Schüler:innen
         if ($data['role'] === 'schueler') {
             if (empty(trim($_POST['firstname'] ?? ''))) {
-                $errors[] = 'Vorname ist für Schüler erforderlich.';
+                $errors[] = 'Vorname ist für Schüler:innen erforderlich.';
             }
             if (empty(trim($_POST['lastname'] ?? ''))) {
-                $errors[] = 'Nachname ist für Schüler erforderlich.';
+                $errors[] = 'Nachname ist für Schüler:innen erforderlich.';
             }
             if (empty($_POST['class_id'] ?? '')) {
-                $errors[] = 'Klasse ist für Schüler erforderlich.';
+                $errors[] = 'Klasse ist für Schüler:innen erforderlich.';
             }
         }
 
@@ -98,7 +98,7 @@ class UserController
 
         $userId = User::create($data);
 
-        // Lehrer-Profil anlegen
+        // Lehrkraft-Profil anlegen
         if ($data['role'] === 'lehrer') {
             Teacher::create([
                 'user_id' => $userId,
@@ -109,7 +109,7 @@ class UserController
             ]);
         }
 
-        // Schüler-Profil anlegen
+        // Schüler:in-Profil anlegen
         if ($data['role'] === 'schueler') {
             Student::create([
                 'user_id' => $userId,
@@ -132,7 +132,7 @@ class UserController
             return;
         }
 
-        // Profildaten laden (Lehrer oder Schüler)
+        // Profildaten laden (Lehrkraft oder Schüler:in)
         $profile = null;
         if ($user['role'] === 'lehrer') {
             $profile = Teacher::findByUserId($user['id']);
@@ -176,38 +176,38 @@ class UserController
             $errors[] = 'Dieser Benutzername ist bereits vergeben.';
         }
 
-        // E-Mail-Pflicht für Lehrer
+        // E-Mail-Pflicht für Lehrkräfte
         if ($data['role'] === 'lehrer' && empty($data['email'])) {
-            $errors[] = 'Für Lehrer-Accounts ist eine E-Mail-Adresse erforderlich.';
+            $errors[] = 'Für Lehrkräfte-Accounts ist eine E-Mail-Adresse erforderlich.';
         }
 
-        // Validierung Lehrer-Profil
+        // Validierung Lehrkraft-Profil
         if ($data['role'] === 'lehrer') {
             if (empty(trim($_POST['firstname'] ?? ''))) {
-                $errors[] = 'Vorname ist für Lehrer erforderlich.';
+                $errors[] = 'Vorname ist für Lehrkräfte erforderlich.';
             }
             if (empty(trim($_POST['lastname'] ?? ''))) {
-                $errors[] = 'Nachname ist für Lehrer erforderlich.';
+                $errors[] = 'Nachname ist für Lehrkräfte erforderlich.';
             }
             $abbreviation = trim($_POST['abbreviation'] ?? '');
             $existingTeacher = Teacher::findByUserId($userId);
             if (empty($abbreviation)) {
-                $errors[] = 'Kürzel ist für Lehrer erforderlich.';
+                $errors[] = 'Kürzel ist für Lehrkräfte erforderlich.';
             } elseif (Teacher::abbreviationExists($abbreviation, $existingTeacher['id'] ?? null)) {
                 $errors[] = 'Dieses Kürzel ist bereits vergeben.';
             }
         }
 
-        // Validierung Schüler-Profil
+        // Validierung Schüler:in-Profil
         if ($data['role'] === 'schueler') {
             if (empty(trim($_POST['firstname'] ?? ''))) {
-                $errors[] = 'Vorname ist für Schüler erforderlich.';
+                $errors[] = 'Vorname ist für Schüler:innen erforderlich.';
             }
             if (empty(trim($_POST['lastname'] ?? ''))) {
-                $errors[] = 'Nachname ist für Schüler erforderlich.';
+                $errors[] = 'Nachname ist für Schüler:innen erforderlich.';
             }
             if (empty($_POST['class_id'] ?? '')) {
-                $errors[] = 'Klasse ist für Schüler erforderlich.';
+                $errors[] = 'Klasse ist für Schüler:innen erforderlich.';
             }
         }
 
@@ -233,7 +233,7 @@ class UserController
 
         User::update($userId, $data);
 
-        // Lehrer-Profil erstellen oder aktualisieren
+        // Lehrkraft-Profil erstellen oder aktualisieren
         if ($data['role'] === 'lehrer') {
             $teacherData = [
                 'user_id' => $userId,
@@ -250,7 +250,7 @@ class UserController
             }
         }
 
-        // Schüler-Profil erstellen oder aktualisieren
+        // Schüler:in-Profil erstellen oder aktualisieren
         if ($data['role'] === 'schueler') {
             $studentData = [
                 'user_id' => $userId,
@@ -454,7 +454,7 @@ class UserController
         }
 
         if ($data['role'] === 'lehrer' && empty($data['email'])) {
-            $errors[] = 'Für Lehrer-Accounts ist eine E-Mail-Adresse erforderlich.';
+            $errors[] = 'Für Lehrkräfte-Accounts ist eine E-Mail-Adresse erforderlich.';
         }
 
         if (isset($data['password']) && !empty($data['password'])) {

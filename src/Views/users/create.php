@@ -1,3 +1,12 @@
+<?php
+$roleLabels = [
+    'admin'        => 'Admin',
+    'schulleitung' => 'Schulleitung',
+    'sekretariat'  => 'Sekretariat',
+    'lehrer'       => 'Lehrkraft',
+    'schueler'     => 'Schüler:in',
+];
+?>
 <div class="page-header">
     <h1>Neuer Benutzer</h1>
 </div>
@@ -23,7 +32,7 @@
             <select name="role" id="role" class="form-control" required>
                 <option value="">Bitte wählen</option>
                 <?php foreach ($roles as $r): ?>
-                    <option value="<?= $r ?>" <?= ($old['role'] ?? '') === $r ? 'selected' : '' ?>><?= ucfirst($r) ?></option>
+                    <option value="<?= $r ?>" <?= ($old['role'] ?? '') === $r ? 'selected' : '' ?>><?= $roleLabels[$r] ?? ucfirst($r) ?></option>
                 <?php endforeach; ?>
             </select>
         </div>
@@ -44,7 +53,7 @@
             <div class="form-group">
                 <label for="abbreviation">Kürzel <span aria-hidden="true">*</span><span class="sr-only">(Pflichtfeld)</span></label>
                 <input type="text" id="abbreviation" name="abbreviation" class="form-control" maxlength="10" aria-describedby="abbreviation_help" value="<?= htmlspecialchars($old['abbreviation'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
-                <span class="form-help" id="abbreviation_help">z.B. MUE für Mueller</span>
+                <span class="form-help" id="abbreviation_help">z.B. MÜL für Müller</span>
             </div>
 
             <div class="form-group">
@@ -69,7 +78,7 @@
         <div class="form-group">
             <label for="password">Passwort <span aria-hidden="true">*</span><span class="sr-only">(Pflichtfeld)</span></label>
             <input type="password" id="password" name="password" class="form-control" required minlength="10" autocomplete="new-password" aria-describedby="password_help">
-            <span class="form-help" id="password_help">Min. 10 Zeichen, Gross- und Kleinbuchstaben, mindestens eine Ziffer.</span>
+            <span class="form-help" id="password_help">Min. 10 Zeichen, Groß- und Kleinbuchstaben, mindestens eine Ziffer.</span>
         </div>
 
         <div class="btn-group">
