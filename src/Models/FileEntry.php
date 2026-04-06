@@ -55,7 +55,7 @@ class FileEntry
     }
 
     /**
-     * Datei-Eintrag + physische Datei loeschen.
+     * Datei-Eintrag + physische Datei löschen.
      */
     public static function delete(int $id): void
     {

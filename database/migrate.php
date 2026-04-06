@@ -3,7 +3,7 @@
 /**
  * Datenbank-Migrationsskript
  *
- * Fuehrt alle noch nicht ausgefuehrten SQL-Migrationen aus.
+ * Führt alle noch nicht ausgeführten SQL-Migrationen aus.
  * Verwendung: php database/migrate.php
  */
 
@@ -23,7 +23,7 @@ try {
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
     ');
 
-    // Bereits ausgefuehrte Migrationen laden
+    // Bereits ausgeführte Migrationen laden
     $stmt = $db->query('SELECT filename FROM migrations');
     $executed = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
@@ -46,7 +46,7 @@ try {
 
         try {
             // Multi-Statement SQL aufteilen — PDO::exec() kann bei
-            // ATTR_EMULATE_PREPARES=false nur ein Statement zuverlaessig ausfuehren
+            // ATTR_EMULATE_PREPARES=false nur ein Statement zuverlässig ausführen
             $statements = array_filter(
                 array_map('trim', explode(';', $sql)),
                 fn($s) => $s !== ''
@@ -69,7 +69,7 @@ try {
     if ($count === 0) {
         echo "Keine neuen Migrationen gefunden.\n";
     } else {
-        echo "\n{$count} Migration(en) erfolgreich ausgefuehrt.\n";
+        echo "\n{$count} Migration(en) erfolgreich ausgeführt.\n";
     }
 } catch (PDOException $e) {
     echo "Datenbankfehler: " . $e->getMessage() . "\n";

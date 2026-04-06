@@ -288,7 +288,7 @@ abstract class DatabaseTestCase extends TestCase
         $defaults = [
             'user_id' => null,
             'firstname' => 'Anna',
-            'lastname' => 'Testschueler',
+            'lastname' => 'Testschüler',
             'birthday' => '2010-05-15',
             'guardian_email' => 'eltern@example.com',
         ];

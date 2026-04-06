@@ -36,17 +36,17 @@ return [
         'lockout_duration' => 900,      // 15 Minuten in Sekunden
         'password_min_length' => 10,
         'password_reset_token_lifetime' => 3600, // 1 Stunde
-        // 2FA: 32-Byte Hex-Key fuer Verschluesselung der TOTP-Secrets
+        // 2FA: 32-Byte Hex-Key für Verschlüsselung der TOTP-Secrets
         // Generieren mit: php -r "echo bin2hex(random_bytes(32));"
         'two_factor_encryption_key' => '',
     ],
 
-    // E-Mail-Konfiguration fuer Passwort-Zuruecksetzung und Benachrichtigungen
+    // E-Mail-Konfiguration für Passwort-Zurücksetzung und Benachrichtigungen
     // Erfordert einen erreichbaren SMTP-Server
     'mail' => [
-        'enabled' => false,                         // Auf true setzen, wenn SMTP verfuegbar
+        'enabled' => false,                         // Auf true setzen, wenn SMTP verfügbar
         'host' => 'mail.ihre-schule.de',            // SMTP-Server
-        'port' => 587,                              // SMTP-Port (587 fuer TLS, 465 fuer SSL)
+        'port' => 587,                              // SMTP-Port (587 für TLS, 465 für SSL)
         'username' => 'classbook@ihre-schule.de',   // SMTP-Benutzername
         'password' => '',                           // SMTP-Passwort
         'encryption' => 'tls',                      // 'tls' oder 'ssl'

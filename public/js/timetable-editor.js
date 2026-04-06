@@ -76,7 +76,7 @@
         }
     });
 
-    // === Konfliktpruefung bei Lehrerwechsel ===
+    // === Konfliktprüfung bei Lehrerwechsel ===
 
     teacherSelect.addEventListener('change', function () {
         var teacherId = this.value;
@@ -124,7 +124,7 @@
                     return;
                 }
 
-                // Slot in Grid einfuegen
+                // Slot in Grid einfügen
                 var day = document.getElementById('slotDay').value;
                 var slotNum = document.getElementById('slotNumber').value;
                 var cell = grid.querySelector(
@@ -158,12 +158,12 @@
                     removeBtn.textContent = '\u00D7';
                     entry.appendChild(removeBtn);
 
-                    // Vor dem "+"-Button einfuegen
+                    // Vor dem "+"-Button einfügen
                     var addButton = cell.querySelector('.slot-add-btn');
                     cell.insertBefore(entry, addButton);
                 }
 
-                // Lehrer-Einheiten-Zaehler aktualisieren
+                // Lehrer-Einheiten-Zähler aktualisieren
                 updateTeacherUnitCount(result.slot.teacher_id, result.unit_count);
 
                 // Konfliktwarnung anzeigen falls vorhanden
@@ -198,7 +198,7 @@
                 var entry = grid.querySelector('.slot-entry[data-slot-id="' + slotId + '"]');
                 if (entry) entry.remove();
 
-                // Lehrer-Zaehler aktualisieren
+                // Lehrer-Zähler aktualisieren
                 updateTeacherUnitCount(result.teacher_id, result.unit_count);
             })
             .catch(function () {
@@ -206,7 +206,7 @@
             });
     }
 
-    // === Lehrer-Einheiten-Zaehler ===
+    // === Lehrer-Einheiten-Zähler ===
 
     function updateTeacherUnitCount(teacherId, count) {
         var badge = document.getElementById('teacherUnits-' + teacherId);

@@ -23,7 +23,7 @@
                         <th>Einheit</th>
                         <th>Klasse</th>
                         <th>Fach</th>
-                        <th>Fuer</th>
+                        <th>Für</th>
                         <th>Raum</th>
                         <th>Hinweis</th>
                         <th>Export</th>

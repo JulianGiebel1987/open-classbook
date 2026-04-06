@@ -105,7 +105,7 @@ textarea:focus-visible {
     box-shadow: var(--focus-ring);
 }
 
-/* Skip-Link fuer Tastaturnavigation */
+/* Skip-Link für Tastaturnavigation */
 .skip-link {
     position: absolute;
     top: -100%;
@@ -1773,7 +1773,7 @@ a.widget:hover {
     transition: background 0.3s;
 }
 
-/* Inline-Icon-Button zum Loeschen */
+/* Inline-Icon-Button zum Löschen */
 .btn-icon {
     background: none;
     border: none;

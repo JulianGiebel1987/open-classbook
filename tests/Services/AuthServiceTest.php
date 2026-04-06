@@ -87,7 +87,7 @@ class AuthServiceTest extends DatabaseTestCase
         $result = AuthService::attempt('lehrer2', 'FalschesPasswort');
 
         $this->assertFalse($result['success']);
-        $this->assertStringContainsString('ungueltig', $result['message']);
+        $this->assertStringContainsString('ungültig', $result['message']);
     }
 
     public function testAttemptFailsWithNonexistentUser(): void
@@ -95,7 +95,7 @@ class AuthServiceTest extends DatabaseTestCase
         $result = AuthService::attempt('nichtda', 'IrgendeinPasswort1');
 
         $this->assertFalse($result['success']);
-        $this->assertStringContainsString('ungueltig', $result['message']);
+        $this->assertStringContainsString('ungültig', $result['message']);
     }
 
     public function testAttemptFailsWithDeactivatedUser(): void

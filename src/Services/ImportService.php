@@ -11,7 +11,7 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 class ImportService
 {
     /**
-     * CSV-Datei einlesen und als Array zurueckgeben (Delimiter-Erkennung: ; oder ,)
+     * CSV-Datei einlesen und als Array zurückgeben (Delimiter-Erkennung: ; oder ,)
      */
     private static function parseCsv(string $filePath): array
     {
@@ -57,11 +57,11 @@ class ImportService
             $rowErrors = [];
             if (empty($firstname)) $rowErrors[] = 'Vorname fehlt';
             if (empty($lastname)) $rowErrors[] = 'Nachname fehlt';
-            if (empty($abbreviation)) $rowErrors[] = 'Kuerzel fehlt';
+            if (empty($abbreviation)) $rowErrors[] = 'Kürzel fehlt';
             if (empty($email)) $rowErrors[] = 'E-Mail fehlt';
 
             if (!empty($abbreviation) && Teacher::abbreviationExists($abbreviation)) {
-                $rowErrors[] = 'Kuerzel "' . $abbreviation . '" existiert bereits';
+                $rowErrors[] = 'Kürzel "' . $abbreviation . '" existiert bereits';
             }
 
             $rows[] = [
@@ -84,7 +84,7 @@ class ImportService
     }
 
     /**
-     * Schueler-Vorschau aus CSV-Datei
+     * Schüler-Vorschau aus CSV-Datei
      */
     private static function previewStudentsFromCsv(string $filePath, string $schoolYear): array
     {
@@ -138,7 +138,7 @@ class ImportService
 
     /**
      * Lehrer-Import aus Excel- oder CSV-Datei
-     * Spalten: Vorname, Nachname, Kuerzel, E-Mail, Faecher, Klassen
+     * Spalten: Vorname, Nachname, Kürzel, E-Mail, Fächer, Klassen
      */
     public static function previewTeachers(string $filePath, string $format = 'xlsx'): array
     {
@@ -167,11 +167,11 @@ class ImportService
             $rowErrors = [];
             if (empty($firstname)) $rowErrors[] = 'Vorname fehlt';
             if (empty($lastname)) $rowErrors[] = 'Nachname fehlt';
-            if (empty($abbreviation)) $rowErrors[] = 'Kuerzel fehlt';
+            if (empty($abbreviation)) $rowErrors[] = 'Kürzel fehlt';
             if (empty($email)) $rowErrors[] = 'E-Mail fehlt';
 
             if (!empty($abbreviation) && Teacher::abbreviationExists($abbreviation)) {
-                $rowErrors[] = 'Kuerzel "' . $abbreviation . '" existiert bereits';
+                $rowErrors[] = 'Kürzel "' . $abbreviation . '" existiert bereits';
             }
 
             $rows[] = [
@@ -194,7 +194,7 @@ class ImportService
     }
 
     /**
-     * Lehrer tatsaechlich importieren
+     * Lehrer tatsächlich importieren
      */
     public static function importTeachers(string $filePath): array
     {
@@ -244,7 +244,7 @@ class ImportService
     }
 
     /**
-     * Schueler-Import aus Excel- oder CSV-Datei
+     * Schüler-Import aus Excel- oder CSV-Datei
      * Spalten: Vorname, Nachname, Klasse, Geburtsdatum, Erziehungsberechtigten-Email
      */
     public static function previewStudents(string $filePath, string $schoolYear, string $format = 'xlsx'): array
@@ -313,7 +313,7 @@ class ImportService
     }
 
     /**
-     * Schueler tatsaechlich importieren
+     * Schüler tatsächlich importieren
      */
     public static function importStudents(string $filePath, string $schoolYear): array
     {

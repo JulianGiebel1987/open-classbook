@@ -86,13 +86,13 @@ $router->get('/classbook/{classId}/export-pdf', [ClassbookController::class, 'ex
 $router->get('/classbook/entry/{id}/edit', [ClassbookController::class, 'editForm'], [AuthMiddleware::class]);
 $router->post('/classbook/entry/{id}', [ClassbookController::class, 'update'], [AuthMiddleware::class, CsrfMiddleware::class]);
 
-// Schuelerbemerkungen
+// Schülerbemerkungen
 $router->get('/classbook/{classId}/remarks', [ClassbookController::class, 'remarksIndex'], [AuthMiddleware::class]);
 $router->get('/classbook/{classId}/remarks/create', [ClassbookController::class, 'remarkCreateForm'], [AuthMiddleware::class]);
 $router->post('/classbook/{classId}/remarks', [ClassbookController::class, 'remarkCreate'], [AuthMiddleware::class, CsrfMiddleware::class]);
 $router->post('/classbook/{classId}/remarks/{id}/delete', [ClassbookController::class, 'remarkDelete'], [AuthMiddleware::class, CsrfMiddleware::class]);
 
-// === Schueler-Fehlzeiten ===
+// === Schüler-Fehlzeiten ===
 $router->get('/absences/students', [AbsenceStudentController::class, 'index'], [AuthMiddleware::class]);
 $router->get('/absences/students/self', [AbsenceStudentController::class, 'selfReportForm'], [AuthMiddleware::class]);
 $router->post('/absences/students/self', [AbsenceStudentController::class, 'selfReport'], [AuthMiddleware::class, CsrfMiddleware::class]);

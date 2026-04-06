@@ -39,7 +39,7 @@ CsrfMiddleware::generateToken();
 $securityHeaders = new SecurityHeadersMiddleware();
 $securityHeaders->handle();
 
-// Rate Limiting pruefen
+// Rate Limiting prüfen
 $rateLimiter = new RateLimitMiddleware(
     App::config('security.rate_limit_requests') ?? 120,
     App::config('security.rate_limit_window') ?? 60

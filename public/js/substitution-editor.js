@@ -54,7 +54,7 @@
         document.getElementById('assignNotes').value = '';
         conflictWarning.style.display = 'none';
 
-        // Verfuegbare Lehrer laden
+        // Verfügbare Lehrer laden
         loadAvailableTeachers(row.dataset.slotNumber);
 
         modal.setAttribute('aria-hidden', 'false');
@@ -76,7 +76,7 @@
         }
     });
 
-    // === Verfuegbare Lehrer laden ===
+    // === Verfügbare Lehrer laden ===
 
     function loadAvailableTeachers(slotNumber) {
         teacherSelect.innerHTML = '<option value="">Wird geladen...</option>';
@@ -120,7 +120,7 @@
             });
     }
 
-    // === Konfliktpruefung bei Lehrerwechsel ===
+    // === Konfliktprüfung bei Lehrerwechsel ===
 
     teacherSelect.addEventListener('change', function () {
         var teacherId = this.value;

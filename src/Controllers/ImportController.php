@@ -30,7 +30,7 @@ class ImportController
         $file = $_FILES['file'];
         $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
         if (!in_array($ext, ['xlsx', 'csv'], true)) {
-            App::setFlash('error', 'Nur .xlsx- und .csv-Dateien werden unterstuetzt.');
+            App::setFlash('error', 'Nur .xlsx- und .csv-Dateien werden unterstützt.');
             App::redirect('/import');
             return;
         }
@@ -40,7 +40,7 @@ class ImportController
         // Vorschau anzeigen
         $preview = ImportService::previewTeachers($tmpPath, $ext);
 
-        // Datei temporaer speichern für den tatsaechlichen Import
+        // Datei temporär speichern für den tatsächlichen Import
         $storedPath = __DIR__ . '/../../storage/uploads/' . bin2hex(random_bytes(16)) . '.' . $ext;
         if (!move_uploaded_file($tmpPath, $storedPath)) {
             App::setFlash('error', 'Datei konnte nicht gespeichert werden. Bitte Schreibrechte für storage/uploads/ prüfen.');
@@ -98,7 +98,7 @@ class ImportController
         $file = $_FILES['file'];
         $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
         if (!in_array($ext, ['xlsx', 'csv'], true)) {
-            App::setFlash('error', 'Nur .xlsx- und .csv-Dateien werden unterstuetzt.');
+            App::setFlash('error', 'Nur .xlsx- und .csv-Dateien werden unterstützt.');
             App::redirect('/import');
             return;
         }
@@ -193,8 +193,8 @@ class ImportController
         if ($type === 'lehrer-csv') {
             header('Content-Type: text/csv; charset=UTF-8');
             header('Content-Disposition: attachment; filename="Lehrer-Import.csv"');
-            echo "\xEF\xBB\xBF"; // UTF-8 BOM für Excel-Kompatibilitaet
-            echo "Vorname;Nachname;Kürzel;E-Mail;Faecher;Klassen\n";
+            echo "\xEF\xBB\xBF"; // UTF-8 BOM für Excel-Kompatibilität
+            echo "Vorname;Nachname;Kürzel;E-Mail;Fächer;Klassen\n";
             echo "Max;Mustermann;MUS;m.mustermann@schule.de;Mathematik,Physik;5a,6b\n";
             exit;
         }
@@ -202,7 +202,7 @@ class ImportController
         if ($type === 'schueler-csv') {
             header('Content-Type: text/csv; charset=UTF-8');
             header('Content-Disposition: attachment; filename="Schüler-Import.csv"');
-            echo "\xEF\xBB\xBF"; // UTF-8 BOM für Excel-Kompatibilitaet
+            echo "\xEF\xBB\xBF"; // UTF-8 BOM für Excel-Kompatibilität
             echo "Vorname;Nachname;Klasse;Geburtsdatum;Erziehungsberechtigten-Email\n";
             echo "Anna;Musterfrau;5a;15.03.2013;musterfrau@example.de\n";
             exit;

@@ -43,7 +43,7 @@ class Message
     }
 
     /**
-     * Gesamtzahl ungelesener Nachrichten fuer einen Nutzer.
+     * Gesamtzahl ungelesener Nachrichten für einen Nutzer.
      */
     public static function countUnread(int $userId): int
     {

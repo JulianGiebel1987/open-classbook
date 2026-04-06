@@ -752,6 +752,9 @@
 
         var formData = new FormData();
         formData.append('image', input.files[0]);
+        if (window.ZEUGNIS_CSRF_TOKEN) {
+            formData.append('csrf_token', window.ZEUGNIS_CSRF_TOKEN);
+        }
 
         if (status) status.textContent = 'Hochladen …';
 

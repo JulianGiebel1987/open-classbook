@@ -274,7 +274,7 @@ class TwoFactorController
     {
         $userId = $_SESSION['user_id'];
 
-        // Pruefen ob 2FA für die Rolle erzwungen wird
+        // Prüfen ob 2FA für die Rolle erzwungen wird
         $user = User::findById($userId);
         $enforcedRoles = TwoFactorService::getEnforcedRoles();
 

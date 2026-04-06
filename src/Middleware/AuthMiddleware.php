@@ -8,7 +8,7 @@ class AuthMiddleware
 {
     public function handle(): bool
     {
-        // Session-Timeout pruefen
+        // Session-Timeout prüfen
         $timeout = App::config('session.timeout') ?? 3600;
 
         if (isset($_SESSION['last_activity'])) {

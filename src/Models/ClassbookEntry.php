@@ -70,7 +70,7 @@ class ClassbookEntry
             return true;
         }
 
-        // Lehrer nur eigene Eintraege innerhalb 24h
+        // Lehrer nur eigene Einträge innerhalb 24h
         if ($role === 'lehrer') {
             $teacher = Teacher::findByUserId($userId);
             if (!$teacher || $teacher['id'] !== $entry['teacher_id']) {

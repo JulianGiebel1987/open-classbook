@@ -44,7 +44,7 @@ class ListRow
     }
 
     /**
-     * Zeilen aus Schuelerliste einer Klasse vorbefuellen.
+     * Zeilen aus Schülerliste einer Klasse vorbefüllen.
      */
     public static function createFromClass(int $listId, int $classId): void
     {

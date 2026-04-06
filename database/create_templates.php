@@ -15,7 +15,7 @@ $spreadsheet = new Spreadsheet();
 $sheet = $spreadsheet->getActiveSheet();
 $sheet->setTitle('Lehrer-Import');
 
-$headers = ['Vorname', 'Nachname', 'Kuerzel', 'E-Mail', 'Faecher', 'Klassen'];
+$headers = ['Vorname', 'Nachname', 'Kürzel', 'E-Mail', 'Fächer', 'Klassen'];
 foreach ($headers as $i => $header) {
     $col = chr(65 + $i); // A, B, C, ...
     $sheet->setCellValue($col . '1', $header);
@@ -35,10 +35,10 @@ $writer = new Xlsx($spreadsheet);
 $writer->save(__DIR__ . '/../templates/Lehrer-Import.xlsx');
 echo "Lehrer-Import.xlsx erstellt.\n";
 
-// Schueler-Import-Vorlage
+// Schüler-Import-Vorlage
 $spreadsheet = new Spreadsheet();
 $sheet = $spreadsheet->getActiveSheet();
-$sheet->setTitle('Schueler-Import');
+$sheet->setTitle('Schüler-Import');
 
 $headers = ['Vorname', 'Nachname', 'Klasse', 'Geburtsdatum', 'Erziehungsberechtigten-E-Mail'];
 foreach ($headers as $i => $header) {
@@ -56,5 +56,5 @@ $sheet->setCellValue('D2', '15.03.2014');
 $sheet->setCellValue('E2', 'eltern@beispiel.de');
 
 $writer = new Xlsx($spreadsheet);
-$writer->save(__DIR__ . '/../templates/Schueler-Import.xlsx');
-echo "Schueler-Import.xlsx erstellt.\n";
+$writer->save(__DIR__ . '/../templates/Schüler-Import.xlsx');
+echo "Schüler-Import.xlsx erstellt.\n";

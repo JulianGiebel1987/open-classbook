@@ -26,7 +26,7 @@ class StudentRemark
     }
 
     /**
-     * Alle Bemerkungen einer Klasse, optional gefiltert nach Schueler und Datum.
+     * Alle Bemerkungen einer Klasse, optional gefiltert nach Schüler und Datum.
      */
     public static function findByClass(int $classId, array $filters = []): array
     {
@@ -83,7 +83,7 @@ class StudentRemark
     }
 
     /**
-     * Loeschen ist erlaubt fuer: Admin (immer), Lehrer (eigene Bemerkung, max. 24 h).
+     * Löschen ist erlaubt für: Admin (immer), Lehrer (eigene Bemerkung, max. 24 h).
      */
     public static function canDelete(array $remark, int $userId, string $role): bool
     {

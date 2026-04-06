@@ -21,7 +21,7 @@ class NotificationService
 
         $recipients = self::getNotificationRecipients();
         if (empty($recipients)) {
-            Logger::warning('Keine Empfaenger fuer Krankmeldungs-Benachrichtigung gefunden.');
+            Logger::warning('Keine Empfänger für Krankmeldungs-Benachrichtigung gefunden.');
             return;
         }
 
@@ -60,19 +60,19 @@ class NotificationService
     }
 
     /**
-     * Temporaeres Passwort per E-Mail an den betroffenen Nutzer senden
+     * Temporäres Passwort per E-Mail an den betroffenen Nutzer senden
      */
     public static function sendTemporaryPasswordMail(string $to, string $username, string $tempPassword): bool
     {
         if (!App::config('mail.enabled')) {
-            Logger::warning('Mail deaktiviert - temporaeres Passwort nicht per E-Mail versendet', ['to' => $to]);
+            Logger::warning('Mail deaktiviert - temporäres Passwort nicht per E-Mail versendet', ['to' => $to]);
             return false;
         }
 
-        $subject = 'Ihre Zugangsdaten fuer Open-Classbook';
+        $subject = 'Ihre Zugangsdaten für Open-Classbook';
 
         $body  = "Sehr geehrte/r " . $username . ",\n\n";
-        $body .= "Ihr Passwort in Open-Classbook wurde zurueckgesetzt.\n\n";
+        $body .= "Ihr Passwort in Open-Classbook wurde zurückgesetzt.\n\n";
         $body .= "Ihre neuen Zugangsdaten:\n";
         $body .= "  Benutzername: " . $username . "\n";
         $body .= "  Passwort:     " . $tempPassword . "\n\n";
@@ -84,7 +84,7 @@ class NotificationService
     }
 
     /**
-     * Empfaenger fuer Abwesenheits-Benachrichtigungen: Schulleitung und Sekretariat
+     * Empfänger für Abwesenheits-Benachrichtigungen: Schulleitung und Sekretariat
      */
     private static function getNotificationRecipients(): array
     {
@@ -103,13 +103,13 @@ class NotificationService
             return false;
         }
 
-        $subject = 'Ihr Anmeldecode fuer Open-Classbook';
+        $subject = 'Ihr Anmeldecode für Open-Classbook';
 
         $body  = "Sehr geehrte/r Nutzer/in,\n\n";
-        $body .= "Ihr Verifizierungscode fuer die Anmeldung bei Open-Classbook lautet:\n\n";
+        $body .= "Ihr Verifizierungscode für die Anmeldung bei Open-Classbook lautet:\n\n";
         $body .= "    " . $code . "\n\n";
-        $body .= "Dieser Code ist 10 Minuten gueltig.\n\n";
-        $body .= "Falls Sie diese Anmeldung nicht selbst durchgefuehrt haben, ignorieren Sie diese E-Mail.\n\n";
+        $body .= "Dieser Code ist 10 Minuten gültig.\n\n";
+        $body .= "Falls Sie diese Anmeldung nicht selbst durchgeführt haben, ignorieren Sie diese E-Mail.\n\n";
         $body .= "--\nDiese Nachricht wurde automatisch von Open-Classbook versendet.\n";
         $body .= "Bitte antworten Sie nicht auf diese E-Mail.";
 

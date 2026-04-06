@@ -21,7 +21,7 @@ class RateLimitMiddleware
     {
         // IP pseudonymisieren (DSGVO Art. 5 Abs. 1 lit. e)
         $ip = $this->pseudonymizeIp($_SERVER['REMOTE_ADDR'] ?? '0.0.0.0');
-        // Nur Pfad ohne Query-Parameter speichern (keine Schuelerdaten in URL)
+        // Nur Pfad ohne Query-Parameter speichern (keine Schülerdaten in URL)
         $endpoint = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?? '/';
 
         // Anfrage protokollieren
@@ -44,7 +44,7 @@ class RateLimitMiddleware
             return false;
         }
 
-        // Alte Eintraege bereinigen (10% Wahrscheinlichkeit pro Request, kuerzere Retention)
+        // Alte Einträge bereinigen (10% Wahrscheinlichkeit pro Request, kuerzere Retention)
         if (random_int(1, 10) === 1) {
             Database::execute(
                 'DELETE FROM rate_limits WHERE requested_at < DATE_SUB(NOW(), INTERVAL 15 MINUTE)'

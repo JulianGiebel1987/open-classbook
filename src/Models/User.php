@@ -16,12 +16,12 @@ class User
     }
 
     /**
-     * Benutzer loeschen inkl. physischer Dateien.
-     * DB-Eintraege werden durch ON DELETE CASCADE automatisch entfernt.
+     * Benutzer löschen inkl. physischer Dateien.
+     * DB-Einträge werden durch ON DELETE CASCADE automatisch entfernt.
      */
     public static function delete(int $id): void
     {
-        // Physische Dateien vor dem DB-DELETE sammeln und loeschen
+        // Physische Dateien vor dem DB-DELETE sammeln und löschen
         $storedNames = self::collectUserFileNames($id);
         $storagePath = __DIR__ . '/../../storage/files/';
 
@@ -169,7 +169,7 @@ class User
     }
 
     /**
-     * 2FA komplett zuruecksetzen
+     * 2FA komplett zurücksetzen
      */
     public static function clearTwoFactor(int $id): void
     {

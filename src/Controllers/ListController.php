@@ -127,7 +127,7 @@ class ListController
                 ]);
             }
 
-            // Schülerliste vorbefuellen
+            // Schülerliste vorbefüllen
             if ($classId) {
                 ListRow::createFromClass($listId, $classId);
             }

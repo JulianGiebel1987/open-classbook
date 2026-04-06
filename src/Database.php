@@ -48,7 +48,7 @@ class Database
                 if (App::config('app.debug')) {
                     die('Datenbankverbindung fehlgeschlagen: ' . $e->getMessage());
                 }
-                die('Datenbankverbindung fehlgeschlagen. Bitte Konfiguration pruefen.');
+                die('Datenbankverbindung fehlgeschlagen. Bitte Konfiguration prüfen.');
             }
         }
 
@@ -56,7 +56,7 @@ class Database
     }
 
     /**
-     * Hilfsmethode fuer SELECT-Abfragen
+     * Hilfsmethode für SELECT-Abfragen
      */
     public static function query(string $sql, array $params = []): array
     {
@@ -66,7 +66,7 @@ class Database
     }
 
     /**
-     * Hilfsmethode fuer einzelne Zeile
+     * Hilfsmethode für einzelne Zeile
      */
     public static function queryOne(string $sql, array $params = []): ?array
     {
@@ -77,7 +77,7 @@ class Database
     }
 
     /**
-     * Hilfsmethode fuer INSERT/UPDATE/DELETE
+     * Hilfsmethode für INSERT/UPDATE/DELETE
      */
     public static function execute(string $sql, array $params = []): int
     {

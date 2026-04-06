@@ -48,7 +48,7 @@ class View
     }
 
     /**
-     * CSRF-Token-Feld fuer Formulare
+     * CSRF-Token-Feld für Formulare
      */
     public static function csrfField(): string
     {
@@ -67,7 +67,7 @@ class View
             $message = htmlspecialchars($_SESSION['flash']['message'] ?? '', ENT_QUOTES, 'UTF-8');
             $html = '<div class="alert alert-' . $type . '" role="alert">'
                    . '<span>' . $message . '</span>'
-                   . '<button type="button" class="alert-dismiss" aria-label="Meldung schliessen">&times;</button>'
+                   . '<button type="button" class="alert-dismiss" aria-label="Meldung schließen">&times;</button>'
                    . '</div>';
             unset($_SESSION['flash']);
         }

@@ -137,7 +137,7 @@ class Substitution
     }
 
     /**
-     * Offene Slots ermitteln: Stundenplan-Eintraege abwesender Lehrer, die noch keine Vertretung haben.
+     * Offene Slots ermitteln: Stundenplan-Einträge abwesender Lehrer, die noch keine Vertretung haben.
      */
     public static function getOpenSlots(int $settingId, string $date): array
     {
@@ -170,7 +170,7 @@ class Substitution
     }
 
     /**
-     * Abwesende Lehrer fuer ein Datum ermitteln.
+     * Abwesende Lehrer für ein Datum ermitteln.
      */
     public static function getAbsentTeachersForDate(string $date): array
     {
@@ -186,7 +186,7 @@ class Substitution
     }
 
     /**
-     * Pruefen ob Vertretungslehrer im selben Slot bereits belegt ist
+     * Prüfen ob Vertretungslehrer im selben Slot bereits belegt ist
      * (regulaerer Unterricht oder andere Vertretung).
      */
     public static function checkSubstituteConflict(int $settingId, string $date, int $teacherId, int $slotNumber): array
@@ -230,8 +230,8 @@ class Substitution
     }
 
     /**
-     * Verfuegbare Lehrer fuer einen Slot ermitteln.
-     * Gibt alle Lehrer zurueck, kategorisiert als "frei" oder "belegt".
+     * Verfügbare Lehrer für einen Slot ermitteln.
+     * Gibt alle Lehrer zurück, kategorisiert als "frei" oder "belegt".
      */
     public static function getAvailableTeachers(int $settingId, string $date, int $slotNumber): array
     {
@@ -274,7 +274,7 @@ class Substitution
 
         $result = [];
         foreach ($allTeachers as $t) {
-            // Abwesende ausschliessen
+            // Abwesende ausschließen
             if (in_array($t['id'], $absentSet)) {
                 continue;
             }

@@ -13,8 +13,8 @@ class Folder
 
     /**
      * Ordner in einem Verzeichnis auflisten.
-     * Fuer private Ordner: owner_id muss passen.
-     * Fuer gemeinschaftliche Ordner: is_shared = 1.
+     * Für private Ordner: owner_id muss passen.
+     * Für gemeinschaftliche Ordner: is_shared = 1.
      */
     public static function findByParent(?int $parentId, int $ownerId, bool $shared): array
     {
@@ -53,7 +53,7 @@ class Folder
     }
 
     /**
-     * Ordner rekursiv loeschen (Unterordner + Dateien werden durch CASCADE geloescht,
+     * Ordner rekursiv löschen (Unterordner + Dateien werden durch CASCADE gelöscht,
      * physische Dateien muessen separat entfernt werden).
      */
     public static function delete(int $id): void
@@ -62,7 +62,7 @@ class Folder
     }
 
     /**
-     * Alle physischen Dateien eines Ordners und seiner Unterordner sammeln (fuer Cleanup).
+     * Alle physischen Dateien eines Ordners und seiner Unterordner sammeln (für Cleanup).
      */
     public static function collectStoredNames(int $folderId): array
     {

@@ -8,7 +8,7 @@ class Conversation
 {
     /**
      * Konversation zwischen zwei Nutzern finden oder erstellen.
-     * Sortiert IDs automatisch fuer Eindeutigkeit.
+     * Sortiert IDs automatisch für Eindeutigkeit.
      */
     public static function findOrCreate(int $userA, int $userB): array
     {
@@ -75,7 +75,7 @@ class Conversation
     }
 
     /**
-     * Pruefen ob ein Nutzer Teilnehmer der Konversation ist.
+     * Prüfen ob ein Nutzer Teilnehmer der Konversation ist.
      */
     public static function hasAccess(int $conversationId, int $userId): bool
     {
@@ -95,7 +95,7 @@ class Conversation
     }
 
     /**
-     * Partner-Daten fuer eine Konversation laden.
+     * Partner-Daten für eine Konversation laden.
      */
     public static function getPartner(int $conversationId, int $currentUserId): ?array
     {

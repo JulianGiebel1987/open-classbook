@@ -79,7 +79,7 @@
                 <thead>
                     <tr>
                         <th scope="col">Name</th>
-                        <th scope="col">Groesse</th>
+                        <th scope="col">Größe</th>
                         <th scope="col">Datum</th>
                         <th scope="col">Aktionen</th>
                     </tr>
