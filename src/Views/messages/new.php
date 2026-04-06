@@ -1,6 +1,6 @@
 <div class="page-header">
     <div>
-        <a href="/messages" class="btn btn-sm btn-secondary mb-05">Zurueck</a>
+        <a href="/messages" class="btn btn-sm btn-secondary mb-05">Zurück</a>
         <h1>Neue Nachricht</h1>
     </div>
 </div>
@@ -10,8 +10,8 @@ $roleLabels = [
     'admin' => 'Admin',
     'schulleitung' => 'Schulleitung',
     'sekretariat' => 'Sekretariat',
-    'lehrer' => 'Lehrer/in',
-    'schueler' => 'Schueler/in',
+    'lehrer' => 'Lehrkraft',
+    'schueler' => 'Schüler:in',
 ];
 ?>
 
@@ -20,9 +20,9 @@ $roleLabels = [
         <?= \OpenClassbook\View::csrfField() ?>
 
         <div class="form-group">
-            <label for="recipient_id">Empfaenger <span aria-hidden="true">*</span></label>
+            <label for="recipient_id">Empfänger <span aria-hidden="true">*</span></label>
             <select name="recipient_id" id="recipient_id" class="form-control" required>
-                <option value="">-- Bitte waehlen --</option>
+                <option value="">-- Bitte wählen --</option>
                 <?php foreach ($users as $u): ?>
                     <option value="<?= (int) $u['id'] ?>">
                         <?= htmlspecialchars($u['username'], ENT_QUOTES, 'UTF-8') ?> (<?= $roleLabels[$u['role']] ?? $u['role'] ?>)

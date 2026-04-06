@@ -48,7 +48,7 @@ class FileController
     }
 
     /**
-     * Uebersicht: Meine Dateien + Gemeinschaftliche Dateien
+     * Übersicht: Meine Dateien + Gemeinschaftliche Dateien
      */
     public function index(): void
     {
@@ -133,13 +133,13 @@ class FileController
 
         $file = $_FILES['file'];
 
-        // Dateigroesse pruefen
+        // Dateigroesse prüfen
         if ($file['size'] > self::MAX_FILE_SIZE) {
             $this->flashAndRedirect('error', 'Die Datei ist zu gross (max. 15 MB).', $folderId, $isShared);
             return;
         }
 
-        // Quota pruefen
+        // Quota prüfen
         $usedStorage = FileEntry::getTotalSizeByUser($userId);
         if ($usedStorage + $file['size'] > self::MAX_USER_STORAGE) {
             $remaining = FileEntry::formatSize(self::MAX_USER_STORAGE - $usedStorage);
@@ -147,7 +147,7 @@ class FileController
             return;
         }
 
-        // MIME-Typ pruefen (gegen Whitelist)
+        // MIME-Typ prüfen (gegen Whitelist)
         $finfo = new \finfo(FILEINFO_MIME_TYPE);
         $mimeType = $finfo->file($file['tmp_name']);
 
@@ -263,7 +263,7 @@ class FileController
     }
 
     /**
-     * Datei loeschen
+     * Datei löschen
      */
     public function deleteFile(string $id): void
     {
@@ -279,9 +279,9 @@ class FileController
         $userId = $_SESSION['user_id'];
         $role = App::currentUserRole();
 
-        // Nur Besitzer oder Admin duerfen loeschen
+        // Nur Besitzer oder Admin dürfen löschen
         if ((int) $file['owner_id'] !== $userId && $role !== 'admin') {
-            App::setFlash('error', 'Nur der Besitzer oder ein Admin kann diese Datei loeschen.');
+            App::setFlash('error', 'Nur der Besitzer oder ein Admin kann diese Datei löschen.');
             App::redirect('/files');
             return;
         }
@@ -291,11 +291,11 @@ class FileController
 
         FileEntry::delete((int) $id);
 
-        $this->flashAndRedirect('success', 'Datei geloescht.', $folderId, $isShared);
+        $this->flashAndRedirect('success', 'Datei gelöscht.', $folderId, $isShared);
     }
 
     /**
-     * Ordner loeschen (inkl. Inhalt)
+     * Ordner löschen (inkl. Inhalt)
      */
     public function deleteFolder(string $id): void
     {
@@ -311,14 +311,14 @@ class FileController
         $userId = $_SESSION['user_id'];
         $role = App::currentUserRole();
 
-        // Nur Ersteller oder Admin duerfen loeschen
+        // Nur Ersteller oder Admin dürfen löschen
         if ((int) $folder['created_by'] !== $userId && $role !== 'admin') {
-            App::setFlash('error', 'Nur der Ersteller oder ein Admin kann diesen Ordner loeschen.');
+            App::setFlash('error', 'Nur der Ersteller oder ein Admin kann diesen Ordner löschen.');
             App::redirect('/files');
             return;
         }
 
-        // Physische Dateien sammeln und loeschen
+        // Physische Dateien sammeln und löschen
         $storedNames = Folder::collectStoredNames((int) $id);
         foreach ($storedNames as $storedName) {
             $path = FileEntry::getStoragePath($storedName);
@@ -332,11 +332,11 @@ class FileController
 
         Folder::delete((int) $id);
 
-        $this->flashAndRedirect('success', 'Ordner und Inhalt geloescht.', $parentId, $isShared);
+        $this->flashAndRedirect('success', 'Ordner und Inhalt gelöscht.', $parentId, $isShared);
     }
 
     /**
-     * Ordnerinhalt rendern (wiederverwendbar fuer privat/shared/subfolder)
+     * Ordnerinhalt rendern (wiederverwendbar für privat/shared/subfolder)
      */
     private function renderBrowse(?int $folderId, bool $shared): void
     {
@@ -369,7 +369,7 @@ class FileController
     }
 
     /**
-     * Flash-Nachricht setzen und zum richtigen Ordner zurueckleiten.
+     * Flash-Nachricht setzen und zum richtigen Ordner zurückleiten.
      */
     private function flashAndRedirect(string $type, string $message, ?int $folderId, bool $isShared): void
     {

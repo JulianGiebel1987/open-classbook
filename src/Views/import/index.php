@@ -4,7 +4,7 @@
 
 <div class="card">
     <div class="card-header">
-        <h2>Lehrkraefte importieren</h2>
+        <h2>Lehrkräfte importieren</h2>
     </div>
     <p class="mb-sm">
         <a href="/import/template/lehrer" class="btn btn-sm btn-secondary">Excel-Vorlage (.xlsx)</a>
@@ -23,7 +23,7 @@
 
 <div class="card mt-1">
     <div class="card-header">
-        <h2>Schueler/innen importieren</h2>
+        <h2>Schüler:innen importieren</h2>
     </div>
     <p class="mb-sm">
         <a href="/import/template/schueler" class="btn btn-sm btn-secondary">Excel-Vorlage (.xlsx)</a>

@@ -6,7 +6,7 @@
             <a href="/classbook/<?= $class['id'] ?>/create" class="btn">Neuer Eintrag</a>
         <?php endif; ?>
         <a href="/absences/students?class_id=<?= $class['id'] ?>" class="btn btn-secondary">Schülerfehlzeiten</a>
-        <a href="/classbook/<?= $class['id'] ?>/remarks" class="btn btn-secondary">Schuelerbemerkungen</a>
+        <a href="/classbook/<?= $class['id'] ?>/remarks" class="btn btn-secondary">Schülerbemerkungen</a>
         <a href="/classbook/<?= $class['id'] ?>/export-csv?date_from=<?= urlencode($filters['date_from'] ?? '') ?>&date_to=<?= urlencode($filters['date_to'] ?? '') ?>" class="btn btn-secondary">CSV Export</a>
         <a href="/classbook/<?= $class['id'] ?>/export-pdf?date_from=<?= urlencode($filters['date_from'] ?? '') ?>&date_to=<?= urlencode($filters['date_to'] ?? '') ?>" class="btn btn-secondary">PDF Export</a>
     </div>
@@ -42,7 +42,7 @@
 
 <?php if (empty($entries)): ?>
 <div class="card mt-1">
-    <p class="text-muted text-center">Keine Eintraege gefunden.</p>
+    <p class="text-muted text-center">Keine Einträge gefunden.</p>
 </div>
 <?php else: ?>
 
@@ -69,7 +69,7 @@ foreach ($entries as $e) {
             <span class="classbook-day-count"><?= $count ?> <?= $count === 1 ? 'Stunde' : 'Stunden' ?></span>
         </div>
         <div class="table-responsive">
-            <table aria-label="Eintraege vom <?= $dateFormatted ?>">
+            <table aria-label="Einträge vom <?= $dateFormatted ?>">
                 <thead>
                     <tr>
                         <th scope="col">Std.</th>
@@ -110,5 +110,5 @@ foreach ($entries as $e) {
 <?php endif; ?>
 
 <div class="mt-1">
-    <a href="/classbook" class="btn btn-secondary">Zurueck</a>
+    <a href="/classbook" class="btn btn-secondary">Zurück</a>
 </div>

@@ -78,12 +78,12 @@
                             </form>
                             <form method="post" action="/users/<?= $u['id'] ?>/reset-password" class="d-inline">
                                 <?= \OpenClassbook\View::csrfField() ?>
-                                <button type="submit" class="btn btn-sm btn-secondary" data-confirm="Passwort wirklich zuruecksetzen?">PW Reset</button>
+                                <button type="submit" class="btn btn-sm btn-secondary" data-confirm="Passwort wirklich zurücksetzen?">PW Reset</button>
                             </form>
                             <?php if (\OpenClassbook\App::currentUserRole() === 'admin' && (int) $u['id'] !== (int) ($_SESSION['user_id'] ?? 0)): ?>
                             <form method="post" action="/users/<?= $u['id'] ?>/delete" class="d-inline">
                                 <?= \OpenClassbook\View::csrfField() ?>
-                                <button type="submit" class="btn btn-sm btn-danger" data-confirm="ACHTUNG: Benutzer &quot;<?= htmlspecialchars($u['username'], ENT_QUOTES, 'UTF-8') ?>&quot; und alle zugehoerigen Daten (Dateien, Nachrichten, Eintraege) werden unwiderruflich geloescht. Fortfahren?">Loeschen</button>
+                                <button type="submit" class="btn btn-sm btn-danger" data-confirm="ACHTUNG: Benutzer &quot;<?= htmlspecialchars($u['username'], ENT_QUOTES, 'UTF-8') ?>&quot; und alle zugehörigen Daten (Dateien, Nachrichten, Einträge) werden unwiderruflich gelöscht. Fortfahren?">Löschen</button>
                             </form>
                             <?php endif; ?>
                         </div>

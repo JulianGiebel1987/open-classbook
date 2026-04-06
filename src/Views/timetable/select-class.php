@@ -1,10 +1,10 @@
 <div class="page-header">
-    <h1>Klasse waehlen – <?= htmlspecialchars($setting['school_year'], ENT_QUOTES, 'UTF-8') ?></h1>
+    <h1>Klasse wählen – <?= htmlspecialchars($setting['school_year'], ENT_QUOTES, 'UTF-8') ?></h1>
 </div>
 
 <div class="card">
     <div class="card-header">
-        <h2>Fuer welche Klasse moechten Sie den Stundenplan bearbeiten?</h2>
+        <h2>Für welche Klasse möchten Sie den Stundenplan bearbeiten?</h2>
     </div>
     <?php if (empty($classes)): ?>
         <p class="text-muted">Keine Klassen vorhanden.</p>
@@ -13,7 +13,7 @@
             <?php foreach ($classes as $c): ?>
             <a href="/timetable/<?= (int) $setting['id'] ?>/class/<?= (int) $c['id'] ?>"
                class="widget"
-               aria-label="Stundenplan fuer <?= htmlspecialchars($c['name'], ENT_QUOTES, 'UTF-8') ?> bearbeiten">
+               aria-label="Stundenplan für <?= htmlspecialchars($c['name'], ENT_QUOTES, 'UTF-8') ?> bearbeiten">
                 <div class="widget-value"><?= htmlspecialchars($c['name'], ENT_QUOTES, 'UTF-8') ?></div>
                 <div class="widget-label"><?= htmlspecialchars($c['school_year'] ?? '', ENT_QUOTES, 'UTF-8') ?></div>
             </a>

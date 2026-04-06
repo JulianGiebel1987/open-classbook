@@ -136,20 +136,9 @@
         var btnUpload = document.getElementById('btn-upload-image');
         if (btnUpload) btnUpload.addEventListener('click', uploadImage);
 
-        // Image gallery click (insert into canvas)
+        // Image gallery click (insert into selected element or create new)
         document.querySelectorAll('.image-gallery-item').forEach(function (item) {
-            item.addEventListener('click', function () {
-                var imageId = item.dataset.imageId;
-                var page = state.pages[state.currentPage];
-                if (!page) return;
-                page.elements.push(Object.assign(
-                    { id: genId(), type: 'image', x: 10, y: 10 },
-                    ELEMENT_DEFAULTS['image'],
-                    { src: 'zeugnis-img:' + imageId }
-                ));
-                renderCanvas();
-                renderProps();
-            });
+            item.addEventListener('click', onGalleryItemClick);
         });
 
         // Token list click (insert token into selected placeholder/text)
@@ -434,6 +423,17 @@
             html += escHtml((el.tableColumns || []).map(function (c) { return c.label; }).join('\n'));
             html += '</textarea></div>';
         }
+        if (el.type === 'image') {
+            if (el.src) {
+                var imgUrl = el.src.startsWith('zeugnis-img:') ? '/zeugnis/images/' + el.src.split(':')[1] : el.src;
+                html += '<div class="zeugnis-props-group"><label>Aktuelles Bild</label>';
+                html += '<img src="' + escHtml(imgUrl) + '" alt="" style="max-width:100%;max-height:80px;border:1px solid #ccc;border-radius:4px;margin-bottom:4px;display:block;">';
+                html += '<button type="button" id="btn-remove-image" class="btn btn-sm btn-muted">Bild entfernen</button>';
+                html += '</div>';
+            } else {
+                html += '<div class="zeugnis-props-group"><p class="text-muted" style="font-size:var(--font-size-sm)">Kein Bild ausgewählt. Bild hochladen oder aus Galerie wählen.</p></div>';
+            }
+        }
 
         html += '<div class="zeugnis-props-group" style="margin-top:var(--spacing-md)">';
         html += '<button type="button" id="btn-delete-element" class="btn btn-sm btn-danger">Element löschen</button>';
@@ -462,6 +462,16 @@
         // Delete button
         document.getElementById('btn-delete-element')?.addEventListener('click', function () {
             deleteElement(state.selectedId);
+        });
+
+        // Remove image from element (keep element, clear src)
+        document.getElementById('btn-remove-image')?.addEventListener('click', function () {
+            var el = findElement(state.selectedId);
+            if (el && el.type === 'image') {
+                el.src = '';
+                renderCanvas();
+                renderProps();
+            }
         });
     }
 
@@ -708,6 +718,26 @@
     // Image upload
     // -------------------------------------------------------------------------
 
+    function onGalleryItemClick() {
+        var imageId = this.dataset.imageId;
+        var src = 'zeugnis-img:' + imageId;
+
+        // Update selected image element or create new one
+        var selectedEl = state.selectedId ? findElement(state.selectedId) : null;
+        if (selectedEl && selectedEl.type === 'image') {
+            selectedEl.src = src;
+            renderCanvas();
+            selectElement(selectedEl.id);
+        } else {
+            var page = state.pages[state.currentPage];
+            if (!page) return;
+            var el = Object.assign({ id: genId(), type: 'image', x: 10, y: 10 }, ELEMENT_DEFAULTS['image'], { src: src });
+            page.elements.push(el);
+            renderCanvas();
+            selectElement(el.id);
+        }
+    }
+
     function uploadImage() {
         var input = document.getElementById('image-upload-input');
         var status = document.getElementById('image-upload-status');
@@ -739,13 +769,20 @@
             if (status) status.textContent = 'Hochgeladen!';
             input.value = '';
 
-            // Add image element to canvas
-            var page = state.pages[state.currentPage];
-            if (page) {
-                var el = Object.assign({ id: genId(), type: 'image', x: 10, y: 10 }, ELEMENT_DEFAULTS['image'], { src: data.src });
-                page.elements.push(el);
+            // Update selected image element or create new one
+            var selectedEl = state.selectedId ? findElement(state.selectedId) : null;
+            if (selectedEl && selectedEl.type === 'image') {
+                selectedEl.src = data.src;
                 renderCanvas();
-                selectElement(el.id);
+                selectElement(selectedEl.id);
+            } else {
+                var page = state.pages[state.currentPage];
+                if (page) {
+                    var newEl = Object.assign({ id: genId(), type: 'image', x: 10, y: 10 }, ELEMENT_DEFAULTS['image'], { src: data.src });
+                    page.elements.push(newEl);
+                    renderCanvas();
+                    selectElement(newEl.id);
+                }
             }
 
             // Add to gallery
@@ -755,12 +792,7 @@
                 item.className = 'image-gallery-item';
                 item.dataset.imageId = data.id;
                 item.innerHTML = '<img src="' + data.url + '" alt="">';
-                item.addEventListener('click', function () {
-                    var p = state.pages[state.currentPage];
-                    if (!p) return;
-                    p.elements.push(Object.assign({ id: genId(), type: 'image', x: 10, y: 10 }, ELEMENT_DEFAULTS['image'], { src: 'zeugnis-img:' + data.id }));
-                    renderCanvas();
-                });
+                item.addEventListener('click', onGalleryItemClick);
                 gallery.appendChild(item);
             }
         })

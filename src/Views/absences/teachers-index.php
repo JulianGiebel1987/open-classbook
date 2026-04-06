@@ -35,7 +35,7 @@
             <thead>
                 <tr>
                     <th scope="col">Lehrkraft</th>
-                    <th scope="col">Kuerzel</th>
+                    <th scope="col">Kürzel</th>
                     <th scope="col">Von</th>
                     <th scope="col">Bis</th>
                     <th scope="col">Typ</th>
@@ -68,7 +68,7 @@
                             <a href="/absences/teachers/<?= $a['id'] ?>/edit" class="btn btn-sm btn-secondary">Bearbeiten</a>
                             <form method="post" action="/absences/teachers/<?= $a['id'] ?>/delete" class="d-inline">
                                 <?= \OpenClassbook\View::csrfField() ?>
-                                <button type="submit" class="btn btn-sm btn-danger" data-confirm="Abwesenheit wirklich loeschen?">Loeschen</button>
+                                <button type="submit" class="btn btn-sm btn-danger" data-confirm="Abwesenheit wirklich löschen?">Löschen</button>
                             </form>
                         </div>
                     </td>

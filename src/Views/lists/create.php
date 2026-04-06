@@ -1,6 +1,6 @@
 <div class="page-header">
     <div>
-        <a href="/lists" class="btn btn-sm btn-secondary mb-05">Zurueck</a>
+        <a href="/lists" class="btn btn-sm btn-secondary mb-05">Zurück</a>
         <h1>Neue Liste</h1>
     </div>
 </div>
@@ -23,13 +23,13 @@
             <label for="visibility">Sichtbarkeit</label>
             <select name="visibility" id="visibility" class="form-control">
                 <option value="private">Privat (nur ich)</option>
-                <option value="global">Global (alle Lehrkraefte/Verwaltung)</option>
+                <option value="global">Global (alle Lehrkräfte/Verwaltung)</option>
                 <option value="shared">Freigegeben (gezielt an einzelne Nutzer)</option>
             </select>
         </div>
 
         <div class="form-group">
-            <label for="class_id">Klasse (optional — Schueler als Zeilen vorbefuellen)</label>
+            <label for="class_id">Klasse (optional — Schüler als Zeilen vorbefuellen)</label>
             <select name="class_id" id="class_id" class="form-control">
                 <option value="">— Leere Liste —</option>
                 <?php foreach ($classes as $c): ?>
@@ -54,7 +54,7 @@
                     <input type="text" name="col_options[]" class="form-control list-col-options" placeholder="Optionen (kommasepariert)" style="display:none">
                 </div>
             </div>
-            <button type="button" class="btn btn-sm btn-secondary mt-05" id="addColumnBtn">Spalte hinzufuegen</button>
+            <button type="button" class="btn btn-sm btn-secondary mt-05" id="addColumnBtn">Spalte hinzufügen</button>
         </fieldset>
 
         <div class="btn-group mt-1">

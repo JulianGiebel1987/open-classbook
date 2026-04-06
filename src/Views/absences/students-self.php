@@ -4,7 +4,7 @@
 
 <div class="card">
     <p class="mb-1">
-        Krankmeldung fuer: <strong><?= htmlspecialchars($student['firstname'] . ' ' . $student['lastname'], ENT_QUOTES, 'UTF-8') ?></strong>
+        Krankmeldung für: <strong><?= htmlspecialchars($student['firstname'] . ' ' . $student['lastname'], ENT_QUOTES, 'UTF-8') ?></strong>
         (Klasse <?= htmlspecialchars($student['class_name'], ENT_QUOTES, 'UTF-8') ?>)
     </p>
 

@@ -8,9 +8,9 @@
         <?= \OpenClassbook\View::csrfField() ?>
 
         <div class="form-group">
-            <label for="student_id">Schueler/in <span aria-hidden="true">*</span><span class="sr-only">(Pflichtfeld)</span></label>
+            <label for="student_id">Schüler:in <span aria-hidden="true">*</span><span class="sr-only">(Pflichtfeld)</span></label>
             <select id="student_id" name="student_id" class="form-control" required>
-                <option value="">— bitte waehlen —</option>
+                <option value="">— bitte wählen —</option>
                 <?php foreach ($students as $s): ?>
                     <option value="<?= $s['id'] ?>">
                         <?= htmlspecialchars($s['lastname'] . ', ' . $s['firstname'], ENT_QUOTES, 'UTF-8') ?>

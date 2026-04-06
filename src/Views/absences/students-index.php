@@ -1,5 +1,5 @@
 <div class="page-header">
-    <h1>Schueler-Fehlzeiten</h1>
+    <h1>Schüler-Fehlzeiten</h1>
     <a href="/absences/students/create" class="btn">Fehlzeit eintragen</a>
 </div>
 
@@ -42,10 +42,10 @@
 
 <div class="card mt-1">
     <div class="table-responsive">
-        <table aria-label="Schueler-Fehlzeiten">
+        <table aria-label="Schüler-Fehlzeiten">
             <thead>
                 <tr>
-                    <th scope="col">Schueler/in</th>
+                    <th scope="col">Schüler:in</th>
                     <th scope="col">Klasse</th>
                     <th scope="col">Von</th>
                     <th scope="col">Bis</th>
@@ -81,7 +81,7 @@
                             <a href="/absences/students/<?= $a['id'] ?>/edit" class="btn btn-sm btn-secondary">Bearbeiten</a>
                             <form method="post" action="/absences/students/<?= $a['id'] ?>/delete" class="d-inline">
                                 <?= \OpenClassbook\View::csrfField() ?>
-                                <button type="submit" class="btn btn-sm btn-danger" data-confirm="Fehlzeit wirklich loeschen?">Loeschen</button>
+                                <button type="submit" class="btn btn-sm btn-danger" data-confirm="Fehlzeit wirklich löschen?">Löschen</button>
                             </form>
                         </div>
                     </td>
@@ -94,6 +94,6 @@
 
 <?php if (!empty($filters['class_id'])): ?>
 <div class="mt-1">
-    <a href="/classbook/<?= (int) $filters['class_id'] ?>" class="btn btn-secondary">Zurueck zum Klassenbuch</a>
+    <a href="/classbook/<?= (int) $filters['class_id'] ?>" class="btn btn-secondary">Zurück zum Klassenbuch</a>
 </div>
 <?php endif; ?>

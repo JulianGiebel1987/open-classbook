@@ -31,7 +31,7 @@
     var csrfToken = document.querySelector('meta[name="csrf-token"]');
     csrfToken = csrfToken ? csrfToken.content : '';
 
-    // === Slot hinzufuegen ===
+    // === Slot hinzufügen ===
 
     grid.addEventListener('click', function (e) {
         var addBtn = e.target.closest('.slot-add-btn');
@@ -178,7 +178,7 @@
             });
     });
 
-    // === Slot loeschen ===
+    // === Slot löschen ===
 
     function deleteSlot(slotId) {
         if (!confirm('Eintrag wirklich entfernen?')) return;
@@ -190,7 +190,7 @@
             .then(function (res) { return res.json(); })
             .then(function (result) {
                 if (!result.success) {
-                    alert(result.error || 'Fehler beim Loeschen.');
+                    alert(result.error || 'Fehler beim Löschen.');
                     return;
                 }
 
@@ -202,7 +202,7 @@
                 updateTeacherUnitCount(result.teacher_id, result.unit_count);
             })
             .catch(function () {
-                alert('Netzwerkfehler beim Loeschen.');
+                alert('Netzwerkfehler beim Löschen.');
             });
     }
 

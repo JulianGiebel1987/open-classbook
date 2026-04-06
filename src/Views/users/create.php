@@ -21,7 +21,7 @@
         <div class="form-group">
             <label for="role">Rolle <span aria-hidden="true">*</span><span class="sr-only">(Pflichtfeld)</span></label>
             <select name="role" id="role" class="form-control" required>
-                <option value="">Bitte waehlen</option>
+                <option value="">Bitte wählen</option>
                 <?php foreach ($roles as $r): ?>
                     <option value="<?= $r ?>" <?= ($old['role'] ?? '') === $r ? 'selected' : '' ?>><?= ucfirst($r) ?></option>
                 <?php endforeach; ?>
@@ -42,9 +42,9 @@
 
         <div id="teacher-fields" style="display: none;">
             <div class="form-group">
-                <label for="abbreviation">Kuerzel <span aria-hidden="true">*</span><span class="sr-only">(Pflichtfeld)</span></label>
+                <label for="abbreviation">Kürzel <span aria-hidden="true">*</span><span class="sr-only">(Pflichtfeld)</span></label>
                 <input type="text" id="abbreviation" name="abbreviation" class="form-control" maxlength="10" aria-describedby="abbreviation_help" value="<?= htmlspecialchars($old['abbreviation'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
-                <span class="form-help" id="abbreviation_help">z.B. MUE fuer Mueller</span>
+                <span class="form-help" id="abbreviation_help">z.B. MUE für Mueller</span>
             </div>
 
             <div class="form-group">
@@ -58,7 +58,7 @@
             <div class="form-group">
                 <label for="class_id">Klasse <span aria-hidden="true">*</span><span class="sr-only">(Pflichtfeld)</span></label>
                 <select name="class_id" id="class_id" class="form-control">
-                    <option value="">- Klasse waehlen -</option>
+                    <option value="">- Klasse wählen -</option>
                     <?php foreach ($classes ?? [] as $c): ?>
                         <option value="<?= $c['id'] ?>" <?= ($old['class_id'] ?? '') == $c['id'] ? 'selected' : '' ?>><?= htmlspecialchars($c['name'], ENT_QUOTES, 'UTF-8') ?></option>
                     <?php endforeach; ?>

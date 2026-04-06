@@ -1,6 +1,6 @@
 <div class="page-header">
     <div>
-        <a href="/messages" class="btn btn-sm btn-secondary mb-05">Zurueck</a>
+        <a href="/messages" class="btn btn-sm btn-secondary mb-05">Zurück</a>
         <h1>Chat mit <?= htmlspecialchars($partner['username'] ?? 'Unbekannt', ENT_QUOTES, 'UTF-8') ?></h1>
     </div>
 </div>
@@ -9,7 +9,7 @@
     <div class="chat-container" id="chatContainer" data-conversation-id="<?= (int) $conversationId ?>" data-current-user="<?= (int) $currentUserId ?>" data-message-count="<?= count($messages) ?>">
         <?php if (count($messages) >= 50): ?>
             <div class="text-center mb-1">
-                <button type="button" class="btn btn-sm btn-secondary" id="loadMoreBtn" data-offset="50">Aeltere Nachrichten laden</button>
+                <button type="button" class="btn btn-sm btn-secondary" id="loadMoreBtn" data-offset="50">Ältere Nachrichten laden</button>
             </div>
         <?php endif; ?>
 

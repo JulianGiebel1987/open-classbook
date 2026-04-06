@@ -40,7 +40,7 @@
                     </td>
                     <td>
                         <?php if ($s['is_published']): ?>
-                            <span class="badge badge-success">Veroeffentlicht</span>
+                            <span class="badge badge-success">Veröffentlicht</span>
                         <?php else: ?>
                             <span class="badge badge-warning">Entwurf</span>
                         <?php endif; ?>
@@ -52,12 +52,12 @@
                             <?php if ($s['is_published']): ?>
                                 <form method="post" action="/timetable/<?= (int) $s['id'] ?>/unpublish" style="display:inline;">
                                     <?= \OpenClassbook\View::csrfField() ?>
-                                    <button type="submit" class="btn btn-sm btn-warning">Zurueckziehen</button>
+                                    <button type="submit" class="btn btn-sm btn-warning">Zurückziehen</button>
                                 </form>
                             <?php else: ?>
                                 <form method="post" action="/timetable/<?= (int) $s['id'] ?>/publish" style="display:inline;">
                                     <?= \OpenClassbook\View::csrfField() ?>
-                                    <button type="submit" class="btn btn-sm btn-success">Veroeffentlichen</button>
+                                    <button type="submit" class="btn btn-sm btn-success">Veröffentlichen</button>
                                 </form>
                             <?php endif; ?>
                         </div>

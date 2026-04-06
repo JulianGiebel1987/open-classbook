@@ -1,5 +1,5 @@
 <div class="page-header">
-    <h1>Schueler-Fehlzeit eintragen</h1>
+    <h1>Schüler-Fehlzeit eintragen</h1>
 </div>
 
 <div class="card">
@@ -7,9 +7,9 @@
         <?= \OpenClassbook\View::csrfField() ?>
 
         <div class="form-group">
-            <label for="class_id">Klasse waehlen <span aria-hidden="true">*</span><span class="sr-only">(Pflichtfeld)</span></label>
+            <label for="class_id">Klasse wählen <span aria-hidden="true">*</span><span class="sr-only">(Pflichtfeld)</span></label>
             <select name="class_id" id="class_id" class="form-control" required>
-                <option value="">- Klasse waehlen -</option>
+                <option value="">- Klasse wählen -</option>
                 <?php foreach ($classes as $c): ?>
                     <option value="<?= $c['id'] ?>" <?= ($selectedClassId ?? '') == $c['id'] ? 'selected' : '' ?>>
                         <?= htmlspecialchars($c['name'], ENT_QUOTES, 'UTF-8') ?>
@@ -19,9 +19,9 @@
         </div>
 
         <div class="form-group">
-            <label for="student_id">Schueler/in <span aria-hidden="true">*</span><span class="sr-only">(Pflichtfeld)</span></label>
+            <label for="student_id">Schüler:in <span aria-hidden="true">*</span><span class="sr-only">(Pflichtfeld)</span></label>
             <select name="student_id" id="student_id" class="form-control" required disabled>
-                <option value="">- Zuerst Klasse waehlen -</option>
+                <option value="">- Zuerst Klasse wählen -</option>
             </select>
         </div>
 

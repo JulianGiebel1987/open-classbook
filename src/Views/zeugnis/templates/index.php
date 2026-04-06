@@ -37,7 +37,7 @@
                     <th scope="col">Format</th>
                     <th scope="col">Schuljahr</th>
                     <th scope="col">Status</th>
-                    <th scope="col">Ersteller</th>
+                    <th scope="col">Ersteller:in</th>
                     <th scope="col">Aktualisiert</th>
                     <th scope="col">Aktionen</th>
                 </tr>

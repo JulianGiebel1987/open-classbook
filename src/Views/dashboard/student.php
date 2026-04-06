@@ -65,6 +65,6 @@
 </div>
 <?php else: ?>
 <div class="alert alert-warning" role="alert">
-    Kein Schueler-Profil gefunden. Bitte wenden Sie sich an das Sekretariat.
+    Kein Schüler-Profil gefunden. Bitte wenden Sie sich an das Sekretariat.
 </div>
 <?php endif; ?>

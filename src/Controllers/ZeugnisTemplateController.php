@@ -14,7 +14,7 @@ use OpenClassbook\Services\ModuleSettings;
 class ZeugnisTemplateController
 {
     private const ADMIN_ROLES = ['admin', 'schulleitung', 'sekretariat'];
-    private const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/svg+xml', 'image/webp'];
+    private const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
     private const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5 MB
 
     private function requireAdminRole(): bool
@@ -57,28 +57,23 @@ class ZeugnisTemplateController
     }
 
     /**
-     * Show blank editor for creating a new template.
+     * Create a blank draft template and redirect to editor.
+     * This ensures template_id exists immediately so image upload works.
      */
     public function createForm(): void
     {
         if (!$this->requireAdminRole()) return;
 
-        CsrfMiddleware::generateToken();
-
-        $emptyCanvas = [
-            'pages' => [
-                ['id' => 'page-1', 'elements' => []],
-            ],
-        ];
-
-        View::render('zeugnis/templates/editor', [
-            'title'       => 'Neue Zeugnisvorlage',
-            'template'    => null,
-            'canvasData'  => $emptyCanvas,
-            'tokens'      => ZeugnisPlaceholderService::getAvailableTokens(),
-            'images'      => [],
-            'formAction'  => '/zeugnis/templates',
+        $id = ZeugnisTemplate::create([
+            'name'             => 'Neue Vorlage',
+            'template_canvas'  => json_encode(['pages' => [['id' => 'page-1', 'elements' => []]]]),
+            'status'           => 'draft',
+            'page_orientation' => 'P',
+            'page_format'      => 'A4',
+            'created_by'       => $_SESSION['user_id'],
         ]);
+
+        App::redirect('/zeugnis/templates/' . $id . '/edit');
     }
 
     /**
@@ -332,7 +327,7 @@ class ZeugnisTemplateController
         $mimeType = $finfo->file($file['tmp_name']);
 
         if (!in_array($mimeType, self::ALLOWED_IMAGE_TYPES, true)) {
-            echo json_encode(['error' => 'Ungültiger Dateityp. Erlaubt: JPG, PNG, GIF, SVG, WebP.']);
+            echo json_encode(['error' => 'Ungültiger Dateityp. Erlaubt: JPG, PNG, GIF, WebP.']);
             return;
         }
 
@@ -345,7 +340,6 @@ class ZeugnisTemplateController
             'image/jpeg'   => 'jpg',
             'image/png'    => 'png',
             'image/gif'    => 'gif',
-            'image/svg+xml' => 'svg',
             'image/webp'   => 'webp',
             default        => 'bin',
         };
@@ -375,14 +369,29 @@ class ZeugnisTemplateController
     }
 
     /**
-     * Serve an uploaded template image.
+     * Serve an uploaded template image with access control.
      */
     public function serveImage(string $imageId): void
     {
+        if (!App::isLoggedIn()) {
+            http_response_code(403);
+            exit;
+        }
+
         $image = ZeugnisImage::findById((int) $imageId);
         if (!$image) {
             http_response_code(404);
             exit;
+        }
+
+        // Zugriffspruefung: Admins immer, andere nur bei veröffentlichten Vorlagen
+        $role = App::currentUserRole();
+        if (!in_array($role, self::ADMIN_ROLES, true)) {
+            $template = ZeugnisTemplate::findById($image['template_id']);
+            if (!$template || $template['status'] !== 'published') {
+                http_response_code(403);
+                exit;
+            }
         }
 
         $filePath = ZeugnisImage::storagePath($image['stored_name']);
@@ -394,6 +403,8 @@ class ZeugnisTemplateController
         header('Content-Type: ' . $image['mime_type']);
         header('Content-Length: ' . filesize($filePath));
         header('Cache-Control: private, max-age=86400');
+        header('X-Content-Type-Options: nosniff');
+        header('Content-Security-Policy: default-src \'none\'');
         readfile($filePath);
         exit;
     }

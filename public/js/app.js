@@ -1,4 +1,4 @@
-// CSRF-Token aus Meta-Tag lesen (fuer AJAX-Anfragen)
+// CSRF-Token aus Meta-Tag lesen (für AJAX-Anfragen)
 function getCsrfToken() {
     var meta = document.querySelector('meta[name="csrf-token"]');
     return meta ? meta.getAttribute('content') : '';
@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function () {
             menu.classList.toggle('active');
         });
 
-        // Menue schliessen bei Klick ausserhalb
+        // Menü schließen bei Klick außerhalb
         document.addEventListener('click', function (e) {
             if (!toggle.contains(e.target) && !menu.contains(e.target) && menu.classList.contains('active')) {
                 menu.classList.remove('active');
@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
 
-        // Menue schliessen bei Escape-Taste
+        // Menü schließen bei Escape-Taste
         document.addEventListener('keydown', function (e) {
             if (e.key === 'Escape' && menu.classList.contains('active')) {
                 menu.classList.remove('active');
@@ -34,13 +34,13 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // === Bestaetigungsdialoge ===
+    // === Bestätigungsdialoge ===
     initConfirmDialogs();
 
     // === Flash-Messages automatisch ausblenden ===
     initFlashMessages();
 
-    // === Ladeanimation fuer Formulare mit Datei-Upload und Exporte ===
+    // === Ladeanimation für Formulare mit Datei-Upload und Exporte ===
     initLoadingSpinner();
 
     // === Clientseitige Tabellensuche ===
@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 /**
- * Bestaetigungsdialoge fuer kritische Aktionen
+ * Bestätigungsdialoge für kritische Aktionen
  */
 function initConfirmDialogs() {
     var modal = document.getElementById('confirmModal');
@@ -162,7 +162,7 @@ function initFlashMessages() {
 }
 
 /**
- * Ladeanimation fuer laengere Vorgaenge
+ * Ladeanimation für längere Vorgänge
  */
 function initLoadingSpinner() {
     var loadingOverlay = document.getElementById('loadingOverlay');
@@ -209,7 +209,7 @@ function initTableSearch() {
                 row.style.display = text.includes(searchTerm) ? '' : 'none';
             });
 
-            // Zaehler aktualisieren
+            // Zähler aktualisieren
             var counter = document.querySelector('[data-search-count="' + tableId + '"]');
             if (counter) {
                 var visible = tbody.querySelectorAll('tr:not([style*="display: none"]):not(:has(td[colspan]))').length;
@@ -235,8 +235,8 @@ function markActiveNavItem() {
 }
 
 /**
- * Chat-Funktionen: Scroll, aeltere Nachrichten laden, Enter-Senden
- * Unterstuetzt sowohl 1:1-Chats (/messages/{id}) als auch Gruppen (/messages/groups/{id}).
+ * Chat-Funktionen: Scroll, ältere Nachrichten laden, Enter-Senden
+ * Unterstützt sowohl 1:1-Chats (/messages/{id}) als auch Gruppen (/messages/groups/{id}).
  */
 function initChat() {
     var chatContainer = document.getElementById('chatContainer');
@@ -295,7 +295,7 @@ function initChat() {
         return bubble;
     }
 
-    // Aeltere Nachrichten laden
+    // Ältere Nachrichten laden
     var loadMoreBtn = document.getElementById('loadMoreBtn');
     if (loadMoreBtn) {
         loadMoreBtn.addEventListener('click', function () {
@@ -325,7 +325,7 @@ function initChat() {
                     }
 
                     loadMoreBtn.dataset.offset = offset + data.messages.length;
-                    loadMoreBtn.textContent = 'Aeltere Nachrichten laden';
+                    loadMoreBtn.textContent = 'Ältere Nachrichten laden';
                     loadMoreBtn.disabled = false;
 
                     if (data.messages.length < 50) {
@@ -340,7 +340,7 @@ function initChat() {
         });
     }
 
-    // Polling: alle 15 Sekunden neue Nachrichten pruefen
+    // Polling: alle 15 Sekunden neue Nachrichten prüfen
     var messageCount = parseInt(chatContainer.dataset.messageCount, 10) || 0;
     setInterval(function () {
         fetch(olderUrl + '?offset=0')
@@ -372,13 +372,13 @@ function initFileManager() {
         });
     }
 
-    // Dateigroesse clientseitig pruefen
+    // Dateigröße clientseitig prüfen
     var fileInput = document.getElementById('fileInput');
     if (fileInput) {
         var maxSize = parseInt(fileInput.dataset.maxSize, 10) || (15 * 1024 * 1024);
         fileInput.addEventListener('change', function () {
             if (fileInput.files.length > 0 && fileInput.files[0].size > maxSize) {
-                alert('Die Datei ist zu gross. Maximale Groesse: 15 MB.');
+                alert('Die Datei ist zu groß. Maximale Größe: 15 MB.');
                 fileInput.value = '';
             }
         });
@@ -389,7 +389,7 @@ function initFileManager() {
  * Listen: Inline-Speicherung, Formular-Toggles, Spaltentyp-Logik
  */
 function initLists() {
-    // Toggle-Buttons fuer Inline-Formulare
+    // Toggle-Buttons für Inline-Formulare
     var togglePairs = [
         ['toggleAddColumn', 'addColumnForm'],
         ['toggleAddRow', 'addRowForm'],
@@ -422,7 +422,7 @@ function initLists() {
         select.addEventListener('change', toggleOptions);
     });
 
-    // Spalte hinzufuegen im Erstellformular
+    // Spalte hinzufügen im Erstellformular
     var addColBtn = document.getElementById('addColumnBtn');
     var colContainer = document.getElementById('columnContainer');
     if (addColBtn && colContainer) {
@@ -443,7 +443,7 @@ function initLists() {
                 '<button type="button" class="btn-icon btn-icon-danger list-remove-col">&times;</button>';
             colContainer.appendChild(row);
 
-            // Event-Listener fuer neuen Type-Select
+            // Event-Listener für neuen Type-Select
             var newSelect = row.querySelector('.list-col-type-select');
             var newOptions = row.querySelector('.list-col-options');
             newSelect.addEventListener('change', function () {

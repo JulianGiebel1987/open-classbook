@@ -17,7 +17,7 @@
         </div>
 
         <div class="form-group">
-            <label for="head_teacher_id">Klassenlehrer</label>
+            <label for="head_teacher_id">Klassenleitung</label>
             <select name="head_teacher_id" id="head_teacher_id" class="form-control">
                 <option value="">- Keiner -</option>
                 <?php foreach ($teachers as $t): ?>

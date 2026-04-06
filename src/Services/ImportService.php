@@ -29,10 +29,10 @@ class ImportService
         while (($data = fgetcsv($handle, 0, $delimiter)) !== false) {
             $lineNum++;
             if ($lineNum === 1) {
-                continue; // Header-Zeile ueberspringen
+                continue; // Header-Zeile überspringen
             }
             if (empty(array_filter($data, fn($v) => trim($v) !== ''))) {
-                continue; // Leere Zeile ueberspringen
+                continue; // Leere Zeile überspringen
             }
             $rows[] = ['lineNum' => $lineNum, 'data' => array_map('trim', $data)];
         }

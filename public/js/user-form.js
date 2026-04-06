@@ -1,5 +1,5 @@
 /**
- * Rollenabhaengige Pflichtfelder im Benutzer-Formular ein-/ausblenden
+ * Rollenabhängige Pflichtfelder im Benutzer-Formular ein-/ausblenden
  */
 (function () {
     var roleSelect = document.getElementById('role');

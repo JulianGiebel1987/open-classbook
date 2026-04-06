@@ -14,7 +14,7 @@ class ImportController
         CsrfMiddleware::generateToken();
         $uploadsDir = __DIR__ . '/../../storage/uploads';
         if (!is_writable($uploadsDir)) {
-            App::setFlash('error', 'Import nicht moeglich: Das Verzeichnis storage/uploads/ ist nicht beschreibbar. Bitte Berechtigungen pruefen (z.B.: chmod 775 storage/uploads/).');
+            App::setFlash('error', 'Import nicht möglich: Das Verzeichnis storage/uploads/ ist nicht beschreibbar. Bitte Berechtigungen prüfen (z.B.: chmod 775 storage/uploads/).');
         }
         View::render('import/index', ['title' => 'Daten importieren']);
     }
@@ -22,7 +22,7 @@ class ImportController
     public function uploadTeachers(): void
     {
         if (empty($_FILES['file']) || $_FILES['file']['error'] !== UPLOAD_ERR_OK) {
-            App::setFlash('error', 'Bitte waehlen Sie eine Datei aus.');
+            App::setFlash('error', 'Bitte wählen Sie eine Datei aus.');
             App::redirect('/import');
             return;
         }
@@ -40,17 +40,17 @@ class ImportController
         // Vorschau anzeigen
         $preview = ImportService::previewTeachers($tmpPath, $ext);
 
-        // Datei temporaer speichern fuer den tatsaechlichen Import
+        // Datei temporaer speichern für den tatsaechlichen Import
         $storedPath = __DIR__ . '/../../storage/uploads/' . bin2hex(random_bytes(16)) . '.' . $ext;
         if (!move_uploaded_file($tmpPath, $storedPath)) {
-            App::setFlash('error', 'Datei konnte nicht gespeichert werden. Bitte Schreibrechte fuer storage/uploads/ pruefen.');
+            App::setFlash('error', 'Datei konnte nicht gespeichert werden. Bitte Schreibrechte für storage/uploads/ prüfen.');
             App::redirect('/import');
             return;
         }
 
         CsrfMiddleware::generateToken();
         View::render('import/preview-teachers', [
-            'title' => 'Import-Vorschau: Lehrkraefte',
+            'title' => 'Import-Vorschau: Lehrkräfte',
             'preview' => $preview,
             'storedFile' => basename($storedPath),
         ]);
@@ -62,7 +62,7 @@ class ImportController
 
         // Nur hex-generierte Dateinamen (32 Hex-Zeichen + .xlsx/.csv) akzeptieren
         if (!preg_match('/^[0-9a-f]{32}\.(xlsx|csv)$/', $storedFile)) {
-            App::setFlash('error', 'Ungueltige Import-Datei. Bitte erneut hochladen.');
+            App::setFlash('error', 'Ungültige Import-Datei. Bitte erneut hochladen.');
             App::redirect('/import');
             return;
         }
@@ -76,11 +76,11 @@ class ImportController
         }
 
         $result = ImportService::importTeachers($storedPath);
-        unlink($storedPath); // Temporaere Datei loeschen
+        unlink($storedPath); // Temporaere Datei löschen
 
-        $msg = "{$result['imported']} Lehrkraft/Lehrkraefte erfolgreich importiert.";
+        $msg = "{$result['imported']} Lehrkraft/Lehrkräfte erfolgreich importiert.";
         if ($result['skipped'] > 0) {
-            $msg .= " {$result['skipped']} Zeile(n) uebersprungen.";
+            $msg .= " {$result['skipped']} Zeile(n) übersprungen.";
         }
 
         App::setFlash('success', $msg);
@@ -90,7 +90,7 @@ class ImportController
     public function uploadStudents(): void
     {
         if (empty($_FILES['file']) || $_FILES['file']['error'] !== UPLOAD_ERR_OK) {
-            App::setFlash('error', 'Bitte waehlen Sie eine Datei aus.');
+            App::setFlash('error', 'Bitte wählen Sie eine Datei aus.');
             App::redirect('/import');
             return;
         }
@@ -115,14 +115,14 @@ class ImportController
 
         $storedPath = __DIR__ . '/../../storage/uploads/' . bin2hex(random_bytes(16)) . '.' . $ext;
         if (!move_uploaded_file($tmpPath, $storedPath)) {
-            App::setFlash('error', 'Datei konnte nicht gespeichert werden. Bitte Schreibrechte fuer storage/uploads/ pruefen.');
+            App::setFlash('error', 'Datei konnte nicht gespeichert werden. Bitte Schreibrechte für storage/uploads/ prüfen.');
             App::redirect('/import');
             return;
         }
 
         CsrfMiddleware::generateToken();
         View::render('import/preview-students', [
-            'title' => 'Import-Vorschau: Schueler',
+            'title' => 'Import-Vorschau: Schüler',
             'preview' => $preview,
             'storedFile' => basename($storedPath),
             'schoolYear' => $schoolYear,
@@ -136,7 +136,7 @@ class ImportController
 
         // Nur hex-generierte Dateinamen (32 Hex-Zeichen + .xlsx/.csv) akzeptieren
         if (!preg_match('/^[0-9a-f]{32}\.(xlsx|csv)$/', $storedFile)) {
-            App::setFlash('error', 'Ungueltige Import-Datei. Bitte erneut hochladen.');
+            App::setFlash('error', 'Ungültige Import-Datei. Bitte erneut hochladen.');
             App::redirect('/import');
             return;
         }
@@ -152,12 +152,12 @@ class ImportController
         $result = ImportService::importStudents($storedPath, $schoolYear);
         unlink($storedPath);
 
-        $msg = "{$result['imported']} Schueler/in(nen) erfolgreich importiert.";
+        $msg = "{$result['imported']} Schüler:innen erfolgreich importiert.";
         if ($result['skipped'] > 0) {
-            $msg .= " {$result['skipped']} Zeile(n) uebersprungen.";
+            $msg .= " {$result['skipped']} Zeile(n) übersprungen.";
         }
 
-        // Zugangsdaten in Session speichern fuer Anzeige
+        // Zugangsdaten in Session speichern für Anzeige
         if (!empty($result['credentials'])) {
             $_SESSION['import_credentials'] = $result['credentials'];
             $msg .= ' Zugangsdaten werden unten angezeigt - bitte notieren!';
@@ -182,7 +182,7 @@ class ImportController
         header('Pragma: no-cache');
 
         View::render('import/student-credentials', [
-            'title' => 'Schueler-Zugangsdaten',
+            'title' => 'Schüler-Zugangsdaten',
             'credentials' => $credentials,
         ]);
     }
@@ -193,16 +193,16 @@ class ImportController
         if ($type === 'lehrer-csv') {
             header('Content-Type: text/csv; charset=UTF-8');
             header('Content-Disposition: attachment; filename="Lehrer-Import.csv"');
-            echo "\xEF\xBB\xBF"; // UTF-8 BOM fuer Excel-Kompatibilitaet
-            echo "Vorname;Nachname;Kuerzel;E-Mail;Faecher;Klassen\n";
+            echo "\xEF\xBB\xBF"; // UTF-8 BOM für Excel-Kompatibilitaet
+            echo "Vorname;Nachname;Kürzel;E-Mail;Faecher;Klassen\n";
             echo "Max;Mustermann;MUS;m.mustermann@schule.de;Mathematik,Physik;5a,6b\n";
             exit;
         }
 
         if ($type === 'schueler-csv') {
             header('Content-Type: text/csv; charset=UTF-8');
-            header('Content-Disposition: attachment; filename="Schueler-Import.csv"');
-            echo "\xEF\xBB\xBF"; // UTF-8 BOM fuer Excel-Kompatibilitaet
+            header('Content-Disposition: attachment; filename="Schüler-Import.csv"');
+            echo "\xEF\xBB\xBF"; // UTF-8 BOM für Excel-Kompatibilitaet
             echo "Vorname;Nachname;Klasse;Geburtsdatum;Erziehungsberechtigten-Email\n";
             echo "Anna;Musterfrau;5a;15.03.2013;musterfrau@example.de\n";
             exit;
@@ -210,7 +210,7 @@ class ImportController
 
         $templates = [
             'lehrer' => 'Lehrer-Import.xlsx',
-            'schueler' => 'Schueler-Import.xlsx',
+            'schueler' => 'Schüler-Import.xlsx',
         ];
 
         if (!isset($templates[$type])) {

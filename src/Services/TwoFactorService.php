@@ -231,7 +231,7 @@ class TwoFactorService
             [$userId, 'email', $lockoutDuration]
         );
 
-        // Wir zaehlen fehlgeschlagene Versuche ueber die login_attempts-Tabelle
+        // Wir zählen fehlgeschlagene Versuche über die login_attempts-Tabelle
         $attempts = Database::queryOne(
             'SELECT COUNT(*) as cnt FROM login_attempts WHERE username = (SELECT username FROM users WHERE id = ?) AND successful = 0 AND attempted_at > DATE_SUB(NOW(), INTERVAL ? SECOND)',
             [$userId, $lockoutDuration]

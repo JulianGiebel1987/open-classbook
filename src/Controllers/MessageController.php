@@ -171,14 +171,14 @@ class MessageController
         $body = trim($_POST['body'] ?? '');
 
         if ($recipientId === 0 || $recipientId === $userId) {
-            App::setFlash('error', 'Bitte waehlen Sie einen gueltigen Empfaenger.');
+            App::setFlash('error', 'Bitte wählen Sie einen gültigen Empfänger.');
             App::redirect('/messages/new');
             return;
         }
 
         $recipient = User::findById($recipientId);
         if (!$recipient || !$recipient['active']) {
-            App::setFlash('error', 'Empfaenger nicht gefunden.');
+            App::setFlash('error', 'Empfänger nicht gefunden.');
             App::redirect('/messages/new');
             return;
         }
@@ -203,7 +203,7 @@ class MessageController
     }
 
     /**
-     * Aeltere 1:1-Nachrichten nachladen (JSON-Antwort)
+     * Ältere 1:1-Nachrichten nachladen (JSON-Antwort)
      */
     public function loadMore(string $id): void
     {
@@ -266,7 +266,7 @@ class MessageController
         }
 
         if (!is_array($memberIds) || count($memberIds) < 1) {
-            App::setFlash('error', 'Bitte mindestens eine weitere Person auswaehlen.');
+            App::setFlash('error', 'Bitte mindestens eine weitere Person auswählen.');
             App::redirect('/messages/groups/new');
             return;
         }
@@ -285,7 +285,7 @@ class MessageController
         }
 
         if (count($validMemberIds) < 1) {
-            App::setFlash('error', 'Keine gueltigen Mitglieder ausgewaehlt.');
+            App::setFlash('error', 'Keine gültigen Mitglieder ausgewählt.');
             App::redirect('/messages/groups/new');
             return;
         }
@@ -374,7 +374,7 @@ class MessageController
     }
 
     /**
-     * Aeltere Gruppen-Nachrichten nachladen (JSON-Antwort)
+     * Ältere Gruppen-Nachrichten nachladen (JSON-Antwort)
      */
     public function loadMoreGroup(string $id): void
     {

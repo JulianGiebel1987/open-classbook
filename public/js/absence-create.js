@@ -1,6 +1,6 @@
 /**
- * Dynamische Schueler-Auswahl im Fehlzeit-Formular
- * Laedt Schueler einer Klasse per Fetch und befuellt das Dropdown.
+ * Dynamische Schüler-Auswahl im Fehlzeit-Formular
+ * Laedt Schüler einer Klasse per Fetch und befuellt das Dropdown.
  */
 (function () {
     var classSelect = document.getElementById('class_id');
@@ -17,7 +17,7 @@
         if (submitBtn) submitBtn.disabled = true;
 
         if (!classId) {
-            studentSelect.innerHTML = '<option value="">- Zuerst Klasse waehlen -</option>';
+            studentSelect.innerHTML = '<option value="">- Zuerst Klasse wählen -</option>';
             return;
         }
 
@@ -30,11 +30,11 @@
         })
         .then(function (students) {
             if (!Array.isArray(students) || students.length === 0) {
-                studentSelect.innerHTML = '<option value="">- Keine Schueler in dieser Klasse -</option>';
+                studentSelect.innerHTML = '<option value="">- Keine Schüler in dieser Klasse -</option>';
                 studentSelect.disabled = false;
                 return;
             }
-            studentSelect.innerHTML = '<option value="">- Schueler/in waehlen -</option>';
+            studentSelect.innerHTML = '<option value="">- Schüler:in wählen -</option>';
             students.forEach(function (s) {
                 var opt = document.createElement('option');
                 opt.value = s.id;
@@ -54,7 +54,7 @@
         loadStudents(this.value);
     });
 
-    // Falls Klasse bereits vorausgewaehlt ist (z.B. nach Seitenreload)
+    // Falls Klasse bereits vorausgewählt ist (z.B. nach Seitenreload)
     if (classSelect.value) {
         loadStudents(classSelect.value);
     }

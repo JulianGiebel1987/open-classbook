@@ -36,7 +36,7 @@
                         <span class="badge badge-warning"><?= $absentCount ?> abwesend</span>
                     <?php endif; ?>
                     <?php if ($planInfo && $planInfo['is_published']): ?>
-                        <span class="badge badge-success">Veroeffentlicht</span>
+                        <span class="badge badge-success">Veröffentlicht</span>
                     <?php endif; ?>
                 </a>
             <?php endforeach; ?>

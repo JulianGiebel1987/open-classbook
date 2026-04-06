@@ -50,7 +50,7 @@ class TwoFactorController
             return;
         }
 
-        // Rate-Limiting pruefen
+        // Rate-Limiting prüfen
         if (TwoFactorService::isLockedOut($userId)) {
             App::setFlash('error', 'Zu viele fehlgeschlagene Versuche. Bitte warten Sie 15 Minuten.');
             App::redirect('/two-factor/verify');
@@ -72,7 +72,7 @@ class TwoFactorController
 
         if (!$verified) {
             TwoFactorService::logFailedAttempt($userId);
-            App::setFlash('error', 'Ungueltiger Code. Bitte versuchen Sie es erneut.');
+            App::setFlash('error', 'Ungültiger Code. Bitte versuchen Sie es erneut.');
             App::redirect('/two-factor/verify');
             return;
         }
@@ -128,14 +128,14 @@ class TwoFactorController
     }
 
     /**
-     * 2FA-Methode waehlen und Einrichtung starten
+     * 2FA-Methode wählen und Einrichtung starten
      */
     public function setup(): void
     {
         $method = $_POST['method'] ?? '';
 
         if (!in_array($method, ['email', 'totp'])) {
-            App::setFlash('error', 'Ungueltige 2FA-Methode.');
+            App::setFlash('error', 'Ungültige 2FA-Methode.');
             App::redirect('/two-factor/setup');
             return;
         }
@@ -144,7 +144,7 @@ class TwoFactorController
 
         if ($method === 'email') {
             if (empty($user['email'])) {
-                App::setFlash('error', 'Sie benoetigen eine hinterlegte E-Mail-Adresse fuer die E-Mail-basierte 2FA.');
+                App::setFlash('error', 'Sie benötigen eine hinterlegte E-Mail-Adresse für die E-Mail-basierte 2FA.');
                 App::redirect('/two-factor/setup');
                 return;
             }
@@ -206,7 +206,7 @@ class TwoFactorController
         }
 
         if (!TwoFactorService::verifyTotpCode($encryptedSecret, $code)) {
-            App::setFlash('error', 'Ungueltiger Code. Bitte versuchen Sie es erneut.');
+            App::setFlash('error', 'Ungültiger Code. Bitte versuchen Sie es erneut.');
 
             // Setup-Daten beibehalten und erneut anzeigen
             CsrfMiddleware::generateToken();
@@ -274,12 +274,12 @@ class TwoFactorController
     {
         $userId = $_SESSION['user_id'];
 
-        // Pruefen ob 2FA fuer die Rolle erzwungen wird
+        // Pruefen ob 2FA für die Rolle erzwungen wird
         $user = User::findById($userId);
         $enforcedRoles = TwoFactorService::getEnforcedRoles();
 
         if (in_array($user['role'], $enforcedRoles)) {
-            App::setFlash('error', 'Die Zwei-Faktor-Authentifizierung ist fuer Ihre Rolle verpflichtend und kann nicht deaktiviert werden.');
+            App::setFlash('error', 'Die Zwei-Faktor-Authentifizierung ist für Ihre Rolle verpflichtend und kann nicht deaktiviert werden.');
             App::redirect('/two-factor/setup');
             return;
         }
@@ -299,7 +299,7 @@ class TwoFactorController
      */
     private static function completeLogin(array $user): void
     {
-        // Temporaere 2FA-Session-Daten loeschen
+        // Temporaere 2FA-Session-Daten löschen
         unset($_SESSION['2fa_pending'], $_SESSION['2fa_user_id'], $_SESSION['2fa_method']);
 
         // Session-ID regenerieren

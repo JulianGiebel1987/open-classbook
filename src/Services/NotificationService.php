@@ -76,7 +76,7 @@ class NotificationService
         $body .= "Ihre neuen Zugangsdaten:\n";
         $body .= "  Benutzername: " . $username . "\n";
         $body .= "  Passwort:     " . $tempPassword . "\n\n";
-        $body .= "Bitte melden Sie sich an und aendern Sie das Passwort sofort beim ersten Login.\n\n";
+        $body .= "Bitte melden Sie sich an und ändern Sie das Passwort sofort beim ersten Login.\n\n";
         $body .= "--\nDiese Nachricht wurde automatisch von Open-Classbook versendet.\n";
         $body .= "Bitte antworten Sie nicht auf diese E-Mail.";
 

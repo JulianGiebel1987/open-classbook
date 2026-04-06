@@ -141,14 +141,17 @@
             <!-- Bild-Upload-Bereich -->
             <div id="image-upload-section" style="display:none;margin-top:var(--spacing-md)">
                 <h3>Bild hochladen</h3>
-                <?php if ($template): ?>
-                <input type="file" id="image-upload-input" accept="image/jpeg,image/png,image/gif,image/svg+xml,image/webp"
+                <p class="text-muted" style="font-size:var(--font-size-xs);margin-bottom:var(--spacing-sm)">
+                    Bild wählen und hochladen. Es wird in das ausgewählte Bild-Element eingefügt.
+                </p>
+                <input type="file" id="image-upload-input" accept="image/jpeg,image/png,image/gif,image/webp"
                        style="margin-bottom:var(--spacing-sm)">
                 <button type="button" id="btn-upload-image" class="btn btn-sm btn-secondary">Hochladen</button>
                 <p id="image-upload-status" style="font-size:var(--font-size-xs);margin-top:4px"></p>
 
                 <?php if (!empty($images)): ?>
                 <p class="palette-section-label" style="margin-top:var(--spacing-sm)">Vorhandene Bilder</p>
+                <p class="text-muted" style="font-size:var(--font-size-xs)">Klicken, um in das ausgewählte Element einzufügen.</p>
                 <div id="image-gallery">
                     <?php foreach ($images as $img): ?>
                     <div class="image-gallery-item" data-image-id="<?= (int) $img['id'] ?>">
@@ -158,11 +161,6 @@
                     </div>
                     <?php endforeach; ?>
                 </div>
-                <?php endif; ?>
-                <?php else: ?>
-                <p class="text-muted" style="font-size:var(--font-size-sm)">
-                    Bitte speichern Sie die Vorlage zuerst, um Bilder hochladen zu können.
-                </p>
                 <?php endif; ?>
             </div>
         </div>

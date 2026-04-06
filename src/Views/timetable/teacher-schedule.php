@@ -9,7 +9,7 @@ $dayNames = [1 => 'Montag', 2 => 'Dienstag', 3 => 'Mittwoch', 4 => 'Donnerstag',
         <a href="/timetable/<?= (int) $setting['id'] ?>/teacher/<?= (int) $teacher['id'] ?>/pdf"
            class="btn btn-secondary">PDF-Export</a>
         <?php endif; ?>
-        <a href="/timetable" class="btn btn-secondary">Zurueck</a>
+        <a href="/timetable" class="btn btn-secondary">Zurück</a>
     </div>
 </div>
 
@@ -22,7 +22,7 @@ $dayNames = [1 => 'Montag', 2 => 'Dienstag', 3 => 'Mittwoch', 4 => 'Donnerstag',
             <?php foreach ($allSettings as $s): ?>
             <option value="<?= (int) $s['id'] ?>" <?= $setting && (int) $s['id'] === (int) $setting['id'] ? 'selected' : '' ?>>
                 <?= htmlspecialchars($s['school_year'], ENT_QUOTES, 'UTF-8') ?>
-                <?= $s['is_published'] ? '(veroeffentlicht)' : '(Entwurf)' ?>
+                <?= $s['is_published'] ? '(veröffentlicht)' : '(Entwurf)' ?>
             </option>
             <?php endforeach; ?>
         </select>
@@ -36,7 +36,7 @@ $dayNames = [1 => 'Montag', 2 => 'Dienstag', 3 => 'Mittwoch', 4 => 'Donnerstag',
     </div>
 <?php elseif (empty($slotGrid)): ?>
     <div class="card">
-        <p class="text-muted">Keine Einheiten fuer diese Lehrkraft eingetragen.</p>
+        <p class="text-muted">Keine Einheiten für diese Lehrkraft eingetragen.</p>
     </div>
 <?php else: ?>
     <div class="card timetable-view-card">

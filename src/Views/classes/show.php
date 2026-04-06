@@ -4,7 +4,7 @@
         <a href="/classbook/<?= $class['id'] ?>" class="btn">Klassenbuch</a>
         <a href="/absences/students?class_id=<?= $class['id'] ?>" class="btn">Schülerfehlzeiten</a>
         <a href="/classes/<?= $class['id'] ?>/edit" class="btn btn-secondary">Bearbeiten</a>
-        <a href="/classes" class="btn btn-secondary">Zurueck</a>
+        <a href="/classes" class="btn btn-secondary">Zurück</a>
     </div>
 </div>
 
@@ -12,10 +12,10 @@
 
 <div class="card">
     <div class="card-header">
-        <h2>Lehrkraefte</h2>
+        <h2>Lehrkräfte</h2>
     </div>
     <?php if (empty($teachers)): ?>
-        <p class="text-muted">Keine Lehrkraefte zugewiesen.</p>
+        <p class="text-muted">Keine Lehrkräfte zugewiesen.</p>
     <?php else: ?>
         <ul class="list-unstyled">
             <?php foreach ($teachers as $t): ?>
@@ -27,13 +27,13 @@
 
 <div class="card mt-1">
     <div class="card-header">
-        <h2>Schueler/innen (<?= count($students) ?>)</h2>
+        <h2>Schüler:innen (<?= count($students) ?>)</h2>
     </div>
     <?php if (empty($students)): ?>
-        <p class="text-muted">Keine Schueler in dieser Klasse.</p>
+        <p class="text-muted">Keine Schüler in dieser Klasse.</p>
     <?php else: ?>
         <div class="table-responsive">
-            <table aria-label="Schuelerliste">
+            <table aria-label="Schülerliste">
                 <thead>
                     <tr>
                         <th scope="col">Nachname</th>
@@ -55,9 +55,9 @@
                                 <form method="post" action="/classes/<?= $class['id'] ?>/transfer" class="form-inline">
                                     <?= \OpenClassbook\View::csrfField() ?>
                                     <input type="hidden" name="student_id" value="<?= $s['id'] ?>">
-                                    <label for="new_class_<?= $s['id'] ?>" class="sr-only">Neue Klasse fuer <?= htmlspecialchars($s['firstname'] . ' ' . $s['lastname'], ENT_QUOTES, 'UTF-8') ?></label>
+                                    <label for="new_class_<?= $s['id'] ?>" class="sr-only">Neue Klasse für <?= htmlspecialchars($s['firstname'] . ' ' . $s['lastname'], ENT_QUOTES, 'UTF-8') ?></label>
                                     <select name="new_class_id" id="new_class_<?= $s['id'] ?>" class="form-control form-control-sm" required>
-                                        <option value="">Klasse waehlen...</option>
+                                        <option value="">Klasse wählen...</option>
                                         <?php foreach ($otherClasses as $c): ?>
                                             <option value="<?= $c['id'] ?>"><?= htmlspecialchars($c['name'] . ' (' . $c['school_year'] . ')', ENT_QUOTES, 'UTF-8') ?></option>
                                         <?php endforeach; ?>
