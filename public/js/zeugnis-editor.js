@@ -376,9 +376,16 @@
         document.querySelectorAll('.zeugnis-element').forEach(function (el) {
             el.classList.remove('zeugnis-element--selected');
         });
-        if (propsPanel) propsPanel.innerHTML = '<p class="text-muted" style="font-size:var(--font-size-sm)">Element auswählen zum Bearbeiten.</p>';
-        document.getElementById('token-list-section') && (document.getElementById('token-list-section').style.display = 'none');
-        document.getElementById('image-upload-section') && (document.getElementById('image-upload-section').style.display = 'none');
+        if (propsPanel) {
+            // Detach persistent sections before wiping innerHTML
+            var ts = document.getElementById('token-list-section');
+            var is = document.getElementById('image-upload-section');
+            if (ts && ts.parentNode) ts.parentNode.removeChild(ts);
+            if (is && is.parentNode) is.parentNode.removeChild(is);
+            propsPanel.innerHTML = '<p class="text-muted" style="font-size:var(--font-size-sm)">Element auswählen zum Bearbeiten.</p>';
+            if (ts) { ts.style.display = 'none'; propsPanel.appendChild(ts); }
+            if (is) { is.style.display = 'none'; propsPanel.appendChild(is); }
+        }
     }
 
     function renderProps() {
@@ -386,11 +393,11 @@
         var el = findElement(state.selectedId);
         if (!el) return;
 
-        // Show/hide token list and image upload
+        // Detach token/image sections before innerHTML wipe so they survive
         var tokenSection = document.getElementById('token-list-section');
         var imageSection = document.getElementById('image-upload-section');
-        if (tokenSection) tokenSection.style.display = (el.type === 'placeholder' || el.type === 'text_static') ? 'block' : 'none';
-        if (imageSection) imageSection.style.display = el.type === 'image' ? 'block' : 'none';
+        if (tokenSection && tokenSection.parentNode) tokenSection.parentNode.removeChild(tokenSection);
+        if (imageSection && imageSection.parentNode) imageSection.parentNode.removeChild(imageSection);
 
         var html = '<h3>Eigenschaften</h3>';
         html += prop('x', 'X (mm)', 'number', el.x) + prop('y', 'Y (mm)', 'number', el.y);
@@ -441,16 +448,14 @@
 
         propsPanel.innerHTML = html;
 
-        // Re-attach token/image sections after innerHTML overwrite
-        var tokenSection2 = document.getElementById('token-list-section');
-        if (tokenSection2) {
-            propsPanel.appendChild(tokenSection2);
-            tokenSection2.style.display = (el.type === 'placeholder' || el.type === 'text_static') ? 'block' : 'none';
+        // Re-attach detached sections using saved references
+        if (tokenSection) {
+            tokenSection.style.display = (el.type === 'placeholder' || el.type === 'text_static') ? 'block' : 'none';
+            propsPanel.appendChild(tokenSection);
         }
-        var imageSection2 = document.getElementById('image-upload-section');
-        if (imageSection2) {
-            propsPanel.appendChild(imageSection2);
-            imageSection2.style.display = el.type === 'image' ? 'block' : 'none';
+        if (imageSection) {
+            imageSection.style.display = el.type === 'image' ? 'block' : 'none';
+            propsPanel.appendChild(imageSection);
         }
 
         // Bind prop change events
@@ -699,7 +704,7 @@
         state.currentPage = idx;
         state.selectedId = null;
         renderCanvas();
-        if (propsPanel) propsPanel.innerHTML = '<p class="text-muted" style="font-size:var(--font-size-sm)">Element auswählen zum Bearbeiten.</p>';
+        deselectAll();
     }
 
     // -------------------------------------------------------------------------
