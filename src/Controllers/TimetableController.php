@@ -24,9 +24,10 @@ class TimetableController
         $this->requireAdminRole();
 
         $settings = TimetableSetting::findAll();
-        // days_of_week JSON dekodieren
+        // days_of_week + breaks JSON dekodieren
         foreach ($settings as &$s) {
             $s['days_of_week'] = json_decode($s['days_of_week'], true) ?: [];
+            $s['breaks'] = json_decode($s['breaks'] ?? 'null', true) ?: [];
         }
         unset($s);
 
@@ -48,6 +49,7 @@ class TimetableController
 
         if ($setting) {
             $setting['days_of_week'] = json_decode($setting['days_of_week'], true) ?: [];
+            $setting['breaks'] = json_decode($setting['breaks'] ?? 'null', true) ?: [];
         }
 
         CsrfMiddleware::generateToken();
@@ -71,6 +73,7 @@ class TimetableController
             'units_per_day' => (int) ($_POST['units_per_day'] ?? 8),
             'day_start_time' => $_POST['day_start_time'] ?? '08:00',
             'days_of_week' => array_map('intval', $_POST['days_of_week'] ?? [1, 2, 3, 4, 5]),
+            'breaks' => $this->parseBreaksInput($_POST),
             'created_by' => $_SESSION['user_id'],
         ];
 
@@ -87,6 +90,21 @@ class TimetableController
         }
         if (empty($data['days_of_week'])) {
             $errors[] = 'Mindestens ein Wochentag muss ausgewaehlt werden.';
+        }
+
+        // Pausen validieren
+        $seenAfterSlots = [];
+        foreach ($data['breaks'] as $brk) {
+            if ($brk['after_slot'] < 1 || $brk['after_slot'] >= $data['units_per_day']) {
+                $errors[] = 'Pause nach Einheit ' . $brk['after_slot'] . ' ist ungueltig (muss zwischen 1 und ' . ($data['units_per_day'] - 1) . ' liegen).';
+            }
+            if ($brk['duration'] < 5 || $brk['duration'] > 90) {
+                $errors[] = 'Pausendauer muss zwischen 5 und 90 Minuten liegen.';
+            }
+            if (in_array($brk['after_slot'], $seenAfterSlots)) {
+                $errors[] = 'Doppelte Pause nach Einheit ' . $brk['after_slot'] . '.';
+            }
+            $seenAfterSlots[] = $brk['after_slot'];
         }
 
         // Duplikat-Pruefung (Schuljahr)
@@ -136,6 +154,7 @@ class TimetableController
             return;
         }
         $setting['days_of_week'] = json_decode($setting['days_of_week'], true) ?: [];
+        $setting['breaks'] = json_decode($setting['breaks'] ?? 'null', true) ?: [];
 
         $classes = SchoolClass::findAll();
 
@@ -160,6 +179,7 @@ class TimetableController
             return;
         }
         $setting['days_of_week'] = json_decode($setting['days_of_week'], true) ?: [];
+        $setting['breaks'] = json_decode($setting['breaks'] ?? 'null', true) ?: [];
 
         $class = SchoolClass::findById((int) $classId);
         if (!$class) {
@@ -408,6 +428,7 @@ class TimetableController
         }
 
         $setting['days_of_week'] = json_decode($setting['days_of_week'], true) ?: [];
+        $setting['breaks'] = json_decode($setting['breaks'] ?? 'null', true) ?: [];
         $slots = TimetableSlot::findBySettingAndTeacher($setting['id'], $teacherId);
 
         // Slots als Grid-Map: [day][slot] => [slots...]
@@ -458,6 +479,7 @@ class TimetableController
 
         if ($setting) {
             $setting['days_of_week'] = json_decode($setting['days_of_week'], true) ?: [];
+            $setting['breaks'] = json_decode($setting['breaks'] ?? 'null', true) ?: [];
             $slots = TimetableSlot::findBySettingAndTeacher($setting['id'], (int) $teacherId);
             foreach ($slots as $slot) {
                 $slotGrid[$slot['day_of_week']][$slot['slot_number']][] = $slot;
@@ -492,6 +514,7 @@ class TimetableController
         }
 
         $setting['days_of_week'] = json_decode($setting['days_of_week'], true) ?: [];
+        $setting['breaks'] = json_decode($setting['breaks'] ?? 'null', true) ?: [];
         $slots = TimetableSlot::findBySettingAndClass((int) $settingId, (int) $classId);
         $timeSlots = $this->calculateTimeSlots($setting);
 
@@ -556,6 +579,7 @@ class TimetableController
         }
 
         $setting['days_of_week'] = json_decode($setting['days_of_week'], true) ?: [];
+        $setting['breaks'] = json_decode($setting['breaks'] ?? 'null', true) ?: [];
         $slots = TimetableSlot::findBySettingAndTeacher((int) $settingId, (int) $teacherId);
         $timeSlots = $this->calculateTimeSlots($setting);
 
@@ -607,6 +631,13 @@ class TimetableController
         $slots = [];
         $startTime = strtotime($setting['day_start_time']);
         $duration = (int) $setting['unit_duration'];
+        $breaks = $setting['breaks'] ?? [];
+
+        // Pausen nach after_slot indexieren
+        $breakMap = [];
+        foreach ($breaks as $b) {
+            $breakMap[(int) $b['after_slot']] = $b;
+        }
 
         for ($i = 1; $i <= $setting['units_per_day']; $i++) {
             $from = date('H:i', $startTime);
@@ -615,11 +646,42 @@ class TimetableController
                 'number' => $i,
                 'from' => $from,
                 'to' => $to,
+                'break_after' => $breakMap[$i] ?? null,
             ];
             $startTime += $duration * 60;
+
+            // Pausendauer addieren falls Pause nach diesem Slot
+            if (isset($breakMap[$i])) {
+                $startTime += (int) $breakMap[$i]['duration'] * 60;
+            }
         }
 
         return $slots;
+    }
+
+    private function parseBreaksInput(array $post): array
+    {
+        $breaks = [];
+        $afterSlots = $post['break_after_slot'] ?? [];
+        $durations = $post['break_duration'] ?? [];
+        $labels = $post['break_label'] ?? [];
+
+        if (!is_array($afterSlots)) {
+            return [];
+        }
+
+        for ($i = 0; $i < count($afterSlots); $i++) {
+            $afterSlot = (int) ($afterSlots[$i] ?? 0);
+            $dur = (int) ($durations[$i] ?? 0);
+            if ($afterSlot > 0 && $dur > 0) {
+                $breaks[] = [
+                    'after_slot' => $afterSlot,
+                    'duration' => $dur,
+                    'label' => trim($labels[$i] ?? 'Pause') ?: 'Pause',
+                ];
+            }
+        }
+        return $breaks;
     }
 
     private static function dayName(int $day): string
@@ -704,6 +766,20 @@ class TimetableController
                 $pdf->MultiCell($dayColWidth, $rowHeight, $cellText, 1, 'C', false, 0);
             }
             $pdf->Ln();
+
+            // Pausen-Zeile
+            if (!empty($time['break_after'])) {
+                $breakY = $pdf->GetY();
+                if ($breakY + 6 > $pdf->getPageHeight() - 15) {
+                    $pdf->AddPage();
+                }
+                $pdf->SetFont('helvetica', 'I', 7);
+                $pdf->SetFillColor(245, 245, 245);
+                $totalWidth = $timeColWidth + ($dayColWidth * $numDays);
+                $breakText = $time['break_after']['label'] . ' (' . (int) $time['break_after']['duration'] . ' Min.)';
+                $pdf->Cell($totalWidth, 6, $breakText, 1, 1, 'C', true);
+                $pdf->SetFont('helvetica', '', 8);
+            }
         }
 
         $filename = str_replace(['/', ' '], '_', $filenameBase) . '_' . date('Y-m-d') . '.pdf';
