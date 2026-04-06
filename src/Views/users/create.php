@@ -48,7 +48,7 @@
             </div>
 
             <div class="form-group">
-                <label for="subjects">Faecher</label>
+                <label for="subjects">Fächer</label>
                 <input type="text" id="subjects" name="subjects" class="form-control" aria-describedby="subjects_help" value="<?= htmlspecialchars($old['subjects'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
                 <span class="form-help" id="subjects_help">Kommagetrennt, z.B. Mathematik, Deutsch</span>
             </div>

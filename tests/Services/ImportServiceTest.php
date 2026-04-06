@@ -38,7 +38,7 @@ class ImportServiceTest extends DatabaseTestCase
         $sheet = $spreadsheet->getActiveSheet();
 
         // Header row
-        $sheet->fromArray(['Vorname', 'Nachname', 'Kuerzel', 'E-Mail', 'Faecher', 'Klassen'], null, 'A1');
+        $sheet->fromArray(['Vorname', 'Nachname', 'Kürzel', 'E-Mail', 'Fächer', 'Klassen'], null, 'A1');
 
         // Data rows
         $rowNum = 2;
@@ -126,7 +126,7 @@ class ImportServiceTest extends DatabaseTestCase
 
         $result = ImportService::previewTeachers($path);
 
-        $this->assertContains('Kuerzel fehlt', $result['rows'][0]['errors']);
+        $this->assertContains('Kürzel fehlt', $result['rows'][0]['errors']);
     }
 
     public function testPreviewTeachersDetectsMissingEmail(): void

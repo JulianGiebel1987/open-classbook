@@ -393,7 +393,7 @@ class ClassbookController
         }
 
         if (mb_strlen($remark) > 2000) {
-            App::setFlash('error', 'Bemerkung darf hoechstens 2000 Zeichen enthalten.');
+            App::setFlash('error', 'Bemerkung darf höchstens 2000 Zeichen enthalten.');
             App::redirect('/classbook/' . $classId . '/remarks/create');
             return;
         }

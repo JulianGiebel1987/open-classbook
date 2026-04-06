@@ -13,7 +13,7 @@
                 <tr>
                     <th scope="col">Name</th>
                     <th scope="col">Benutzername</th>
-                    <th scope="col">Temporaeres Passwort</th>
+                    <th scope="col">Temporäres Passwort</th>
                 </tr>
             </thead>
             <tbody>

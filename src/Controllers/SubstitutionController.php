@@ -311,7 +311,7 @@ class SubstitutionController
     }
 
     /**
-     * AJAX: Verfuegbare Lehrer für einen Slot.
+     * AJAX: Verfügbare Lehrer für einen Slot.
      */
     public function availableTeachers(): void
     {
@@ -464,7 +464,7 @@ class SubstitutionController
             return;
         }
 
-        // Lehrer: Pruefen ob Plan veröffentlicht ist
+        // Lehrer: Prüfen ob Plan veröffentlicht ist
         if ($role === 'lehrer') {
             $plan = SubstitutionPlan::findByDate($setting['id'], $date);
             if (!$plan || !$plan['is_published']) {

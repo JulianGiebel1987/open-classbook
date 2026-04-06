@@ -47,7 +47,7 @@
             </div>
 
             <div class="form-group">
-                <label for="subjects">Faecher</label>
+                <label for="subjects">Fächer</label>
                 <input type="text" id="subjects" name="subjects" class="form-control" value="<?= htmlspecialchars($profile['subjects'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
             </div>
         </div>

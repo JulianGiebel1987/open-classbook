@@ -1,10 +1,10 @@
 <?php
 
 /**
- * Testdaten-Seed-Skript fuer Open-Classbook
+ * Testdaten-Seed-Skript für Open-Classbook
  * Erstellt eine Demo-Schule mit Beispieldaten
  *
- * Ausfuehrung: php database/seed.php
+ * Ausführung: php database/seed.php
  */
 
 require_once __DIR__ . '/../vendor/autoload.php';
@@ -15,8 +15,8 @@ echo "=== Open-Classbook Testdaten-Seed ===\n\n";
 
 $pdo = Database::getConnection();
 
-// Bestehende Daten loeschen (Reihenfolge wegen Fremdschluessel)
-echo "Bestehende Daten werden geloescht...\n";
+// Bestehende Daten löschen (Reihenfolge wegen Fremdschlüssel)
+echo "Bestehende Daten werden gelöscht...\n";
 $pdo->exec('SET FOREIGN_KEY_CHECKS = 0');
 $tables = ['absences_teachers', 'absences_students', 'classbook_entries', 'class_teacher', 'students', 'classes', 'teachers', 'login_attempts', 'audit_log', 'users'];
 foreach ($tables as $table) {
@@ -122,9 +122,9 @@ foreach ($assignments as $a) {
 echo "  " . count($assignments) . " Zuordnungen angelegt.\n";
 
 // ==========================================
-// 5. Schueler anlegen
+// 5. Schüler anlegen
 // ==========================================
-echo "Schueler werden angelegt...\n";
+echo "Schüler werden angelegt...\n";
 
 $studentNames = [
     ['Max', 'Braun'], ['Sophie', 'Klein'], ['Leon', 'Wolf'],
@@ -151,9 +151,9 @@ foreach ($classIds as $className => $classId) {
         $birthday = sprintf('20%02d-%02d-%02d', rand(10, 15), rand(1, 12), rand(1, 28));
         $email = strtolower($n[0]) . '.' . strtolower($n[1]) . '.eltern@example.com';
 
-        // User-Account fuer Schueler anlegen
+        // User-Account für Schüler anlegen
         $username = strtolower(mb_substr($n[0], 0, 1)) . '.' . strtolower($n[1]);
-        $password = 'Schueler2026!';
+        $password = 'Schüler2026!';
         $userStmt->execute([$username, $email, password_hash($password, PASSWORD_BCRYPT), 'schueler']);
         $sUserId = (int) $pdo->lastInsertId();
         $studentUserIds[$username] = $sUserId;
@@ -163,7 +163,7 @@ foreach ($classIds as $className => $classId) {
         $nameIndex++;
     }
 }
-echo "  " . count($studentIds) . " Schueler angelegt (mit User-Accounts).\n";
+echo "  " . count($studentIds) . " Schüler angelegt (mit User-Accounts).\n";
 
 // ==========================================
 // 6. Klassenbucheintraege
@@ -189,14 +189,14 @@ $stmt = $pdo->prepare(
 );
 
 foreach ($classIds as $className => $classId) {
-    // Eintraege fuer die letzten 10 Schultage
+    // Einträge für die letzten 10 Schultage
     for ($day = 1; $day <= 10; $day++) {
         $date = date('Y-m-d', strtotime("-{$day} weekdays"));
         $lessonsPerDay = rand(2, 4);
         for ($lesson = 1; $lesson <= $lessonsPerDay; $lesson++) {
             $teacherAbbr = array_keys($teacherIds)[array_rand(array_keys($teacherIds))];
             $topic = $topics[array_rand($topics)];
-            $notes = (rand(0, 1) === 1) ? 'Hausaufgaben bis naechste Stunde' : null;
+            $notes = (rand(0, 1) === 1) ? 'Hausaufgaben bis nächste Stunde' : null;
             $stmt->execute([$classId, $teacherIds[$teacherAbbr], $date, $lesson, $topic, $notes]);
             $entryCount++;
         }
@@ -205,9 +205,9 @@ foreach ($classIds as $className => $classId) {
 echo "  $entryCount Klassenbucheintraege angelegt.\n";
 
 // ==========================================
-// 7. Schueler-Fehlzeiten
+// 7. Schüler-Fehlzeiten
 // ==========================================
-echo "Schueler-Fehlzeiten werden angelegt...\n";
+echo "Schüler-Fehlzeiten werden angelegt...\n";
 
 $reasons = ['Krank', 'Arzttermin', 'Familiaere Gruende', null];
 $excusedOptions = ['ja', 'nein', 'offen'];
@@ -218,7 +218,7 @@ $stmt = $pdo->prepare(
 );
 
 foreach ($studentIds as $studentId) {
-    // Jeder Schueler hat 0-3 Fehlzeiten
+    // Jeder Schüler hat 0-3 Fehlzeiten
     $numAbsences = rand(0, 3);
     for ($i = 0; $i < $numAbsences; $i++) {
         $daysAgo = rand(1, 30);
@@ -232,7 +232,7 @@ foreach ($studentIds as $studentId) {
         $absCount++;
     }
 }
-echo "  $absCount Schueler-Fehlzeiten angelegt.\n";
+echo "  $absCount Schüler-Fehlzeiten angelegt.\n";
 
 // ==========================================
 // 8. Lehrer-Fehlzeiten
@@ -290,7 +290,7 @@ $convStmt->execute([$uOne, $uTwo, date('Y-m-d H:i:s', strtotime('-1 hour'))]);
 $convId1 = (int) $pdo->lastInsertId();
 
 $conv1Messages = [
-    [$userIds['admin'], 'Hallo Frau Mueller, koennten Sie bitte den Klassenbucheintrag fuer Freitag nachtragen?', '-3 hours', date('Y-m-d H:i:s', strtotime('-2 hours'))],
+    [$userIds['admin'], 'Hallo Frau Mueller, könnten Sie bitte den Klassenbucheintrag für Freitag nachtragen?', '-3 hours', date('Y-m-d H:i:s', strtotime('-2 hours'))],
     [$userIds['m.mueller'], 'Natuerlich, ich kuemmere mich gleich darum.', '-2 hours', date('Y-m-d H:i:s', strtotime('-1 hour'))],
     [$userIds['admin'], 'Vielen Dank!', '-1 hour', null],
 ];
@@ -306,9 +306,9 @@ $convStmt->execute([$uOne, $uTwo, date('Y-m-d H:i:s', strtotime('-30 minutes'))]
 $convId2 = (int) $pdo->lastInsertId();
 
 $conv2Messages = [
-    [$userIds['a.fischer'], 'Gibt es Neuigkeiten zum Elternabend naechste Woche?', '-2 hours', date('Y-m-d H:i:s', strtotime('-1 hour'))],
+    [$userIds['a.fischer'], 'Gibt es Neuigkeiten zum Elternabend nächste Woche?', '-2 hours', date('Y-m-d H:i:s', strtotime('-1 hour'))],
     [$userIds['s.meyer'], 'Ja, der Termin steht: Mittwoch, 18:00 Uhr in der Aula.', '-1 hour', date('Y-m-d H:i:s', strtotime('-45 minutes'))],
-    [$userIds['a.fischer'], 'Perfekt, danke fuer die Info!', '-45 minutes', date('Y-m-d H:i:s', strtotime('-30 minutes'))],
+    [$userIds['a.fischer'], 'Perfekt, danke für die Info!', '-45 minutes', date('Y-m-d H:i:s', strtotime('-30 minutes'))],
     [$userIds['s.meyer'], 'Gerne! Ich schicke noch eine Einladung an alle Eltern.', '-30 minutes', null],
 ];
 foreach ($conv2Messages as $msg) {
@@ -316,7 +316,7 @@ foreach ($conv2Messages as $msg) {
     $msgCount++;
 }
 
-// Konversation 3: Schueler (m.braun) <-> Lehrer Mueller (ungelesene Nachricht)
+// Konversation 3: Schüler (m.braun) <-> Lehrer Mueller (ungelesene Nachricht)
 $firstStudentUserId = $studentUserIds['m.braun'];
 $uOne = min($firstStudentUserId, $userIds['m.mueller']);
 $uTwo = max($firstStudentUserId, $userIds['m.mueller']);
@@ -336,7 +336,7 @@ foreach ($conv3Messages as $msg) {
 echo "  $msgCount Nachrichten in 3 Konversationen angelegt.\n";
 
 // ==========================================
-// 10. Ordnerstruktur fuer Dateiverwaltung
+// 10. Ordnerstruktur für Dateiverwaltung
 // ==========================================
 echo "Ordnerstruktur wird angelegt...\n";
 
@@ -363,7 +363,7 @@ $folderCount++;
 $folderStmt->execute(['Deutsch', $lehrplaeneId, null, 1, $userIds['a.fischer']]);
 $folderCount++;
 
-// Private Ordner fuer Lehrer Mueller
+// Private Ordner für Lehrer Mueller
 $folderStmt->execute(['Klausuren', null, $userIds['m.mueller'], 0, $userIds['m.mueller']]);
 $folderCount++;
 $folderStmt->execute(['Unterrichtsmaterial', null, $userIds['m.mueller'], 0, $userIds['m.mueller']]);
@@ -378,14 +378,14 @@ echo "Listen werden angelegt...\n";
 
 $listCount = 0;
 
-// Liste 1: Globale Anwesenheitsliste fuer 5a
+// Liste 1: Globale Anwesenheitsliste für 5a
 $pdo->prepare('INSERT INTO lists (title, description, owner_id, visibility, class_id) VALUES (?, ?, ?, ?, ?)')->execute([
     'Anwesenheit Klasse 5a', 'Taegliche Anwesenheitsliste', $userIds['m.mueller'], 'global', $classIds['5a']
 ]);
 $anwListId = (int) $pdo->lastInsertId();
 $listCount++;
 
-// Spalten fuer Anwesenheitsliste
+// Spalten für Anwesenheitsliste
 $pdo->prepare('INSERT INTO list_columns (list_id, title, type, options, position) VALUES (?, ?, ?, ?, ?)')->execute([
     $anwListId, 'Anwesend', 'checkbox', null, 0
 ]);
@@ -399,7 +399,7 @@ $pdo->prepare('INSERT INTO list_columns (list_id, title, type, options, position
 ]);
 $anwCol3 = (int) $pdo->lastInsertId();
 
-// Zeilen aus Klasse 5a (Schueler)
+// Zeilen aus Klasse 5a (Schüler)
 $students5a = $pdo->query("SELECT firstname, lastname FROM students WHERE class_id = {$classIds['5a']} ORDER BY lastname, firstname")->fetchAll(\PDO::FETCH_ASSOC);
 $anwRowIds = [];
 $pos = 0;
@@ -420,7 +420,7 @@ if (count($anwRowIds) >= 3) {
     $pdo->prepare('INSERT INTO list_cells (list_id, row_id, column_id, value) VALUES (?, ?, ?, ?)')->execute([$anwListId, $anwRowIds[2], $anwCol2, 'Anwesend']);
 }
 
-// Liste 2: Private Notenliste fuer Lehrer Mueller
+// Liste 2: Private Notenliste für Lehrer Mueller
 $pdo->prepare('INSERT INTO lists (title, description, owner_id, visibility, class_id) VALUES (?, ?, ?, ?, ?)')->execute([
     'Noten Klasse 5a - Mathematik', 'Mathematik-Noten Schuljahr 2025/2026', $userIds['m.mueller'], 'private', $classIds['5a']
 ]);
@@ -465,9 +465,9 @@ echo "  - " . count($users) . " Benutzer\n";
 echo "  - " . count($teachers) . " Lehrer\n";
 echo "  - " . count($classes) . " Klassen\n";
 echo "  - " . count($assignments) . " Lehrer-Klassen-Zuordnungen\n";
-echo "  - " . count($studentIds) . " Schueler\n";
+echo "  - " . count($studentIds) . " Schüler\n";
 echo "  - $entryCount Klassenbucheintraege\n";
-echo "  - $absCount Schueler-Fehlzeiten\n";
+echo "  - $absCount Schüler-Fehlzeiten\n";
 echo "  - $teacherAbsCount Lehrer-Fehlzeiten\n";
 echo "  - $msgCount Nachrichten\n";
 echo "  - $folderCount Ordner (Dateiverwaltung)\n";
@@ -478,5 +478,5 @@ echo "  Schulleitung: k.schmidt / Leitung2026!\n";
 echo "  Sekretariat:  s.meyer / Sekret2026!!\n";
 echo "  Lehrer:       m.mueller / Lehrer2026!a\n";
 echo "  (weitere Lehrer: a.fischer, h.weber, l.becker, t.hoffmann)\n";
-echo "  Schueler:     m.braun / Schueler2026!\n";
-echo "  (weitere Schueler: s.klein, l.wolf, e.schroeder, p.neumann, ...)\n";
+echo "  Schüler:     m.braun / Schüler2026!\n";
+echo "  (weitere Schüler: s.klein, l.wolf, e.schroeder, p.neumann, ...)\n";

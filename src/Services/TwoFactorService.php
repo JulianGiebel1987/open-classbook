@@ -124,7 +124,7 @@ class TwoFactorService
     }
 
     /**
-     * Recovery-Codes hashen fuer DB-Speicherung
+     * Recovery-Codes hashen für DB-Speicherung
      */
     public static function hashRecoveryCodes(array $codes): string
     {
@@ -197,7 +197,7 @@ class TwoFactorService
     }
 
     /**
-     * Pruefen ob 2FA global aktiviert ist
+     * Prüfen ob 2FA global aktiviert ist
      */
     public static function isEnabled(): bool
     {
@@ -205,7 +205,7 @@ class TwoFactorService
     }
 
     /**
-     * Rollen laden fuer die 2FA erzwungen wird
+     * Rollen laden für die 2FA erzwungen wird
      */
     public static function getEnforcedRoles(): array
     {
@@ -219,7 +219,7 @@ class TwoFactorService
     }
 
     /**
-     * Pruefen ob Nutzer wegen zu vieler Fehlversuche gesperrt ist
+     * Prüfen ob Nutzer wegen zu vieler Fehlversuche gesperrt ist
      */
     public static function isLockedOut(int $userId): bool
     {
@@ -268,7 +268,7 @@ class TwoFactorService
     }
 
     /**
-     * Verschluesselungsschluessel laden
+     * Verschlüsselungsschlüssel laden
      */
     private static function getEncryptionKey(): string
     {

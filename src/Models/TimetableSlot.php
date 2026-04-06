@@ -83,8 +83,8 @@ class TimetableSlot
     }
 
     /**
-     * Pruefen ob ein Lehrer im selben Zeitslot bereits in einer anderen Klasse eingeplant ist.
-     * Gibt Konflikt-Info zurueck oder null.
+     * Prüfen ob ein Lehrer im selben Zeitslot bereits in einer anderen Klasse eingeplant ist.
+     * Gibt Konflikt-Info zurück oder null.
      */
     public static function checkTeacherConflict(int $settingId, int $teacherId, int $dayOfWeek, int $slotNumber, ?int $excludeClassId = null): ?array
     {
@@ -118,7 +118,7 @@ class TimetableSlot
     }
 
     /**
-     * Bulk-Abfrage: Einheiten-Zaehler fuer alle Lehrer.
+     * Bulk-Abfrage: Einheiten-Zähler für alle Lehrer.
      */
     public static function getTeacherUnitCounts(int $settingId): array
     {

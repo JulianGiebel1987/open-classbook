@@ -19,7 +19,7 @@
         <h2 style="font-size: var(--font-size-lg); margin-bottom: var(--spacing-md); padding-bottom: var(--spacing-xs); border-bottom: 1px solid var(--color-border);">2. Zweck der Datenverarbeitung</h2>
         <p style="margin-bottom: var(--spacing-md);">Open-Classbook ist eine Schulverwaltungsplattform. Die Verarbeitung personenbezogener Daten erfolgt zur Erfuellung des schulischen Bildungs- und Erziehungsauftrags, insbesondere für:</p>
         <ul style="list-style: none; padding: 0;">
-            <li style="padding: var(--spacing-sm) var(--spacing-md); margin-bottom: var(--spacing-xs); background: var(--color-bg); border-radius: var(--radius);">Verwaltung von Schüler- und Lehrerdaten (Name, Klasse, Faecher)</li>
+            <li style="padding: var(--spacing-sm) var(--spacing-md); margin-bottom: var(--spacing-xs); background: var(--color-bg); border-radius: var(--radius);">Verwaltung von Schüler- und Lehrerdaten (Name, Klasse, Fächer)</li>
             <li style="padding: var(--spacing-sm) var(--spacing-md); margin-bottom: var(--spacing-xs); background: var(--color-bg); border-radius: var(--radius);">Fuehrung des digitalen Klassenbuchs (Unterrichtsinhalte, Anwesenheit)</li>
             <li style="padding: var(--spacing-sm) var(--spacing-md); margin-bottom: var(--spacing-xs); background: var(--color-bg); border-radius: var(--radius);">Erfassung und Verwaltung von Fehlzeiten</li>
             <li style="padding: var(--spacing-sm) var(--spacing-md); margin-bottom: var(--spacing-xs); background: var(--color-bg); border-radius: var(--radius);">Schulinterne Kommunikation (Nachrichtensystem)</li>
@@ -65,7 +65,7 @@
                 <h3 style="font-size: var(--font-size-base); color: var(--color-primary); margin-bottom: var(--spacing-sm);">4.3 Lehrerdaten</h3>
                 <ul style="margin-left: var(--spacing-lg); color: var(--color-text-light);">
                     <li style="margin-bottom: var(--spacing-xs);">Vorname, Nachname, Kürzel</li>
-                    <li style="margin-bottom: var(--spacing-xs);">E-Mail-Adresse, Faecher, Klassenzuordnung</li>
+                    <li style="margin-bottom: var(--spacing-xs);">E-Mail-Adresse, Fächer, Klassenzuordnung</li>
                     <li>Fehlzeiten</li>
                 </ul>
             </div>
@@ -106,7 +106,7 @@
         <p style="margin-bottom: var(--spacing-md);">Zum Schutz Ihrer Daten werden folgende technische und organisatorische Massnahmen eingesetzt:</p>
         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--spacing-sm);">
             <div style="padding: var(--spacing-md); background: var(--color-success-light); border-radius: var(--radius); font-size: var(--font-size-sm);">
-                Verschluesselte Übertragung aller Daten (HTTPS/TLS)
+                Verschlüsselte Übertragung aller Daten (HTTPS/TLS)
             </div>
             <div style="padding: var(--spacing-md); background: var(--color-success-light); border-radius: var(--radius); font-size: var(--font-size-sm);">
                 Passwoerter werden ausschliesslich als bcrypt-Hash gespeichert

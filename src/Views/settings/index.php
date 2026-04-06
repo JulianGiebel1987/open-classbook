@@ -16,7 +16,7 @@
                 <input type="checkbox" name="two_factor_enabled" value="1" <?= ($settings['two_factor_enabled'] ?? '0') === '1' ? 'checked' : '' ?>>
                 2FA global aktivieren
             </label>
-            <span class="form-help">Wenn aktiviert, können Benutzer die Zwei-Faktor-Authentifizierung einrichten. Bei erzwungenen Rollen müssen Benutzer 2FA beim naechsten Login einrichten.</span>
+            <span class="form-help">Wenn aktiviert, können Benutzer die Zwei-Faktor-Authentifizierung einrichten. Bei erzwungenen Rollen müssen Benutzer 2FA beim nächsten Login einrichten.</span>
         </div>
 
         <fieldset class="form-group">
@@ -81,7 +81,7 @@
     <!-- ====================================================== -->
     <div class="card">
         <h2>Modulzugriff für Schulleitung und Sekretariat</h2>
-        <p class="form-help">Hier kann eingestellt werden, ob Schulleitung und Sekretariat auf bestimmte Module zugreifen dürfen. Wenn ein Modul hier deaktiviert wird, ist es für die jeweilige Rolle unsichtbar &mdash; unabhaengig von der globalen Moduleinstellung oben.</p>
+        <p class="form-help">Hier kann eingestellt werden, ob Schulleitung und Sekretariat auf bestimmte Module zugreifen dürfen. Wenn ein Modul hier deaktiviert wird, ist es für die jeweilige Rolle unsichtbar &mdash; unabhängig von der globalen Moduleinstellung oben.</p>
 
         <?php
         $roleModules = [

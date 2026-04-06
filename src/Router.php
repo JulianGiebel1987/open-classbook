@@ -41,7 +41,7 @@ class Router
                 continue;
             }
 
-            // Middleware ausfuehren
+            // Middleware ausführen
             foreach ($route['middleware'] as $middlewareClass) {
                 $middleware = new $middlewareClass();
                 $result = $middleware->handle();

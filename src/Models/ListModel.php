@@ -70,7 +70,7 @@ class ListModel
     }
 
     /**
-     * Lese-Zugriff pruefen.
+     * Lese-Zugriff prüfen.
      */
     public static function hasAccess(int $listId, int $userId): bool
     {
@@ -95,7 +95,7 @@ class ListModel
     }
 
     /**
-     * Schreib-Zugriff pruefen.
+     * Schreib-Zugriff prüfen.
      */
     public static function canEdit(int $listId, int $userId, string $userRole = ''): bool
     {

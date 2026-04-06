@@ -4,9 +4,9 @@
 /**
  * Open-Classbook Installer
  *
- * Interaktives Installations-Skript fuer die Ersteinrichtung.
- * Fuehrt folgende Schritte aus:
- *   1. Systemvoraussetzungen pruefen
+ * Interaktives Installations-Skript für die Ersteinrichtung.
+ * Führt folgende Schritte aus:
+ *   1. Systemvoraussetzungen prüfen
  *   2. Datenbank-Verbindung konfigurieren
  *   3. config/config.php erstellen
  *   4. Datenbank-Tabellen anlegen (Migrationen)
@@ -28,9 +28,9 @@ echo "║       Open-Classbook Installer v1.0          ║\n";
 echo "╚══════════════════════════════════════════════╝\n\n";
 
 // ==========================================
-// 1. Systemvoraussetzungen pruefen
+// 1. Systemvoraussetzungen prüfen
 // ==========================================
-echo "=== Schritt 1: Systemvoraussetzungen pruefen ===\n\n";
+echo "=== Schritt 1: Systemvoraussetzungen prüfen ===\n\n";
 
 $errors = [];
 $warnings = [];
@@ -65,9 +65,9 @@ foreach ($requiredExtensions as $ext => $label) {
 
 // Optionale Extensions
 $optionalExtensions = [
-    'zip' => 'ZIP (fuer Excel-Import)',
+    'zip' => 'ZIP (für Excel-Import)',
     'gd' => 'GD (Bildverarbeitung)',
-    'xml' => 'XML (fuer Excel-Import)',
+    'xml' => 'XML (für Excel-Import)',
 ];
 
 foreach ($optionalExtensions as $ext => $label) {
@@ -79,12 +79,12 @@ foreach ($optionalExtensions as $ext => $label) {
     }
 }
 
-// Composer-Abhaengigkeiten
+// Composer-Abhängigkeiten
 if (file_exists(__DIR__ . '/vendor/autoload.php')) {
-    echo "  [OK] Composer-Abhaengigkeiten installiert\n";
+    echo "  [OK] Composer-Abhängigkeiten installiert\n";
 } else {
-    $errors[] = "Composer-Abhaengigkeiten nicht installiert. Bitte 'composer install' ausfuehren (Composer installieren: apt install composer)";
-    echo "  [FEHLER] vendor/ nicht gefunden - bitte 'composer install' ausfuehren\n";
+    $errors[] = "Composer-Abhängigkeiten nicht installiert. Bitte 'composer install' ausführen (Composer installieren: apt install composer)";
+    echo "  [FEHLER] vendor/ nicht gefunden - bitte 'composer install' ausführen\n";
     echo "           (Composer nicht installiert? -> apt install composer)\n";
 }
 
@@ -131,7 +131,7 @@ if (!empty($errors)) {
         echo "  sudo apt install " . implode(' ', $missingExts) . "\n";
     }
 
-    echo "\nBitte beheben Sie die Fehler und fuehren Sie den Installer erneut aus.\n";
+    echo "\nBitte beheben Sie die Fehler und führen Sie den Installer erneut aus.\n";
     exit(1);
 }
 
@@ -143,7 +143,7 @@ if (!empty($warnings)) {
     echo "\n";
 }
 
-echo "Alle Voraussetzungen erfuellt.\n\n";
+echo "Alle Voraussetzungen erfüllt.\n\n";
 
 // ==========================================
 // 2. Datenbank-Konfiguration
@@ -167,7 +167,7 @@ try {
 } catch (PDOException $e) {
     echo "FEHLER\n";
     echo "  Verbindung fehlgeschlagen: " . $e->getMessage() . "\n";
-    echo "  Bitte pruefen Sie die Zugangsdaten und versuchen Sie es erneut.\n";
+    echo "  Bitte prüfen Sie die Zugangsdaten und versuchen Sie es erneut.\n";
     exit(1);
 }
 
@@ -250,7 +250,7 @@ if (file_exists($configPath)) {
 }
 
 // ==========================================
-// 4. Datenbankmigrationen ausfuehren
+// 4. Datenbankmigrationen ausführen
 // ==========================================
 echo "=== Schritt 4: Datenbank-Tabellen anlegen ===\n\n";
 
@@ -263,7 +263,7 @@ $pdo->exec('
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
 ');
 
-// Bereits ausgefuehrte Migrationen
+// Bereits ausgeführte Migrationen
 $stmt = $pdo->query('SELECT filename FROM migrations');
 $executed = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
@@ -277,7 +277,7 @@ foreach ($files as $file) {
     $filename = basename($file);
 
     if (in_array($filename, $executed)) {
-        echo "  [SKIP] {$filename} (bereits ausgefuehrt)\n";
+        echo "  [SKIP] {$filename} (bereits ausgeführt)\n";
         continue;
     }
 
@@ -297,9 +297,9 @@ foreach ($files as $file) {
 }
 
 if ($migrationCount === 0) {
-    echo "  Alle Migrationen waren bereits ausgefuehrt.\n";
+    echo "  Alle Migrationen waren bereits ausgeführt.\n";
 } else {
-    echo "  {$migrationCount} Migration(en) ausgefuehrt.\n";
+    echo "  {$migrationCount} Migration(en) ausgeführt.\n";
 }
 echo "\n";
 
@@ -308,7 +308,7 @@ echo "\n";
 // ==========================================
 echo "=== Schritt 5: Admin-Account erstellen ===\n\n";
 
-// Pruefen ob bereits ein Admin existiert
+// Prüfen ob bereits ein Admin existiert
 $stmt = $pdo->prepare("SELECT COUNT(*) FROM users WHERE role = 'admin'");
 $stmt->execute();
 $adminExists = (int) $stmt->fetchColumn() > 0;
@@ -396,14 +396,14 @@ foreach ($dirs as $dir => $perms) {
 // Hinweis auf Webserver-Berechtigungen
 $webUser = trim(shell_exec('ps aux | grep -E "apache|nginx|www-data|php" | grep -v grep | awk \'{print $1}\' | head -1') ?? '');
 if ($webUser && $webUser !== 'root') {
-    echo "\n  [HINWEIS] Webserver laeuft als '{$webUser}'.\n";
-    echo "  Damit Datei-Uploads funktionieren, muessen die storage/-\n";
-    echo "  Verzeichnisse fuer diesen Benutzer beschreibbar sein:\n";
+    echo "\n  [HINWEIS] Webserver läuft als '{$webUser}'.\n";
+    echo "  Damit Datei-Uploads funktionieren, müssen die storage/-\n";
+    echo "  Verzeichnisse für diesen Benutzer beschreibbar sein:\n";
     echo "    chown -R {$webUser}:{$webUser} " . __DIR__ . "/storage/\n";
     echo "  (oder mindestens: chmod -R 777 " . __DIR__ . "/storage/)\n\n";
 }
 
-// .htaccess in storage/ fuer Sicherheit
+// .htaccess in storage/ für Sicherheit
 $htaccess = __DIR__ . '/storage/.htaccess';
 if (!file_exists($htaccess)) {
     file_put_contents($htaccess, "Deny from all\n");

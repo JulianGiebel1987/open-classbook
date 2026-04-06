@@ -25,7 +25,7 @@
                     <th scope="col">Nachname</th>
                     <th scope="col">Kürzel</th>
                     <th scope="col">E-Mail</th>
-                    <th scope="col">Faecher</th>
+                    <th scope="col">Fächer</th>
                     <th scope="col">Status</th>
                 </tr>
             </thead>

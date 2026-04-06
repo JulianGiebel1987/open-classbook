@@ -10,7 +10,7 @@
     </div>
 
     <details style="margin-bottom: var(--spacing-lg);">
-        <summary style="cursor: pointer;">Manueller Schluessel (falls QR-Code nicht funktioniert)</summary>
+        <summary style="cursor: pointer;">Manueller Schlüssel (falls QR-Code nicht funktioniert)</summary>
         <div style="margin-top: var(--spacing-sm);">
             <code style="font-size: var(--font-size-lg); letter-spacing: 2px; word-break: break-all;"><?= htmlspecialchars($manual_key, ENT_QUOTES, 'UTF-8') ?></code>
         </div>

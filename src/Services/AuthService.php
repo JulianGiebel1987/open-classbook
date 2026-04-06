@@ -10,11 +10,11 @@ use OpenClassbook\Models\Setting;
 class AuthService
 {
     /**
-     * Login-Versuch pruefen und ausfuehren
+     * Login-Versuch prüfen und ausführen
      */
     public static function attempt(string $username, string $password): array
     {
-        // Brute-Force-Schutz pruefen
+        // Brute-Force-Schutz prüfen
         if (self::isLockedOut($username)) {
             return ['success' => false, 'message' => 'Zu viele fehlgeschlagene Versuche. Bitte warten Sie 15 Minuten.'];
         }
@@ -23,7 +23,7 @@ class AuthService
 
         if (!$user || !password_verify($password, $user['password_hash'])) {
             self::logAttempt($username, false);
-            return ['success' => false, 'message' => 'Benutzername oder Passwort ungueltig.'];
+            return ['success' => false, 'message' => 'Benutzername oder Passwort ungültig.'];
         }
 
         if (!$user['active']) {
@@ -56,7 +56,7 @@ class AuthService
             ];
         }
 
-        // 2FA erzwungen fuer diese Rolle?
+        // 2FA erzwungen für diese Rolle?
         if ($twoFactorEnabled) {
             $enforcedRoles = TwoFactorService::getEnforcedRoles();
             if (in_array($user['role'], $enforcedRoles) && !$userHas2fa) {
@@ -112,7 +112,7 @@ class AuthService
     }
 
     /**
-     * Passwort-Komplexitaet pruefen
+     * Passwort-Komplexität prüfen
      */
     public static function validatePassword(string $password): array
     {
@@ -139,7 +139,7 @@ class AuthService
     }
 
     /**
-     * Pruefen ob ein Benutzer gesperrt ist
+     * Prüfen ob ein Benutzer gesperrt ist
      */
     private static function isLockedOut(string $username): bool
     {

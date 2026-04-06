@@ -29,7 +29,7 @@
         </div>
 
         <div class="form-group">
-            <label for="class_id">Klasse (optional — Schüler als Zeilen vorbefuellen)</label>
+            <label for="class_id">Klasse (optional — Schüler als Zeilen vorbefüllen)</label>
             <select name="class_id" id="class_id" class="form-control">
                 <option value="">— Leere Liste —</option>
                 <?php foreach ($classes as $c): ?>
