@@ -7,7 +7,7 @@ Open-Classbook ist eine Open-Source-Loesung fuer digitale Klassenbuchfuehrung, F
 ## Features
 
 - **Digitales Klassenbuch** - Tageseintraege mit Thema, Stunde und Notizen; Filter nach Datum und Lehrer; CSV- und PDF-Export
-- **Fehlzeiten-Management** - Schueler- und Lehrer-Fehlzeiten erfassen, entschuldigt/unentschuldigt/offen verwalten
+- **Fehlzeiten-Management** - Schueler:innen-Fehlzeiten und Lehrkraft-Abwesenheiten erfassen, entschuldigt/unentschuldigt/offen verwalten
 - **Stundenplanung** - Wochenstundenplan je Klasse und Lehrkraft erstellen; Zeitslots konfigurieren; Konfliktpruefung bei Doppelbelegung; Plan fuer Lehrkraefte veroffentlichen
 - **Vertretungsplan** - Vertretungen bei Lehrerausfall erfassen und veroffentlichen; automatische Konfliktpruefung; Vertretungsplan als PDF exportieren; Lehrkraefte sehen ihre eigenen Vertretungen
 - **Zeugniserstellung** - WYSIWYG-Canvas-Editor fuer Zeugnisvorlagen (A4/A3, Hoch-/Querformat, Raster-Overlay, beliebig viele Seiten); 10 Elementtypen: statischer Text, Freitextfeld, Platzhalter (z.B. `{{student_name}}`), Bild/Logo, Notenfeld, Checkbox, Datumsfeld, Unterschriftsfeld, Trennlinie, Tabelle; Schriftart/Groesse/Farbe pro Element; Vorlagen veroffentlichen fuer Lehrkraefte; Lehrkraefte koennen Zeugnisse fuer einzelne Schueler oder ganze Klassen erstellen, ausfuellen, miteinander teilen und als PDF exportieren (Einzel oder ZIP-Batch)
@@ -195,7 +195,7 @@ Diese Fristen müssen vom Schulträger gemäß geltendem Schulrecht umgesetzt we
 | Datenkategorie | Empfohlene Aufbewahrung | Grundlage |
 |---|---|---|
 | Klassenbucheinträge | 2 Jahre nach Schuljahresende | Landesschulrecht |
-| Schüler-Fehlzeiten | 3 Jahre nach Schuljahresende | Landesschulrecht |
+| Schüler:innen-Fehlzeiten | 3 Jahre nach Schuljahresende | Landesschulrecht |
 | Lehrerdaten (nach Ausscheiden) | Auf Archivminimum reduzieren | Art. 5 Abs. 1 lit. e DSGVO |
 | Nachrichten | 2 Jahre | Art. 5 Abs. 1 lit. e DSGVO |
 

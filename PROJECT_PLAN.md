@@ -19,8 +19,8 @@
 - [x] Migration `004_create_classes.sql` - Klassen
 - [x] Migration `005_create_class_teacher.sql` - Lehrer-Klassen-Zuordnung (n:m)
 - [x] Migration `006_create_classbook_entries.sql` - Klassenbucheintraege
-- [x] Migration `007_create_absences_students.sql` - Schueler-Fehlzeiten
-- [x] Migration `008_create_absences_teachers.sql` - Lehrer-Fehlzeiten
+- [x] Migration `007_create_absences_students.sql` - Schueler:innen-Fehlzeiten
+- [x] Migration `008_create_absences_teachers.sql` - Lehrkraft-Abwesenheiten
 - [x] Migration `009_create_login_attempts.sql` - Login-Versuche fuer Brute-Force-Schutz
 - [x] Datenbank-Verbindungsklasse erstellen (`src/Database.php` - PDO Singleton)
 
@@ -89,7 +89,7 @@
 
 ### 2.6 Fehlzeiten-Management Lehrer
 - [x] Lehrer-Selbstmeldung: Krank/Fortbildung/Sonstiges, Datum von/bis, Notiz
-- [x] Admin/Sekretariat kann Lehrer-Fehlzeiten eintragen
+- [x] Admin/Sekretariat kann Lehrkraft-Abwesenheiten eintragen
 - [x] Fehlzeiten bearbeiten und loeschen
 - [x] Fehlzeiten-Uebersicht aller Lehrer
 - [x] E-Mail-Benachrichtigung an Schulleitung/Sekretariat bei Krankmeldung (konfigurierbar)

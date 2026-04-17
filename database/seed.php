@@ -205,9 +205,9 @@ foreach ($classIds as $className => $classId) {
 echo "  $entryCount Klassenbucheintraege angelegt.\n";
 
 // ==========================================
-// 7. Schüler-Fehlzeiten
+// 7. Schüler:innen-Fehlzeiten
 // ==========================================
-echo "Schüler-Fehlzeiten werden angelegt...\n";
+echo "Schüler:innen-Fehlzeiten werden angelegt...\n";
 
 $reasons = ['Krank', 'Arzttermin', 'Familiaere Gruende', null];
 $excusedOptions = ['ja', 'nein', 'offen'];
@@ -232,12 +232,12 @@ foreach ($studentIds as $studentId) {
         $absCount++;
     }
 }
-echo "  $absCount Schüler-Fehlzeiten angelegt.\n";
+echo "  $absCount Schüler:innen-Fehlzeiten angelegt.\n";
 
 // ==========================================
-// 8. Lehrer-Fehlzeiten
+// 8. Lehrkraft-Abwesenheiten
 // ==========================================
-echo "Lehrer-Fehlzeiten werden angelegt...\n";
+echo "Lehrkraft-Abwesenheiten werden angelegt...\n";
 
 $types = ['krank', 'fortbildung', 'sonstiges'];
 
@@ -267,7 +267,7 @@ foreach ($absentTeachers as $abbr) {
         $teacherAbsCount++;
     }
 }
-echo "  $teacherAbsCount Lehrer-Fehlzeiten angelegt.\n";
+echo "  $teacherAbsCount Lehrkraft-Abwesenheiten angelegt.\n";
 
 // ==========================================
 // 9. Nachrichten / Konversationen
@@ -467,8 +467,8 @@ echo "  - " . count($classes) . " Klassen\n";
 echo "  - " . count($assignments) . " Lehrer-Klassen-Zuordnungen\n";
 echo "  - " . count($studentIds) . " Schüler\n";
 echo "  - $entryCount Klassenbucheintraege\n";
-echo "  - $absCount Schüler-Fehlzeiten\n";
-echo "  - $teacherAbsCount Lehrer-Fehlzeiten\n";
+echo "  - $absCount Schüler:innen-Fehlzeiten\n";
+echo "  - $teacherAbsCount Lehrkraft-Abwesenheiten\n";
 echo "  - $msgCount Nachrichten\n";
 echo "  - $folderCount Ordner (Dateiverwaltung)\n";
 echo "  - $listCount Listen\n";

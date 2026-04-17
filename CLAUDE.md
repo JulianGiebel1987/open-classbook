@@ -69,8 +69,8 @@ open-classbook/
 - `classes` - Klassendefinitionen pro Schuljahr
 - `class_teacher` - Lehrer-Klassen-Zuordnung (n:m)
 - `classbook_entries` - Taegliche Klassenbucheintraege
-- `absences_students` - Schueler-Fehlzeiten
-- `absences_teachers` - Lehrer-Fehlzeiten
+- `absences_students` - Schueler:innen-Fehlzeiten
+- `absences_teachers` - Lehrkraft-Abwesenheiten
 
 ## Sicherheitsanforderungen
 

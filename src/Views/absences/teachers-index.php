@@ -1,5 +1,5 @@
 <div class="page-header">
-    <h1>Lehrer-Abwesenheiten</h1>
+    <h1>Lehrkraft-Abwesenheiten</h1>
     <a href="/absences/teachers/create" class="btn">Abwesenheit eintragen</a>
 </div>
 
@@ -31,7 +31,7 @@
 
 <div class="card mt-1">
     <div class="table-responsive">
-        <table aria-label="Lehrer-Abwesenheiten">
+        <table aria-label="Lehrkraft-Abwesenheiten">
             <thead>
                 <tr>
                     <th scope="col">Lehrkraft</th>

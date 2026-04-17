@@ -121,7 +121,7 @@ Schulverwaltungsplattform fuer Foerder-, Grund- und Hauptschulen.
 ### Vertretungsmodul
 
 - Vertretungsplanung bei Lehrerausfall
-- Verknuepfung mit Lehrer-Fehlzeiten
+- Verknuepfung mit Lehrkraft-Abwesenheiten
 - Uebersicht fuer Schulleitung und Sekretariat
 
 ### Datenschutz (DSGVO)

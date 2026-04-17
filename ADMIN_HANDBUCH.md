@@ -161,7 +161,7 @@ In der Klassendetailansicht sehen Sie:
 
 ## 5. Fehlzeiten-Management
 
-### 5.1 Schueler-Fehlzeiten
+### 5.1 Schueler:innen-Fehlzeiten
 
 *Zugriff: Lehrer (eigene Klassen), Sekretariat, Admin*
 
@@ -184,7 +184,7 @@ In der Klassendetailansicht sehen Sie:
 - Ueber die Aktions-Buttons in der Uebersicht
 - Loeschen erfordert Bestaetigung
 
-### 5.2 Lehrer-Fehlzeiten
+### 5.2 Lehrkraft-Abwesenheiten
 
 *Zugriff: Admin, Sekretariat, Lehrer (eigene Abwesenheit)*
 
@@ -249,8 +249,8 @@ Laden Sie die passende Vorlage herunter:
 
 Zeigt Widgets fuer:
 - Anzahl Lehrer / Schueler / Klassen
-- Heutige Lehrer-Abwesenheiten
-- Heutige Schueler-Fehlzeiten nach Klasse
+- Heutige Lehrkraft-Abwesenheiten
+- Heutige Schueler:innen-Fehlzeiten nach Klasse
 - Offene unentschuldigte Fehlzeiten
 - Schnellzugriff auf haeufig genutzte Funktionen
 

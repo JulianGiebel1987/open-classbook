@@ -1,5 +1,5 @@
 <div class="page-header">
-    <h1>Schüler-Fehlzeit eintragen</h1>
+    <h1>Schüler:innen-Fehlzeit eintragen</h1>
 </div>
 
 <div class="card">

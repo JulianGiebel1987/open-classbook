@@ -1,5 +1,5 @@
 <div class="page-header">
-    <h1>Schüler-Fehlzeiten</h1>
+    <h1>Schüler:innen-Fehlzeiten</h1>
     <a href="/absences/students/create" class="btn">Fehlzeit eintragen</a>
 </div>
 
@@ -42,7 +42,7 @@
 
 <div class="card mt-1">
     <div class="table-responsive">
-        <table aria-label="Schüler-Fehlzeiten">
+        <table aria-label="Schüler:innen-Fehlzeiten">
             <thead>
                 <tr>
                     <th scope="col">Schüler:in</th>

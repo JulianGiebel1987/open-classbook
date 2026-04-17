@@ -110,7 +110,7 @@
 
 ## 7. Fehlzeiten-Management Lehrer
 
-- [ ] Uebersicht aller Lehrer-Fehlzeiten
+- [ ] Uebersicht aller Lehrkraft-Abwesenheiten
 - [ ] Admin kann Fehlzeiten eintragen
 - [ ] Lehrer kann eigene Abwesenheit melden (Selbstmeldung)
 - [ ] Filter nach Typ (krank/fortbildung/sonstiges)

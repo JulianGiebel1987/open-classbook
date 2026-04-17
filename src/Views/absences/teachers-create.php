@@ -1,5 +1,5 @@
 <div class="page-header">
-    <h1>Lehrer-Abwesenheit eintragen</h1>
+    <h1>Lehrkraft-Abwesenheit eintragen</h1>
 </div>
 
 <div class="card">

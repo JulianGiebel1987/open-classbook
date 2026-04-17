@@ -92,7 +92,7 @@ $router->get('/classbook/{classId}/remarks/create', [ClassbookController::class,
 $router->post('/classbook/{classId}/remarks', [ClassbookController::class, 'remarkCreate'], [AuthMiddleware::class, CsrfMiddleware::class]);
 $router->post('/classbook/{classId}/remarks/{id}/delete', [ClassbookController::class, 'remarkDelete'], [AuthMiddleware::class, CsrfMiddleware::class]);
 
-// === Schüler-Fehlzeiten ===
+// === Schüler:innen-Fehlzeiten ===
 $router->get('/absences/students', [AbsenceStudentController::class, 'index'], [AuthMiddleware::class]);
 $router->get('/absences/students/self', [AbsenceStudentController::class, 'selfReportForm'], [AuthMiddleware::class]);
 $router->post('/absences/students/self', [AbsenceStudentController::class, 'selfReport'], [AuthMiddleware::class, CsrfMiddleware::class]);
@@ -104,7 +104,7 @@ $router->get('/absences/students/{id}/edit', [AbsenceStudentController::class, '
 $router->post('/absences/students/{id}', [AbsenceStudentController::class, 'update'], [AuthMiddleware::class, CsrfMiddleware::class]);
 $router->post('/absences/students/{id}/delete', [AbsenceStudentController::class, 'delete'], [AuthMiddleware::class, CsrfMiddleware::class]);
 
-// === Lehrer-Fehlzeiten ===
+// === Lehrkraft-Abwesenheiten ===
 $router->get('/absences/teachers', [AbsenceTeacherController::class, 'index'], [AuthMiddleware::class]);
 $router->get('/absences/teachers/self', [AbsenceTeacherController::class, 'selfReportForm'], [AuthMiddleware::class]);
 $router->post('/absences/teachers/self', [AbsenceTeacherController::class, 'selfReport'], [AuthMiddleware::class, CsrfMiddleware::class]);
