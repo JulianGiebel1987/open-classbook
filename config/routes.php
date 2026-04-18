@@ -62,6 +62,7 @@ $router->get('/users/{id}/edit', [UserController::class, 'editForm'], [AuthMiddl
 $router->post('/users/{id}', [UserController::class, 'update'], [AuthMiddleware::class, CsrfMiddleware::class]);
 $router->post('/users/{id}/toggle', [UserController::class, 'toggleActive'], [AuthMiddleware::class, CsrfMiddleware::class]);
 $router->post('/users/{id}/reset-password', [UserController::class, 'resetPassword'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/users/{id}/email-password', [UserController::class, 'emailNewPassword'], [AuthMiddleware::class, CsrfMiddleware::class]);
 $router->post('/users/{id}/send-temp-password', [UserController::class, 'sendTempPassword'], [AuthMiddleware::class, CsrfMiddleware::class]);
 $router->post('/users/{id}/delete', [UserController::class, 'delete'], [AuthMiddleware::class, CsrfMiddleware::class]);
 $router->post('/users/{id}/reset-2fa', [UserController::class, 'resetTwoFactor'], [AuthMiddleware::class, CsrfMiddleware::class]);

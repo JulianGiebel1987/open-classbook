@@ -80,6 +80,9 @@
 - [ ] Benutzer bearbeiten
 - [ ] Benutzer deaktivieren/aktivieren
 - [ ] Passwort-Reset durch Admin
+- [ ] Button "PW per E-Mail" generiert neues Zufallspasswort und versendet es an die hinterlegte E-Mail (Benutzer muss es beim naechsten Login aendern)
+- [ ] Button "PW per E-Mail" nicht sichtbar, wenn User keine E-Mail hat
+- [ ] Button "PW per E-Mail" zeigt Fehler, wenn `mail.enabled = false` in Config
 - [ ] Sich selbst kann man nicht deaktivieren
 - [ ] E-Mail-Pflichtfeld fuer Lehrer-Rolle
 
