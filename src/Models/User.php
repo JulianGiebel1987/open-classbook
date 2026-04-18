@@ -157,6 +157,28 @@ class User
         );
     }
 
+    public static function getSessionVersion(int $id): ?int
+    {
+        $row = Database::queryOne(
+            'SELECT session_version FROM users WHERE id = ?',
+            [$id]
+        );
+
+        if ($row === null) {
+            return null;
+        }
+
+        return (int) $row['session_version'];
+    }
+
+    public static function incrementSessionVersion(int $id): void
+    {
+        Database::execute(
+            'UPDATE users SET session_version = session_version + 1 WHERE id = ?',
+            [$id]
+        );
+    }
+
     /**
      * 2FA-Daten eines Nutzers laden
      */

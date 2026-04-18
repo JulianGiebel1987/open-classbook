@@ -3,6 +3,7 @@
 namespace OpenClassbook\Middleware;
 
 use OpenClassbook\App;
+use OpenClassbook\Models\User;
 
 class AuthMiddleware
 {
@@ -30,6 +31,19 @@ class AuthMiddleware
                 App::redirect('/two-factor/verify');
                 return false;
             }
+            App::redirect('/login');
+            return false;
+        }
+
+        // Session-Version gegen DB abgleichen (Invalidierung nach Passwort-Reset)
+        $dbVersion = User::getSessionVersion((int) $_SESSION['user_id']);
+        $sessionVersion = $_SESSION['session_version'] ?? null;
+
+        if ($dbVersion === null || $sessionVersion === null || $dbVersion !== (int) $sessionVersion) {
+            session_unset();
+            session_destroy();
+            session_start();
+            App::setFlash('warning', 'Ihre Sitzung wurde invalidiert. Bitte melden Sie sich erneut an.');
             App::redirect('/login');
             return false;
         }

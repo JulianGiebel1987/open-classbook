@@ -29,6 +29,8 @@ App::setConfig([
         'lockout_duration' => 900,
         'password_min_length' => 10,
         'password_reset_token_lifetime' => 3600,
+        'password_reset_rate_limit' => 3,
+        'password_reset_rate_window' => 3600,
     ],
     'mail' => [
         'enabled' => false,

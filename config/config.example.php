@@ -36,6 +36,9 @@ return [
         'lockout_duration' => 900,      // 15 Minuten in Sekunden
         'password_min_length' => 10,
         'password_reset_token_lifetime' => 3600, // 1 Stunde
+        // Route-spezifischer Rate-Limit fuer /forgot-password (Brute-Force-Schutz)
+        'password_reset_rate_limit'  => 3,    // max. Anfragen pro IP
+        'password_reset_rate_window' => 3600, // pro Zeitfenster in Sekunden (1 Stunde)
         // 2FA: 32-Byte Hex-Key für Verschlüsselung der TOTP-Secrets
         // Generieren mit: php -r "echo bin2hex(random_bytes(32));"
         'two_factor_encryption_key' => '',

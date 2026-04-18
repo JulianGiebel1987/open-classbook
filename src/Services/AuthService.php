@@ -70,6 +70,7 @@ class AuthService
                     'email' => $user['email'],
                     'role' => $user['role'],
                 ];
+                $_SESSION['session_version'] = (int) ($user['session_version'] ?? 0);
                 $_SESSION['last_activity'] = time();
 
                 return [
@@ -94,6 +95,7 @@ class AuthService
             'email' => $user['email'],
             'role' => $user['role'],
         ];
+        $_SESSION['session_version'] = (int) ($user['session_version'] ?? 0);
         $_SESSION['last_activity'] = time();
 
         return [

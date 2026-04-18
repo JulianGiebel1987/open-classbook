@@ -155,6 +155,23 @@ class AuthServiceTest extends DatabaseTestCase
         $this->assertEquals('sessiontest', $_SESSION['user']['username']);
         $this->assertEquals('admin', $_SESSION['user']['role']);
         $this->assertArrayHasKey('last_activity', $_SESSION);
+        $this->assertArrayHasKey('session_version', $_SESSION);
+        $this->assertSame(0, $_SESSION['session_version']);
+    }
+
+    public function testAttemptStoresCurrentSessionVersion(): void
+    {
+        $userId = $this->createTestUser([
+            'username' => 'versioned',
+            'password_hash' => password_hash('TestPasswort1', PASSWORD_BCRYPT),
+        ]);
+
+        User::incrementSessionVersion($userId);
+        User::incrementSessionVersion($userId);
+
+        AuthService::attempt('versioned', 'TestPasswort1');
+
+        $this->assertSame(2, $_SESSION['session_version']);
     }
 
     // --- lockout tests ---

@@ -298,7 +298,23 @@ Taegliche Backups werden dringend empfohlen:
 
 Siehe [UPDATE.md](UPDATE.md) fuer die Update-Anleitung.
 
-### 8.5 Schuljahreswechsel
+### 8.5 Cleanup-Cronjob
+
+Abgelaufene Passwort-Reset-Token und alte Rate-Limit-Eintraege sollten regelmaessig entfernt werden. Dafuer liegt das Skript `database/cleanup.php` bei.
+
+Empfohlene Crontab-Zeile (stuendliche Ausfuehrung):
+
+```
+0 * * * * php /pfad/zu/open-classbook/database/cleanup.php >/dev/null 2>&1
+```
+
+Was das Skript tut:
+- Setzt `password_reset_token` und `password_reset_expires` aller User zurueck, deren Token abgelaufen ist
+- Loescht Rate-Limit-Eintraege, die aelter als 24 Stunden sind
+
+Das Skript ist idempotent und kann jederzeit manuell ausgefuehrt werden.
+
+### 8.6 Schuljahreswechsel
 
 Am Anfang eines neuen Schuljahres:
 1. Neue Klassen fuer das neue Schuljahr anlegen
