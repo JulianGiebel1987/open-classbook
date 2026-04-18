@@ -145,11 +145,12 @@ class AuthService
     {
         $maxAttempts = App::config('security.max_login_attempts') ?? 5;
         $lockoutDuration = App::config('security.lockout_duration') ?? 900;
+        $cutoff = date('Y-m-d H:i:s', time() - (int) $lockoutDuration);
 
         $result = Database::queryOne(
             'SELECT COUNT(*) as cnt FROM login_attempts
-             WHERE username = ? AND successful = 0 AND attempted_at > DATE_SUB(NOW(), INTERVAL ? SECOND)',
-            [$username, $lockoutDuration]
+             WHERE username = ? AND successful = 0 AND attempted_at > ?',
+            [$username, $cutoff]
         );
 
         return ($result['cnt'] ?? 0) >= $maxAttempts;
