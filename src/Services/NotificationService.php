@@ -117,6 +117,30 @@ class NotificationService
     }
 
     /**
+     * Link zum Zurücksetzen des Passworts per E-Mail senden
+     */
+    public static function sendPasswordResetMail(string $to, string $username, string $resetUrl): bool
+    {
+        if (!App::config('mail.enabled')) {
+            Logger::warning('Mail deaktiviert - Passwort-Reset-Link nicht per E-Mail versendet', ['to' => $to]);
+            return false;
+        }
+
+        $subject = 'Passwort zurücksetzen – Open-Classbook';
+
+        $body  = "Sehr geehrte/r " . $username . ",\n\n";
+        $body .= "Sie haben die Zurücksetzung Ihres Passworts für Open-Classbook angefordert.\n\n";
+        $body .= "Öffnen Sie den folgenden Link innerhalb von 60 Minuten, um ein neues Passwort festzulegen:\n\n";
+        $body .= "    " . $resetUrl . "\n\n";
+        $body .= "Sollten Sie diese Anfrage nicht gestellt haben, ignorieren Sie diese E-Mail.\n";
+        $body .= "Ihr bisheriges Passwort bleibt in diesem Fall unverändert.\n\n";
+        $body .= "--\nDiese Nachricht wurde automatisch von Open-Classbook versendet.\n";
+        $body .= "Bitte antworten Sie nicht auf diese E-Mail.";
+
+        return self::sendMail($to, $subject, $body);
+    }
+
+    /**
      * E-Mail senden via PHPMailer oder mail()
      */
     private static function sendMail(string $to, string $subject, string $body): bool

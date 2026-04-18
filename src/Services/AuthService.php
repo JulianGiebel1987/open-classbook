@@ -188,7 +188,7 @@ class AuthService
      */
     public static function createResetToken(string $email): ?string
     {
-        $user = Database::queryOne('SELECT id FROM users WHERE email = ? AND active = 1', [$email]);
+        $user = Database::queryOne('SELECT id FROM users WHERE LOWER(email) = LOWER(?) AND active = 1', [$email]);
 
         if (!$user) {
             return null;

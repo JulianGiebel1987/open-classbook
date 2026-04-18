@@ -136,7 +136,7 @@ class User
     public static function findByResetToken(string $token): ?array
     {
         return Database::queryOne(
-            'SELECT * FROM users WHERE password_reset_token = ? AND password_reset_expires > NOW()',
+            'SELECT * FROM users WHERE password_reset_token = ? AND password_reset_expires > NOW() AND active = 1',
             [$token]
         );
     }

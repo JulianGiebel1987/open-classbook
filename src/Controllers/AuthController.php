@@ -3,10 +3,13 @@
 namespace OpenClassbook\Controllers;
 
 use OpenClassbook\App;
+use OpenClassbook\Database;
 use OpenClassbook\View;
 use OpenClassbook\Middleware\CsrfMiddleware;
 use OpenClassbook\Models\User;
 use OpenClassbook\Services\AuthService;
+use OpenClassbook\Services\Logger;
+use OpenClassbook\Services\NotificationService;
 
 class AuthController
 {
@@ -131,12 +134,39 @@ class AuthController
             return;
         }
 
-        // Token generieren (gibt null zurück wenn E-Mail nicht gefunden)
-        AuthService::createResetToken($email);
+        // Token generieren (gibt null zurück wenn E-Mail nicht gefunden oder User inaktiv)
+        $token = AuthService::createResetToken($email);
+
+        if ($token !== null) {
+            $user = Database::queryOne(
+                'SELECT id, username, email FROM users WHERE LOWER(email) = LOWER(?) AND active = 1',
+                [$email]
+            );
+
+            if ($user !== null) {
+                $resetUrl = rtrim(self::baseUrl(), '/') . '/reset-password/' . $token;
+                NotificationService::sendPasswordResetMail($user['email'], $user['username'], $resetUrl);
+                Logger::audit('password_reset_requested', (int) $user['id']);
+            }
+        } else {
+            Logger::info('Passwort-Reset für unbekannte oder inaktive E-Mail angefordert');
+        }
 
         // Immer gleiche Meldung anzeigen (verhindert User-Enumeration)
         App::setFlash('success', 'Wenn ein Account mit dieser E-Mail existiert, erhalten Sie eine E-Mail mit weiteren Anweisungen.');
         App::redirect('/login');
+    }
+
+    private static function baseUrl(): string
+    {
+        $configured = App::config('app.url');
+        if (is_string($configured) && $configured !== '') {
+            return $configured;
+        }
+
+        $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+        $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+        return $scheme . '://' . $host;
     }
 
     public function resetPasswordForm(string $token): void
@@ -185,6 +215,7 @@ class AuthController
 
         User::updatePassword($user['id'], $newPassword);
         User::clearResetToken($user['id']);
+        Logger::audit('password_reset_completed', (int) $user['id']);
 
         App::setFlash('success', 'Passwort erfolgreich geändert. Sie können sich jetzt anmelden.');
         App::redirect('/login');

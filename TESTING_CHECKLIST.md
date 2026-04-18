@@ -35,6 +35,14 @@
 ### Passwort vergessen
 - [ ] Formular unter `/forgot-password` erreichbar
 - [ ] Gleiche Meldung bei gueltigem und ungueltigem E-Mail (User Enumeration Prevention)
+- [ ] Gueltige E-Mail eines aktiven Users: E-Mail mit Reset-Link wird empfangen
+- [ ] Link oeffnet `/reset-password/{token}` mit Passwort-Formular
+- [ ] Inaktiver User: keine E-Mail wird versendet, identische Erfolgsmeldung
+- [ ] Abgelaufener Token (expires < NOW): Reset-Link zeigt Fehlermeldung "Ungueltiger oder abgelaufener Link"
+- [ ] Token ist Single-Use: zweiter Aufruf desselben Links schlaegt fehl
+- [ ] Schwaches neues Passwort: Fehlermeldung mit Komplexitaets-Anforderungen
+- [ ] Nach erfolgreichem Reset: Redirect zu `/login`, Login mit neuem Passwort funktioniert
+- [ ] `mail.enabled = false` in Config: keine Exception, Logger-Warning, identische Erfolgsmeldung
 
 ## 2. Rollenbasierte Zugriffskontrolle (RBAC)
 

@@ -2,6 +2,8 @@
 
 namespace OpenClassbook\Tests\Services;
 
+use OpenClassbook\Database;
+use OpenClassbook\Models\User;
 use OpenClassbook\Services\AuthService;
 use OpenClassbook\Tests\DatabaseTestCase;
 
@@ -208,6 +210,109 @@ class AuthServiceTest extends DatabaseTestCase
         $token = AuthService::createResetToken('inaktiv@schule.de');
 
         $this->assertNull($token);
+    }
+
+    public function testCreateResetTokenStoresSha256HashInDatabase(): void
+    {
+        $userId = $this->createTestUser([
+            'username' => 'hashtest',
+            'email' => 'hash@schule.de',
+        ]);
+
+        $token = AuthService::createResetToken('hash@schule.de');
+        $this->assertNotNull($token);
+
+        $row = Database::queryOne(
+            'SELECT password_reset_token FROM users WHERE id = ?',
+            [$userId]
+        );
+
+        $this->assertNotEquals($token, $row['password_reset_token']);
+        $this->assertEquals(hash('sha256', $token), $row['password_reset_token']);
+    }
+
+    public function testCreateResetTokenSetsFutureExpiry(): void
+    {
+        $userId = $this->createTestUser([
+            'username' => 'expiry',
+            'email' => 'expiry@schule.de',
+        ]);
+
+        AuthService::createResetToken('expiry@schule.de');
+
+        $row = Database::queryOne(
+            'SELECT password_reset_expires FROM users WHERE id = ?',
+            [$userId]
+        );
+
+        $expiresAt = strtotime($row['password_reset_expires']);
+        $this->assertGreaterThan(time(), $expiresAt);
+        $this->assertLessThanOrEqual(time() + 3600 + 5, $expiresAt);
+    }
+
+    public function testCreateResetTokenIsCaseInsensitiveForEmail(): void
+    {
+        $this->createTestUser([
+            'username' => 'caseinsens',
+            'email' => 'Test@Schule.de',
+        ]);
+
+        $token = AuthService::createResetToken('test@schule.de');
+
+        $this->assertNotNull($token);
+        $this->assertEquals(64, strlen($token));
+    }
+
+    public function testFindByResetTokenRejectsExpiredToken(): void
+    {
+        $userId = $this->createTestUser([
+            'username' => 'expired',
+            'email' => 'expired@schule.de',
+        ]);
+
+        $token = bin2hex(random_bytes(32));
+        Database::execute(
+            'UPDATE users SET password_reset_token = ?, password_reset_expires = ? WHERE id = ?',
+            [hash('sha256', $token), date('Y-m-d H:i:s', time() - 60), $userId]
+        );
+
+        $this->assertNull(User::findByResetToken(hash('sha256', $token)));
+    }
+
+    public function testFindByResetTokenRejectsInactiveUser(): void
+    {
+        $userId = $this->createTestUser([
+            'username' => 'inaktivfind',
+            'email' => 'inaktivfind@schule.de',
+            'active' => 0,
+        ]);
+
+        $token = bin2hex(random_bytes(32));
+        Database::execute(
+            'UPDATE users SET password_reset_token = ?, password_reset_expires = ? WHERE id = ?',
+            [hash('sha256', $token), date('Y-m-d H:i:s', time() + 3600), $userId]
+        );
+
+        $this->assertNull(User::findByResetToken(hash('sha256', $token)));
+    }
+
+    public function testClearResetTokenRemovesTokenAndExpiry(): void
+    {
+        $userId = $this->createTestUser([
+            'username' => 'clearme',
+            'email' => 'clear@schule.de',
+        ]);
+
+        AuthService::createResetToken('clear@schule.de');
+        User::clearResetToken($userId);
+
+        $row = Database::queryOne(
+            'SELECT password_reset_token, password_reset_expires FROM users WHERE id = ?',
+            [$userId]
+        );
+
+        $this->assertNull($row['password_reset_token']);
+        $this->assertNull($row['password_reset_expires']);
     }
 
     // --- logout ---

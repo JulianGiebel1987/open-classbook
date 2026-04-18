@@ -17,6 +17,9 @@ abstract class DatabaseTestCase extends TestCase
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
         ]);
 
+        // MySQL-Kompatibilität: NOW() ist in SQLite kein eingebautes Keyword
+        self::$pdo->sqliteCreateFunction('NOW', fn (): string => date('Y-m-d H:i:s'), 0);
+
         self::createSchema();
         Database::setConnection(self::$pdo);
     }
