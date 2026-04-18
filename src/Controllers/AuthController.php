@@ -3,10 +3,13 @@
 namespace OpenClassbook\Controllers;
 
 use OpenClassbook\App;
+use OpenClassbook\Database;
 use OpenClassbook\View;
 use OpenClassbook\Middleware\CsrfMiddleware;
 use OpenClassbook\Models\User;
 use OpenClassbook\Services\AuthService;
+use OpenClassbook\Services\Logger;
+use OpenClassbook\Services\NotificationService;
 
 class AuthController
 {
@@ -131,12 +134,92 @@ class AuthController
             return;
         }
 
-        // Token generieren (gibt null zurück wenn E-Mail nicht gefunden)
-        AuthService::createResetToken($email);
+        // Route-spezifischer Rate-Limit pro IP: max N Anfragen pro Zeitfenster.
+        // Bei Ueberschreitung wird die identische Erfolgsmeldung gezeigt (User-Enumeration
+        // verhindert), aber KEIN Token generiert und KEINE Mail verschickt.
+        if (self::isForgotPasswordRateLimited()) {
+            Logger::info('Passwort-Reset-Rate-Limit fuer IP ueberschritten');
+            App::setFlash('success', 'Wenn ein Account mit dieser E-Mail existiert, erhalten Sie eine E-Mail mit weiteren Anweisungen.');
+            App::redirect('/login');
+            return;
+        }
+
+        // Token generieren (gibt null zurück wenn E-Mail nicht gefunden oder User inaktiv)
+        $token = AuthService::createResetToken($email);
+
+        if ($token !== null) {
+            $user = Database::queryOne(
+                'SELECT id, username, email FROM users WHERE LOWER(email) = LOWER(?) AND active = 1',
+                [$email]
+            );
+
+            if ($user !== null) {
+                $resetUrl = rtrim(self::baseUrl(), '/') . '/reset-password/' . $token;
+                NotificationService::sendPasswordResetMail($user['email'], $user['username'], $resetUrl);
+                Logger::audit('password_reset_requested', (int) $user['id']);
+            }
+        } else {
+            Logger::info('Passwort-Reset für unbekannte oder inaktive E-Mail angefordert');
+        }
 
         // Immer gleiche Meldung anzeigen (verhindert User-Enumeration)
         App::setFlash('success', 'Wenn ein Account mit dieser E-Mail existiert, erhalten Sie eine E-Mail mit weiteren Anweisungen.');
         App::redirect('/login');
+    }
+
+    private static function isForgotPasswordRateLimited(): bool
+    {
+        $maxRequests = (int) (App::config('security.password_reset_rate_limit') ?? 3);
+        $windowSeconds = (int) (App::config('security.password_reset_rate_window') ?? 3600);
+
+        if ($maxRequests <= 0) {
+            return false;
+        }
+
+        $endpoint = 'forgot-password';
+        $ip = self::pseudonymizeIpForRateLimit($_SERVER['REMOTE_ADDR'] ?? '0.0.0.0');
+
+        // Aktuellen Versuch protokollieren
+        Database::execute(
+            'INSERT INTO rate_limits (ip_address, endpoint) VALUES (?, ?)',
+            [$ip, $endpoint]
+        );
+
+        // Portabler Cutoff (MySQL + SQLite)
+        $cutoff = date('Y-m-d H:i:s', time() - $windowSeconds);
+        $result = Database::queryOne(
+            'SELECT COUNT(*) as cnt FROM rate_limits
+             WHERE ip_address = ? AND endpoint = ? AND requested_at > ?',
+            [$ip, $endpoint, $cutoff]
+        );
+
+        return ((int) ($result['cnt'] ?? 0)) > $maxRequests;
+    }
+
+    private static function pseudonymizeIpForRateLimit(string $ip): string
+    {
+        if (str_contains($ip, ':')) {
+            $parts = explode(':', $ip);
+            return implode(':', array_slice($parts, 0, 4)) . ':xxxx:xxxx:xxxx:xxxx';
+        }
+        $parts = explode('.', $ip);
+        if (count($parts) === 4) {
+            $parts[3] = 'xxx';
+            return implode('.', $parts);
+        }
+        return 'unknown';
+    }
+
+    private static function baseUrl(): string
+    {
+        $configured = App::config('app.url');
+        if (is_string($configured) && $configured !== '') {
+            return $configured;
+        }
+
+        $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+        $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+        return $scheme . '://' . $host;
     }
 
     public function resetPasswordForm(string $token): void
@@ -185,6 +268,9 @@ class AuthController
 
         User::updatePassword($user['id'], $newPassword);
         User::clearResetToken($user['id']);
+        // Aktive Sessions invalidieren (z.B. bei kompromittierten Konten)
+        User::incrementSessionVersion((int) $user['id']);
+        Logger::audit('password_reset_completed', (int) $user['id']);
 
         App::setFlash('success', 'Passwort erfolgreich geändert. Sie können sich jetzt anmelden.');
         App::redirect('/login');

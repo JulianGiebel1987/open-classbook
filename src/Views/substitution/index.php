@@ -1,6 +1,6 @@
 <div class="page-header">
     <h1>Vertretungsplan</h1>
-    <a href="/absences/teachers" class="btn btn-secondary">Lehrerabwesenheiten</a>
+    <a href="/absences/teachers" class="btn btn-secondary">Lehrkraft-Abwesenheiten</a>
 </div>
 
 <?php if (!$setting): ?>

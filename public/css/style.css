@@ -48,6 +48,11 @@
     --transition: 0.2s ease;
     --transition-slow: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --focus-ring: 0 0 0 3px rgba(13, 148, 136, 0.3);
+    --sidebar-width: 240px;
+}
+
+body {
+    padding-left: var(--sidebar-width);
 }
 
 /* ===== Google Fonts Import ===== */
@@ -123,26 +128,30 @@ textarea:focus-visible {
     top: var(--spacing-sm);
 }
 
-/* ===== Navbar ===== */
+/* ===== Navbar (Sidebar links) ===== */
 .navbar {
     background: var(--color-navbar);
-    padding: 0 var(--spacing-xl);
+    padding: var(--spacing-lg) var(--spacing-md);
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    position: sticky;
+    flex-direction: column;
+    align-items: stretch;
+    position: fixed;
     top: 0;
+    left: 0;
+    bottom: 0;
+    width: var(--sidebar-width);
     z-index: 100;
-    min-height: 56px;
-    border-bottom: none;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    overflow-y: auto;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
 }
 
 .navbar-brand {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: var(--spacing-sm);
+    width: 100%;
+    margin-bottom: var(--spacing-lg);
 }
 
 .navbar-brand a {
@@ -190,19 +199,27 @@ textarea:focus-visible {
 .navbar-menu {
     list-style: none;
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    align-items: stretch;
     gap: 2px;
     margin: 0;
     padding: 0;
+    width: 100%;
+    flex: 1;
+}
+
+.navbar-menu > li {
+    width: 100%;
 }
 
 .navbar-menu a {
+    display: block;
+    width: 100%;
     color: var(--color-navbar-text);
     padding: var(--spacing-sm) var(--spacing-md);
     border-radius: var(--radius);
     transition: all var(--transition);
     font-size: var(--font-size-sm);
-    white-space: nowrap;
     font-weight: 500;
 }
 
@@ -220,11 +237,13 @@ textarea:focus-visible {
 
 .navbar-user {
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    align-items: flex-start;
     gap: var(--spacing-sm);
-    margin-left: var(--spacing-md);
-    padding-left: var(--spacing-md);
-    border-left: 1px solid rgba(255, 255, 255, 0.15);
+    width: 100%;
+    margin-top: auto;
+    padding-top: var(--spacing-md);
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .navbar-user span {
@@ -742,6 +761,7 @@ a.widget:hover {
     min-height: 100vh;
     background: linear-gradient(135deg, #0f766e 0%, #1a1d2e 100%);
     position: relative;
+    padding-left: 0;
 }
 
 .auth-page::before {
@@ -1039,8 +1059,31 @@ a.widget:hover {
         --spacing-xl: 1.5rem;
     }
 
+    body {
+        padding-left: 0;
+    }
+
     .navbar {
+        position: sticky;
+        top: 0;
+        left: auto;
+        right: auto;
+        bottom: auto;
+        width: 100%;
+        height: auto;
         padding: 0 var(--spacing-md);
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+        min-height: 56px;
+        overflow-y: visible;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .navbar-brand {
+        width: auto;
+        margin-bottom: 0;
+        flex: 1;
     }
 
     .navbar-toggle {
@@ -1055,6 +1098,7 @@ a.widget:hover {
         padding: var(--spacing-sm) 0;
         gap: 0;
         border-top: 1px solid rgba(255, 255, 255, 0.1);
+        flex: 0 0 100%;
     }
 
     .navbar-menu.active {
@@ -1074,9 +1118,9 @@ a.widget:hover {
     }
 
     .navbar-user {
-        margin-left: 0;
-        padding-left: 0;
-        border-left: none;
+        flex-direction: row;
+        align-items: center;
+        margin-top: 0;
         border-top: 1px solid rgba(255, 255, 255, 0.1);
         padding-top: var(--spacing-sm);
         width: 100%;
@@ -1178,6 +1222,7 @@ a.widget:hover {
     body {
         background: white;
         color: black;
+        padding-left: 0;
     }
 
     .container {

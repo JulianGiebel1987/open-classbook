@@ -190,4 +190,27 @@ class UserModelTest extends DatabaseTestCase
         $this->assertNull($user['password_reset_token']);
         $this->assertNull($user['password_reset_expires']);
     }
+
+    public function testSessionVersionDefaultsToZero(): void
+    {
+        $id = $this->createTestUser();
+
+        $this->assertSame(0, User::getSessionVersion($id));
+    }
+
+    public function testIncrementSessionVersionAdvancesValue(): void
+    {
+        $id = $this->createTestUser();
+
+        User::incrementSessionVersion($id);
+        $this->assertSame(1, User::getSessionVersion($id));
+
+        User::incrementSessionVersion($id);
+        $this->assertSame(2, User::getSessionVersion($id));
+    }
+
+    public function testGetSessionVersionReturnsNullForUnknownUser(): void
+    {
+        $this->assertNull(User::getSessionVersion(9999));
+    }
 }

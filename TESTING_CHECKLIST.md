@@ -35,6 +35,14 @@
 ### Passwort vergessen
 - [ ] Formular unter `/forgot-password` erreichbar
 - [ ] Gleiche Meldung bei gueltigem und ungueltigem E-Mail (User Enumeration Prevention)
+- [ ] Gueltige E-Mail eines aktiven Users: E-Mail mit Reset-Link wird empfangen
+- [ ] Link oeffnet `/reset-password/{token}` mit Passwort-Formular
+- [ ] Inaktiver User: keine E-Mail wird versendet, identische Erfolgsmeldung
+- [ ] Abgelaufener Token (expires < NOW): Reset-Link zeigt Fehlermeldung "Ungueltiger oder abgelaufener Link"
+- [ ] Token ist Single-Use: zweiter Aufruf desselben Links schlaegt fehl
+- [ ] Schwaches neues Passwort: Fehlermeldung mit Komplexitaets-Anforderungen
+- [ ] Nach erfolgreichem Reset: Redirect zu `/login`, Login mit neuem Passwort funktioniert
+- [ ] `mail.enabled = false` in Config: keine Exception, Logger-Warning, identische Erfolgsmeldung
 
 ## 2. Rollenbasierte Zugriffskontrolle (RBAC)
 
@@ -72,6 +80,9 @@
 - [ ] Benutzer bearbeiten
 - [ ] Benutzer deaktivieren/aktivieren
 - [ ] Passwort-Reset durch Admin
+- [ ] Button "PW per E-Mail" generiert neues Zufallspasswort und versendet es an die hinterlegte E-Mail (Benutzer muss es beim naechsten Login aendern)
+- [ ] Button "PW per E-Mail" nicht sichtbar, wenn User keine E-Mail hat
+- [ ] Button "PW per E-Mail" zeigt Fehler, wenn `mail.enabled = false` in Config
 - [ ] Sich selbst kann man nicht deaktivieren
 - [ ] E-Mail-Pflichtfeld fuer Lehrer-Rolle
 
@@ -110,7 +121,7 @@
 
 ## 7. Fehlzeiten-Management Lehrer
 
-- [ ] Uebersicht aller Lehrer-Fehlzeiten
+- [ ] Uebersicht aller Lehrkraft-Abwesenheiten
 - [ ] Admin kann Fehlzeiten eintragen
 - [ ] Lehrer kann eigene Abwesenheit melden (Selbstmeldung)
 - [ ] Filter nach Typ (krank/fortbildung/sonstiges)

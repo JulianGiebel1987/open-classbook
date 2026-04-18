@@ -85,7 +85,7 @@
 
         <?php
         $roleModules = [
-            'Lehrerfehlzeiten' => [
+            'Lehrkraft-Abwesenheiten' => [
                 'module_teacher_absences_schulleitung' => 'Schulleitung',
                 'module_teacher_absences_sekretariat'  => 'Sekretariat',
             ],

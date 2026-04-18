@@ -2,7 +2,7 @@
     <h1>Klasse <?= htmlspecialchars($class['name'], ENT_QUOTES, 'UTF-8') ?></h1>
     <div class="btn-group">
         <a href="/classbook/<?= $class['id'] ?>" class="btn">Klassenbuch</a>
-        <a href="/absences/students?class_id=<?= $class['id'] ?>" class="btn">Schülerfehlzeiten</a>
+        <a href="/absences/students?class_id=<?= $class['id'] ?>" class="btn">Schüler:innen-Fehlzeiten</a>
         <a href="/classes/<?= $class['id'] ?>/edit" class="btn btn-secondary">Bearbeiten</a>
         <a href="/classes" class="btn btn-secondary">Zurück</a>
     </div>

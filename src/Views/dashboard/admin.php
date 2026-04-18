@@ -37,7 +37,7 @@
         <a href="/users" class="btn">Benutzerverwaltung</a>
         <a href="/classes" class="btn btn-secondary">Klassenverwaltung</a>
         <a href="/classbook" class="btn btn-secondary">Klassenbuecher</a>
-        <a href="/absences/students" class="btn btn-secondary">Schüler-Fehlzeiten</a>
-        <a href="/absences/teachers" class="btn btn-secondary">Lehrer-Fehlzeiten</a>
+        <a href="/absences/students" class="btn btn-secondary">Schüler:innen-Fehlzeiten</a>
+        <a href="/absences/teachers" class="btn btn-secondary">Lehrkraft-Abwesenheiten</a>
     </div>
 </div>

@@ -136,7 +136,7 @@ class User
     public static function findByResetToken(string $token): ?array
     {
         return Database::queryOne(
-            'SELECT * FROM users WHERE password_reset_token = ? AND password_reset_expires > NOW()',
+            'SELECT * FROM users WHERE password_reset_token = ? AND password_reset_expires > NOW() AND active = 1',
             [$token]
         );
     }
@@ -153,6 +153,28 @@ class User
     {
         Database::execute(
             'UPDATE users SET last_login = NOW() WHERE id = ?',
+            [$id]
+        );
+    }
+
+    public static function getSessionVersion(int $id): ?int
+    {
+        $row = Database::queryOne(
+            'SELECT session_version FROM users WHERE id = ?',
+            [$id]
+        );
+
+        if ($row === null) {
+            return null;
+        }
+
+        return (int) $row['session_version'];
+    }
+
+    public static function incrementSessionVersion(int $id): void
+    {
+        Database::execute(
+            'UPDATE users SET session_version = session_version + 1 WHERE id = ?',
             [$id]
         );
     }

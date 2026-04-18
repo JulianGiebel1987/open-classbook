@@ -48,7 +48,7 @@ CREATE EVENT IF NOT EXISTS evt_purge_reset_tokens
 -- =====================================================================
 -- Hinweis Loeschkonzept (Schulrecht / DSGVO):
 -- - Klassenbucheintraege:        2 Jahre nach Schuljahresende (manuell)
--- - Schueler-Fehlzeiten:         3 Jahre nach Schuljahresende (manuell)
+-- - Schueler:innen-Fehlzeiten:   3 Jahre nach Schuljahresende (manuell)
 -- - Nachrichten:                 2 Jahre (manuell oder per Event)
 -- - Login-Attempts:              30 Tage (automatisch, s.o.)
 -- - Audit-Log:                   90 Tage (automatisch, s.o.)

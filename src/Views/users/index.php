@@ -89,6 +89,12 @@ $roleLabels = [
                                 <?= \OpenClassbook\View::csrfField() ?>
                                 <button type="submit" class="btn btn-sm btn-secondary" data-confirm="Passwort wirklich zurücksetzen?">PW Reset</button>
                             </form>
+                            <?php if (!empty($u['email'])): ?>
+                            <form method="post" action="/users/<?= $u['id'] ?>/email-password" class="d-inline">
+                                <?= \OpenClassbook\View::csrfField() ?>
+                                <button type="submit" class="btn btn-sm btn-secondary" data-confirm="Neues Zufallspasswort erzeugen und an <?= htmlspecialchars($u['email'], ENT_QUOTES, 'UTF-8') ?> senden?">PW per E-Mail</button>
+                            </form>
+                            <?php endif; ?>
                             <?php if (\OpenClassbook\App::currentUserRole() === 'admin' && (int) $u['id'] !== (int) ($_SESSION['user_id'] ?? 0)): ?>
                             <form method="post" action="/users/<?= $u['id'] ?>/delete" class="d-inline">
                                 <?= \OpenClassbook\View::csrfField() ?>

@@ -17,6 +17,9 @@ abstract class DatabaseTestCase extends TestCase
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
         ]);
 
+        // MySQL-Kompatibilität: NOW() ist in SQLite kein eingebautes Keyword
+        self::$pdo->sqliteCreateFunction('NOW', fn (): string => date('Y-m-d H:i:s'), 0);
+
         self::createSchema();
         Database::setConnection(self::$pdo);
     }
@@ -55,6 +58,7 @@ abstract class DatabaseTestCase extends TestCase
                 two_factor_recovery_codes TEXT DEFAULT NULL,
                 password_reset_token VARCHAR(255) DEFAULT NULL,
                 password_reset_expires DATETIME DEFAULT NULL,
+                session_version INTEGER NOT NULL DEFAULT 0,
                 last_login DATETIME DEFAULT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -194,6 +198,15 @@ abstract class DatabaseTestCase extends TestCase
                 setting_key VARCHAR(100) NOT NULL UNIQUE,
                 setting_value TEXT DEFAULT NULL,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ');
+
+        self::$pdo->exec('
+            CREATE TABLE rate_limits (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                ip_address VARCHAR(45) NOT NULL,
+                endpoint VARCHAR(255) NOT NULL,
+                requested_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         ');
 

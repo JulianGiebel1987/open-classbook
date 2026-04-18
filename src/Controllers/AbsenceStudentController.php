@@ -45,7 +45,7 @@ class AbsenceStudentController
         $currentRole = App::currentUserRole();
 
         View::render('absences/students-index', [
-            'title' => 'Schüler-Fehlzeiten',
+            'title' => 'Schüler:innen-Fehlzeiten',
             'absences' => $absences,
             'classes' => $accessibleClasses,
             'filters' => $filters,

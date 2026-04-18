@@ -23,7 +23,7 @@ class AbsenceTeacherController
             exit;
         }
         if (!ModuleSettings::isRoleModuleAccessible('teacher_absences', $role)) {
-            App::setFlash('error', 'Das Modul Lehrerfehlzeiten ist für Ihre Rolle nicht zugänglich.');
+            App::setFlash('error', 'Das Modul Lehrkraft-Abwesenheiten ist für Ihre Rolle nicht zugänglich.');
             App::redirect('/dashboard');
             exit;
         }
@@ -43,7 +43,7 @@ class AbsenceTeacherController
         $teachers = Teacher::findAll();
 
         View::render('absences/teachers-index', [
-            'title' => 'Lehrer-Abwesenheiten',
+            'title' => 'Lehrkraft-Abwesenheiten',
             'absences' => $absences,
             'teachers' => $teachers,
             'filters' => $filters,
@@ -58,7 +58,7 @@ class AbsenceTeacherController
 
         CsrfMiddleware::generateToken();
         View::render('absences/teachers-create', [
-            'title' => 'Lehrer-Abwesenheit eintragen',
+            'title' => 'Lehrkraft-Abwesenheit eintragen',
             'teachers' => $teachers,
         ]);
     }

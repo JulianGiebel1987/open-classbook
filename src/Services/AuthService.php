@@ -70,6 +70,7 @@ class AuthService
                     'email' => $user['email'],
                     'role' => $user['role'],
                 ];
+                $_SESSION['session_version'] = (int) ($user['session_version'] ?? 0);
                 $_SESSION['last_activity'] = time();
 
                 return [
@@ -94,6 +95,7 @@ class AuthService
             'email' => $user['email'],
             'role' => $user['role'],
         ];
+        $_SESSION['session_version'] = (int) ($user['session_version'] ?? 0);
         $_SESSION['last_activity'] = time();
 
         return [
@@ -145,11 +147,12 @@ class AuthService
     {
         $maxAttempts = App::config('security.max_login_attempts') ?? 5;
         $lockoutDuration = App::config('security.lockout_duration') ?? 900;
+        $cutoff = date('Y-m-d H:i:s', time() - (int) $lockoutDuration);
 
         $result = Database::queryOne(
             'SELECT COUNT(*) as cnt FROM login_attempts
-             WHERE username = ? AND successful = 0 AND attempted_at > DATE_SUB(NOW(), INTERVAL ? SECOND)',
-            [$username, $lockoutDuration]
+             WHERE username = ? AND successful = 0 AND attempted_at > ?',
+            [$username, $cutoff]
         );
 
         return ($result['cnt'] ?? 0) >= $maxAttempts;
@@ -188,7 +191,7 @@ class AuthService
      */
     public static function createResetToken(string $email): ?string
     {
-        $user = Database::queryOne('SELECT id FROM users WHERE email = ? AND active = 1', [$email]);
+        $user = Database::queryOne('SELECT id FROM users WHERE LOWER(email) = LOWER(?) AND active = 1', [$email]);
 
         if (!$user) {
             return null;

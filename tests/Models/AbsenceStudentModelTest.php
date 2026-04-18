@@ -30,8 +30,9 @@ class AbsenceStudentModelTest extends DatabaseTestCase
             'created_by' => $this->userId,
         ]);
 
+        // Mehrtages-Eintraege werden in Einzeltage aufgesplittet (10., 11., 12. Maerz = 3 Zeilen)
         $absences = AbsenceStudent::findAll();
-        $this->assertCount(1, $absences);
+        $this->assertCount(3, $absences);
         $this->assertEquals('ja', $absences[0]['excused']);
         $this->assertEquals('Krank', $absences[0]['reason']);
     }

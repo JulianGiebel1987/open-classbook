@@ -340,6 +340,89 @@ class UserController
         ]);
     }
 
+    /**
+     * Neues zufaelliges Passwort generieren und direkt per E-Mail an den Nutzer senden.
+     * Einschritt-Aktion aus der Benutzerliste (kein Umweg ueber Info-Seite).
+     */
+    public function emailNewPassword(string $id): void
+    {
+        $userId = (int) $id;
+        $user = User::findById($userId);
+        if (!$user) {
+            App::setFlash('error', 'Benutzer nicht gefunden.');
+            App::redirect('/users');
+            return;
+        }
+
+        if (empty($user['email'])) {
+            App::setFlash('error', 'Für diesen Benutzer ist keine E-Mail-Adresse hinterlegt.');
+            App::redirect('/users');
+            return;
+        }
+
+        if (!App::config('mail.enabled')) {
+            App::setFlash('error', 'E-Mail-Versand ist nicht konfiguriert. Bitte E-Mail-Einstellungen pruefen.');
+            App::redirect('/users');
+            return;
+        }
+
+        $newPassword = self::generateRandomPassword();
+        User::updatePassword($userId, $newPassword);
+        User::update($userId, ['must_change_password' => 1]);
+        // Aktive Sessions des Nutzers invalidieren
+        User::incrementSessionVersion($userId);
+
+        $sent = NotificationService::sendTemporaryPasswordMail($user['email'], $user['username'], $newPassword);
+
+        if (!$sent) {
+            App::setFlash('error', 'Passwort wurde zurueckgesetzt, aber E-Mail-Versand an ' . htmlspecialchars($user['email'], ENT_QUOTES, 'UTF-8') . ' ist fehlgeschlagen.');
+            App::redirect('/users');
+            return;
+        }
+
+        Logger::audit(
+            'email_new_password',
+            $_SESSION['user_id'] ?? null,
+            'User',
+            $userId,
+            'Neues Passwort per E-Mail gesendet an: ' . $user['username']
+        );
+
+        App::setFlash('success', 'Neues Passwort wurde per E-Mail an ' . htmlspecialchars($user['email'], ENT_QUOTES, 'UTF-8') . ' gesendet. Nutzer:in muss es beim naechsten Login aendern.');
+        App::redirect('/users');
+    }
+
+    /**
+     * Zufaelliges Passwort erzeugen, das Komplexitaetsanforderungen erfuellt
+     * (mind. 1 Grossbuchstabe, 1 Kleinbuchstabe, 1 Ziffer, Laenge 12).
+     */
+    private static function generateRandomPassword(int $length = 12): string
+    {
+        $upper  = 'ABCDEFGHJKLMNPQRSTUVWXYZ'; // ohne I, O (Verwechslung)
+        $lower  = 'abcdefghijkmnpqrstuvwxyz'; // ohne l, o
+        $digits = '23456789';                 // ohne 0, 1
+
+        // Garantiere mind. je 1 Zeichen jeder Klasse
+        $chars = [
+            $upper[random_int(0, strlen($upper) - 1)],
+            $lower[random_int(0, strlen($lower) - 1)],
+            $digits[random_int(0, strlen($digits) - 1)],
+        ];
+
+        $all = $upper . $lower . $digits;
+        for ($i = count($chars); $i < $length; $i++) {
+            $chars[] = $all[random_int(0, strlen($all) - 1)];
+        }
+
+        // Fisher-Yates-Shuffle mit random_int (nicht shuffle(), das nutzt mt_rand)
+        for ($i = count($chars) - 1; $i > 0; $i--) {
+            $j = random_int(0, $i);
+            [$chars[$i], $chars[$j]] = [$chars[$j], $chars[$i]];
+        }
+
+        return implode('', $chars);
+    }
+
     public function sendTempPassword(string $id): void
     {
         $userId = (int) $id;
