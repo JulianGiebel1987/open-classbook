@@ -9,8 +9,26 @@ use OpenClassbook\Services\ImportService;
 
 class ImportController
 {
+    private const STAFF_ROLES = ['admin', 'schulleitung', 'sekretariat'];
+
+    /**
+     * Defense-in-depth: sicherstellen, dass der aktuelle Nutzer berechtigt ist.
+     * Zusätzlich zur StaffMiddleware auf Route-Ebene.
+     */
+    private function requireStaff(): bool
+    {
+        if (!in_array(App::currentUserRole(), self::STAFF_ROLES, true)) {
+            App::setFlash('error', 'Zugriff verweigert. Nur Administratoren, Schulleitung und Sekretariat dürfen Daten importieren.');
+            App::redirect('/dashboard');
+            return false;
+        }
+        return true;
+    }
+
     public function index(): void
     {
+        if (!$this->requireStaff()) return;
+
         CsrfMiddleware::generateToken();
         $uploadsDir = __DIR__ . '/../../storage/uploads';
         if (!is_writable($uploadsDir)) {
@@ -21,6 +39,8 @@ class ImportController
 
     public function uploadTeachers(): void
     {
+        if (!$this->requireStaff()) return;
+
         if (empty($_FILES['file']) || $_FILES['file']['error'] !== UPLOAD_ERR_OK) {
             App::setFlash('error', 'Bitte wählen Sie eine Datei aus.');
             App::redirect('/import');
@@ -58,6 +78,8 @@ class ImportController
 
     public function confirmTeachers(): void
     {
+        if (!$this->requireStaff()) return;
+
         $storedFile = $_POST['stored_file'] ?? '';
 
         // Nur hex-generierte Dateinamen (32 Hex-Zeichen + .xlsx/.csv) akzeptieren
@@ -89,6 +111,8 @@ class ImportController
 
     public function uploadStudents(): void
     {
+        if (!$this->requireStaff()) return;
+
         if (empty($_FILES['file']) || $_FILES['file']['error'] !== UPLOAD_ERR_OK) {
             App::setFlash('error', 'Bitte wählen Sie eine Datei aus.');
             App::redirect('/import');
@@ -131,6 +155,8 @@ class ImportController
 
     public function confirmStudents(): void
     {
+        if (!$this->requireStaff()) return;
+
         $storedFile = $_POST['stored_file'] ?? '';
         $schoolYear = $_POST['school_year'] ?? '';
 
@@ -169,6 +195,8 @@ class ImportController
 
     public function studentCredentials(): void
     {
+        if (!$this->requireStaff()) return;
+
         $credentials = $_SESSION['import_credentials'] ?? [];
         unset($_SESSION['import_credentials']);
 
@@ -189,6 +217,8 @@ class ImportController
 
     public function downloadTemplate(string $type): void
     {
+        if (!$this->requireStaff()) return;
+
         // CSV-Vorlagen dynamisch generieren
         if ($type === 'lehrer-csv') {
             header('Content-Type: text/csv; charset=UTF-8');

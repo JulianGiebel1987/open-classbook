@@ -13,11 +13,38 @@ use OpenClassbook\Models\SchoolClass;
 use OpenClassbook\Models\User;
 use OpenClassbook\Models\Teacher;
 use OpenClassbook\Services\ModuleSettings;
+use OpenClassbook\Services\CsvEscaper;
 
 class ListController
 {
     private const ALLOWED_ROLES = ['admin', 'schulleitung', 'sekretariat', 'lehrer'];
+    private const STAFF_ROLES = ['admin', 'schulleitung', 'sekretariat'];
     private const VALID_TYPES = ['text', 'checkbox', 'number', 'date', 'select', 'rating'];
+
+    /**
+     * Prueft, ob der aktuelle Nutzer auf die Klasse zugreifen darf.
+     * Staff hat Vollzugriff, Lehrkraefte nur auf zugewiesene Klassen.
+     * Gibt null zurueck wenn keine class_id angegeben (erlaubt).
+     */
+    private function canUseClass(?int $classId): bool
+    {
+        if ($classId === null || $classId <= 0) {
+            return true;
+        }
+        $role = App::currentUserRole();
+        if (in_array($role, self::STAFF_ROLES, true)) {
+            return SchoolClass::findById($classId) !== null;
+        }
+        if ($role === 'lehrer') {
+            $teacherId = Teacher::getTeacherIdByUserId($_SESSION['user_id']);
+            if (!$teacherId) {
+                return false;
+            }
+            $allowed = array_map('intval', array_column(Teacher::getClassesForTeacher($teacherId), 'id'));
+            return in_array($classId, $allowed, true);
+        }
+        return false;
+    }
 
     private function checkRole(): bool
     {
@@ -91,7 +118,21 @@ class ListController
             $visibility = 'private';
         }
 
+        // Nur Staff darf global sichtbare Listen erstellen
+        if ($visibility === 'global' && !in_array(App::currentUserRole(), self::STAFF_ROLES, true)) {
+            App::setFlash('error', 'Nur Administratoren, Schulleitung oder Sekretariat dürfen globale Listen erstellen.');
+            App::redirect('/lists/create');
+            return;
+        }
+
         $classId = !empty($_POST['class_id']) ? (int) $_POST['class_id'] : null;
+
+        // Tenant-Scope: Lehrkraft darf nur eigene Klassen referenzieren
+        if (!$this->canUseClass($classId)) {
+            App::setFlash('error', 'Sie haben keinen Zugriff auf die ausgewählte Klasse.');
+            App::redirect('/lists/create');
+            return;
+        }
 
         try {
             $listId = ListModel::create([
@@ -202,6 +243,13 @@ class ListController
         $visibility = $_POST['visibility'] ?? $list['visibility'];
         if (!in_array($visibility, ['private', 'global', 'shared'])) {
             $visibility = 'private';
+        }
+
+        // Nur Staff darf Listen auf global setzen/belassen
+        if ($visibility === 'global' && !in_array(App::currentUserRole(), self::STAFF_ROLES, true)) {
+            App::setFlash('error', 'Nur Administratoren, Schulleitung oder Sekretariat dürfen globale Listen setzen.');
+            App::redirect('/lists/' . $listId);
+            return;
         }
 
         try {
@@ -444,7 +492,7 @@ class ListController
         foreach ($columns as $col) {
             $header[] = $col['title'];
         }
-        fputcsv($output, $header, ';');
+        fputcsv($output, CsvEscaper::escapeRow($header), ';');
 
         // Datenzeilen
         foreach ($rows as $row) {
@@ -456,7 +504,7 @@ class ListController
                 }
                 $line[] = $value;
             }
-            fputcsv($output, $line, ';');
+            fputcsv($output, CsvEscaper::escapeRow($line), ';');
         }
 
         fclose($output);

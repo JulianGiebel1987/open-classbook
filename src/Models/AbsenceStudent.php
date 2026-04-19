@@ -32,6 +32,20 @@ class AbsenceStudent
             $params[] = $filters['class_id'];
         }
 
+        // Lehrkraft-Scope: Fehlzeiten auf zugaengliche Klassen beschraenken
+        if (isset($filters['class_ids']) && is_array($filters['class_ids'])) {
+            if (empty($filters['class_ids'])) {
+                // Keine zugaenglichen Klassen -> leere Ergebnismenge erzwingen
+                $sql .= ' AND 1=0';
+            } else {
+                $placeholders = implode(',', array_fill(0, count($filters['class_ids']), '?'));
+                $sql .= ' AND s.class_id IN (' . $placeholders . ')';
+                foreach ($filters['class_ids'] as $cid) {
+                    $params[] = (int) $cid;
+                }
+            }
+        }
+
         if (!empty($filters['student_id'])) {
             $sql .= ' AND a.student_id = ?';
             $params[] = $filters['student_id'];

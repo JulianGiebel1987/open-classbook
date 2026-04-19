@@ -14,7 +14,7 @@ class AuthService
      */
     public static function attempt(string $username, string $password): array
     {
-        // Brute-Force-Schutz prüfen
+        // Brute-Force-Schutz prüfen (IP-basiert, um Account-DoS zu verhindern)
         if (self::isLockedOut($username)) {
             return ['success' => false, 'message' => 'Zu viele fehlgeschlagene Versuche. Bitte warten Sie 15 Minuten.'];
         }
@@ -141,19 +141,32 @@ class AuthService
     }
 
     /**
-     * Prüfen ob ein Benutzer gesperrt ist
+     * Prueft, ob der Login-Versuch gesperrt ist.
+     * Die Sperre basiert primaer auf der IP-Adresse (bzw. deren Pseudonym),
+     * damit ein Angreifer nicht durch gezielte Fehlversuche fremde Accounts
+     * aussperren kann. Bei nicht ermittelbarer IP wird auf Username-Scope
+     * zurueckgefallen, damit der Brute-Force-Schutz erhalten bleibt.
      */
     private static function isLockedOut(string $username): bool
     {
         $maxAttempts = App::config('security.max_login_attempts') ?? 5;
         $lockoutDuration = App::config('security.lockout_duration') ?? 900;
         $cutoff = date('Y-m-d H:i:s', time() - (int) $lockoutDuration);
+        $ip = self::pseudonymizeIp($_SERVER['REMOTE_ADDR'] ?? '0.0.0.0');
 
-        $result = Database::queryOne(
-            'SELECT COUNT(*) as cnt FROM login_attempts
-             WHERE username = ? AND successful = 0 AND attempted_at > ?',
-            [$username, $cutoff]
-        );
+        if ($ip === 'unknown') {
+            $result = Database::queryOne(
+                'SELECT COUNT(*) as cnt FROM login_attempts
+                 WHERE username = ? AND successful = 0 AND attempted_at > ?',
+                [$username, $cutoff]
+            );
+        } else {
+            $result = Database::queryOne(
+                'SELECT COUNT(*) as cnt FROM login_attempts
+                 WHERE ip_address = ? AND successful = 0 AND attempted_at > ?',
+                [$ip, $cutoff]
+            );
+        }
 
         return ($result['cnt'] ?? 0) >= $maxAttempts;
     }
@@ -197,11 +210,21 @@ class AuthService
             return null;
         }
 
+        return self::createResetTokenForUserId((int) $user['id']);
+    }
+
+    /**
+     * Passwort-Reset-Token fuer einen bekannten Nutzer generieren
+     * (z. B. Admin-initiierter Reset aus der Benutzerverwaltung).
+     * Der Klartext-Token wird zurueckgegeben, nur der Hash wird gespeichert.
+     */
+    public static function createResetTokenForUserId(int $userId): string
+    {
         $token = bin2hex(random_bytes(32));
         $lifetime = App::config('security.password_reset_token_lifetime') ?? 3600;
         $expires = new \DateTime('+' . $lifetime . ' seconds');
 
-        User::setResetToken($user['id'], hash('sha256', $token), $expires);
+        User::setResetToken($userId, hash('sha256', $token), $expires);
 
         return $token;
     }

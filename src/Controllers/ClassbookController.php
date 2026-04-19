@@ -10,6 +10,7 @@ use OpenClassbook\Models\SchoolClass;
 use OpenClassbook\Models\Student;
 use OpenClassbook\Models\StudentRemark;
 use OpenClassbook\Models\Teacher;
+use OpenClassbook\Services\CsvEscaper;
 
 class ClassbookController
 {
@@ -283,16 +284,16 @@ class ClassbookController
         $output = fopen('php://output', 'w');
         // BOM für Excel UTF-8
         fprintf($output, chr(0xEF) . chr(0xBB) . chr(0xBF));
-        fputcsv($output, ['Datum', 'Stunde', 'Lehrkraft', 'Thema', 'Notizen'], ';');
+        fputcsv($output, CsvEscaper::escapeRow(['Datum', 'Stunde', 'Lehrkraft', 'Thema', 'Notizen']), ';');
 
         foreach ($entries as $e) {
-            fputcsv($output, [
+            fputcsv($output, CsvEscaper::escapeRow([
                 date('d.m.Y', strtotime($e['entry_date'])),
                 $e['lesson'],
                 $e['teacher_lastname'] . ', ' . $e['teacher_firstname'],
                 $e['topic'],
                 $e['notes'] ?? '',
-            ], ';');
+            ]), ';');
         }
 
         fclose($output);

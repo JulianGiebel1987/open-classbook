@@ -15,8 +15,24 @@ use OpenClassbook\Services\NotificationService;
 
 class UserController
 {
+    /**
+     * Defense-in-depth: sicherstellen, dass der aktuelle Nutzer Admin ist.
+     * Zusätzlich zur AdminMiddleware auf Route-Ebene.
+     */
+    private function requireAdmin(): bool
+    {
+        if (App::currentUserRole() !== 'admin') {
+            App::setFlash('error', 'Zugriff verweigert. Nur Administratoren dürfen die Benutzerverwaltung aufrufen.');
+            App::redirect('/dashboard');
+            return false;
+        }
+        return true;
+    }
+
     public function index(): void
     {
+        if (!$this->requireAdmin()) return;
+
         $filters = [
             'role' => $_GET['role'] ?? '',
             'search' => $_GET['search'] ?? '',
@@ -35,6 +51,8 @@ class UserController
 
     public function createForm(): void
     {
+        if (!$this->requireAdmin()) return;
+
         CsrfMiddleware::generateToken();
         View::render('users/create', [
             'title' => 'Neuer Benutzer',
@@ -45,6 +63,9 @@ class UserController
 
     public function create(): void
     {
+        if (!$this->requireAdmin()) return;
+
+
         $data = [
             'username' => trim($_POST['username'] ?? ''),
             'email' => trim($_POST['email'] ?? '') ?: null,
@@ -125,6 +146,8 @@ class UserController
 
     public function editForm(string $id): void
     {
+        if (!$this->requireAdmin()) return;
+
         $user = User::findById((int) $id);
         if (!$user) {
             App::setFlash('error', 'Benutzer nicht gefunden.');
@@ -155,6 +178,8 @@ class UserController
 
     public function update(string $id): void
     {
+        if (!$this->requireAdmin()) return;
+
         $userId = (int) $id;
         $user = User::findById($userId);
         if (!$user) {
@@ -170,6 +195,16 @@ class UserController
         ];
 
         $errors = [];
+
+        // Selbst-Deprivilegierung/Eskalation nur kontrolliert zulassen
+        if ($userId === (int) $_SESSION['user_id'] && $data['role'] !== $user['role']) {
+            $errors[] = 'Sie können Ihre eigene Rolle nicht ändern.';
+        }
+
+        // Letzten Admin nicht degradieren
+        if ($user['role'] === 'admin' && $data['role'] !== 'admin' && User::countActiveAdmins() <= 1) {
+            $errors[] = 'Der letzte aktive Administrator kann nicht degradiert werden.';
+        }
 
         // Username-Duplikat prüfen
         if ($data['username'] !== $user['username'] && User::usernameExists($data['username'], $userId)) {
@@ -272,6 +307,8 @@ class UserController
 
     public function toggleActive(string $id): void
     {
+        if (!$this->requireAdmin()) return;
+
         $userId = (int) $id;
         $user = User::findById($userId);
         if (!$user) {
@@ -287,6 +324,13 @@ class UserController
             return;
         }
 
+        // Letzten Admin nicht deaktivieren
+        if ($user['role'] === 'admin' && $user['active'] && User::countActiveAdmins() <= 1) {
+            App::setFlash('error', 'Der letzte aktive Administrator kann nicht deaktiviert werden.');
+            App::redirect('/users');
+            return;
+        }
+
         User::update($userId, ['active' => $user['active'] ? 0 : 1]);
         $status = $user['active'] ? 'deaktiviert' : 'aktiviert';
         App::setFlash('success', "Benutzer erfolgreich {$status}.");
@@ -295,6 +339,8 @@ class UserController
 
     public function resetPassword(string $id): void
     {
+        if (!$this->requireAdmin()) return;
+
         $userId = (int) $id;
         $user = User::findById($userId);
         if (!$user) {
@@ -303,22 +349,35 @@ class UserController
             return;
         }
 
-        $tempPassword = bin2hex(random_bytes(16));
-        User::updatePassword($userId, $tempPassword);
-        User::update($userId, ['must_change_password' => 1]);
+        // Admin-initiierter Reset: Reset-Token erzeugen (keine Klartext-Passwoerter mehr)
+        $token = AuthService::createResetTokenForUserId($userId);
+        $resetUrl = rtrim(AuthController::baseUrl(), '/') . '/reset-password/' . $token;
 
-        // Passwort einmalig in der Session speichern, nicht im Flash-Message (verhindert Browser-Verlauf-Exposition)
+        // Aktive Sessions des Nutzers invalidieren (verhindert Weiterarbeit mit altem Login)
+        User::incrementSessionVersion($userId);
+
+        Logger::audit(
+            'admin_reset_password',
+            $_SESSION['user_id'] ?? null,
+            'User',
+            $userId,
+            'Passwort-Reset ausgeloest fuer: ' . $user['username']
+        );
+
+        // Link einmalig in der Session speichern fuer Info-Seite bzw. optionalen Mail-Versand
         $_SESSION['reset_password_info'] = [
             'user_id'  => $userId,
             'username' => $user['username'],
             'email'    => $user['email'] ?? '',
-            'password' => $tempPassword,
+            'reset_url' => $resetUrl,
         ];
         App::redirect('/users/reset-password-info');
     }
 
     public function resetPasswordInfo(): void
     {
+        if (!$this->requireAdmin()) return;
+
         $info = $_SESSION['reset_password_info'] ?? null;
         unset($_SESSION['reset_password_info']);
 
@@ -327,13 +386,17 @@ class UserController
             return;
         }
 
-        // Für optionalen E-Mail-Versand in separater Session-Variable aufbewahren
-        $_SESSION['temp_password_for_email'] = $info;
+        // Reset-Link einmalig fuer optionalen E-Mail-Versand aufbewahren
+        $_SESSION['reset_link_for_email'] = $info;
 
         $mailEnabled = (bool) App::config('mail.enabled') && !empty($info['email']);
 
+        // Seite nie cachen (Browser-Verlauf / Proxy-Schutz)
+        header('Cache-Control: no-store, no-cache, must-revalidate, private');
+        header('Pragma: no-cache');
+
         View::render('users/reset-password-info', [
-            'title'       => 'Passwort zurückgesetzt',
+            'title'       => 'Passwort-Reset eingeleitet',
             'info'        => $info,
             'mailEnabled' => $mailEnabled,
             'csrfToken'   => CsrfMiddleware::generateToken(),
@@ -341,11 +404,14 @@ class UserController
     }
 
     /**
-     * Neues zufaelliges Passwort generieren und direkt per E-Mail an den Nutzer senden.
+     * Passwort-Reset-Link direkt per E-Mail an den Nutzer senden.
      * Einschritt-Aktion aus der Benutzerliste (kein Umweg ueber Info-Seite).
+     * Aus Sicherheitsgruenden wird kein Klartext-Passwort mehr versendet.
      */
     public function emailNewPassword(string $id): void
     {
+        if (!$this->requireAdmin()) return;
+
         $userId = (int) $id;
         $user = User::findById($userId);
         if (!$user) {
@@ -366,29 +432,30 @@ class UserController
             return;
         }
 
-        $newPassword = self::generateRandomPassword();
-        User::updatePassword($userId, $newPassword);
-        User::update($userId, ['must_change_password' => 1]);
+        // Reset-Token erzeugen (Klartext-Passwort wird nie erzeugt oder versendet)
+        $token = AuthService::createResetTokenForUserId($userId);
+        $resetUrl = rtrim(AuthController::baseUrl(), '/') . '/reset-password/' . $token;
+
         // Aktive Sessions des Nutzers invalidieren
         User::incrementSessionVersion($userId);
 
-        $sent = NotificationService::sendTemporaryPasswordMail($user['email'], $user['username'], $newPassword);
+        $sent = NotificationService::sendPasswordResetMail($user['email'], $user['username'], $resetUrl);
 
         if (!$sent) {
-            App::setFlash('error', 'Passwort wurde zurueckgesetzt, aber E-Mail-Versand an ' . htmlspecialchars($user['email'], ENT_QUOTES, 'UTF-8') . ' ist fehlgeschlagen.');
+            App::setFlash('error', 'Reset-Link konnte nicht an ' . htmlspecialchars($user['email'], ENT_QUOTES, 'UTF-8') . ' gesendet werden. Bitte E-Mail-Konfiguration pruefen.');
             App::redirect('/users');
             return;
         }
 
         Logger::audit(
-            'email_new_password',
+            'email_password_reset_link',
             $_SESSION['user_id'] ?? null,
             'User',
             $userId,
-            'Neues Passwort per E-Mail gesendet an: ' . $user['username']
+            'Passwort-Reset-Link per E-Mail gesendet an: ' . $user['username']
         );
 
-        App::setFlash('success', 'Neues Passwort wurde per E-Mail an ' . htmlspecialchars($user['email'], ENT_QUOTES, 'UTF-8') . ' gesendet. Nutzer:in muss es beim naechsten Login aendern.');
+        App::setFlash('success', 'Passwort-Reset-Link wurde per E-Mail an ' . htmlspecialchars($user['email'], ENT_QUOTES, 'UTF-8') . ' gesendet.');
         App::redirect('/users');
     }
 
@@ -425,13 +492,15 @@ class UserController
 
     public function sendTempPassword(string $id): void
     {
+        if (!$this->requireAdmin()) return;
+
         $userId = (int) $id;
 
-        $info = $_SESSION['temp_password_for_email'] ?? null;
-        unset($_SESSION['temp_password_for_email']);
+        $info = $_SESSION['reset_link_for_email'] ?? null;
+        unset($_SESSION['reset_link_for_email']);
 
         if (!$info || (int) ($info['user_id'] ?? 0) !== $userId) {
-            App::setFlash('error', 'Zugangsdaten nicht mehr verfügbar. Bitte Passwort erneut zurücksetzen.');
+            App::setFlash('error', 'Reset-Link nicht mehr verfügbar. Bitte Passwort erneut zurücksetzen.');
             App::redirect('/users');
             return;
         }
@@ -442,10 +511,17 @@ class UserController
             return;
         }
 
-        $sent = NotificationService::sendTemporaryPasswordMail($info['email'], $info['username'], $info['password']);
+        $sent = NotificationService::sendPasswordResetMail($info['email'], $info['username'], $info['reset_url']);
 
         if ($sent) {
-            App::setFlash('success', 'Zugangsdaten wurden per E-Mail an ' . htmlspecialchars($info['email'], ENT_QUOTES, 'UTF-8') . ' gesendet.');
+            Logger::audit(
+                'send_password_reset_link',
+                $_SESSION['user_id'] ?? null,
+                'User',
+                $userId,
+                'Reset-Link per E-Mail gesendet an: ' . $info['username']
+            );
+            App::setFlash('success', 'Reset-Link wurde per E-Mail an ' . htmlspecialchars($info['email'], ENT_QUOTES, 'UTF-8') . ' gesendet.');
         } else {
             App::setFlash('error', 'E-Mail-Versand fehlgeschlagen. Bitte prüfen Sie die E-Mail-Konfiguration.');
         }
@@ -506,6 +582,13 @@ class UserController
             return;
         }
 
+        // Letzten Admin nicht löschen
+        if ($user['role'] === 'admin' && $user['active'] && User::countActiveAdmins() <= 1) {
+            App::setFlash('error', 'Der letzte aktive Administrator kann nicht gelöscht werden.');
+            App::redirect('/users');
+            return;
+        }
+
         $username = $user['username'];
 
         Logger::audit(
@@ -547,9 +630,11 @@ class UserController
             $errors[] = 'Passwort ist erforderlich.';
         }
 
-        // RBAC: Sekretariat darf keine Admin/Schulleitung/Sekretariat-Accounts anlegen
+        // RBAC: Nur Administratoren dürfen privilegierte Rollen vergeben.
+        // Andere Rollen sollten die Benutzerverwaltung ohnehin nicht erreichen
+        // (AdminMiddleware + requireAdmin()), dieser Check dient als Defense-in-Depth.
         $currentRole = App::currentUserRole();
-        if ($currentRole === 'sekretariat' && in_array($data['role'], ['admin', 'schulleitung', 'sekretariat'])) {
+        if ($currentRole !== 'admin' && in_array($data['role'], ['admin', 'schulleitung', 'sekretariat'], true)) {
             $errors[] = 'Sie haben keine Berechtigung, diese Rolle zuzuweisen.';
         }
 

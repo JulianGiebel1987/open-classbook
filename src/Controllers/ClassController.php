@@ -11,8 +11,26 @@ use OpenClassbook\Models\Student;
 
 class ClassController
 {
+    private const STAFF_ROLES = ['admin', 'schulleitung', 'sekretariat'];
+
+    /**
+     * Defense-in-depth: sicherstellen, dass der aktuelle Nutzer berechtigt ist.
+     * Zusätzlich zur StaffMiddleware auf Route-Ebene.
+     */
+    private function requireStaff(): bool
+    {
+        if (!in_array(App::currentUserRole(), self::STAFF_ROLES, true)) {
+            App::setFlash('error', 'Zugriff verweigert. Nur Administratoren, Schulleitung und Sekretariat dürfen die Klassenverwaltung nutzen.');
+            App::redirect('/dashboard');
+            return false;
+        }
+        return true;
+    }
+
     public function index(): void
     {
+        if (!$this->requireStaff()) return;
+
         $filters = ['school_year' => $_GET['school_year'] ?? ''];
         $classes = SchoolClass::findAll($filters);
         $schoolYears = SchoolClass::getSchoolYears();
@@ -32,6 +50,8 @@ class ClassController
 
     public function createForm(): void
     {
+        if (!$this->requireStaff()) return;
+
         CsrfMiddleware::generateToken();
         View::render('classes/create', [
             'title' => 'Neue Klasse',
@@ -41,6 +61,8 @@ class ClassController
 
     public function create(): void
     {
+        if (!$this->requireStaff()) return;
+
         $data = [
             'name' => trim($_POST['name'] ?? ''),
             'school_year' => trim($_POST['school_year'] ?? ''),
@@ -67,6 +89,8 @@ class ClassController
 
     public function editForm(string $id): void
     {
+        if (!$this->requireStaff()) return;
+
         $class = SchoolClass::findById((int) $id);
         if (!$class) {
             App::setFlash('error', 'Klasse nicht gefunden.');
@@ -88,6 +112,8 @@ class ClassController
 
     public function update(string $id): void
     {
+        if (!$this->requireStaff()) return;
+
         $classId = (int) $id;
         $class = SchoolClass::findById($classId);
         if (!$class) {
@@ -113,6 +139,8 @@ class ClassController
 
     public function show(string $id): void
     {
+        if (!$this->requireStaff()) return;
+
         $class = SchoolClass::findById((int) $id);
         if (!$class) {
             App::setFlash('error', 'Klasse nicht gefunden.');
@@ -142,13 +170,7 @@ class ClassController
 
     public function transferStudent(string $classId): void
     {
-        // Rollenprüfung
-        $role = App::currentUserRole();
-        if (!in_array($role, ['admin', 'sekretariat', 'schulleitung'])) {
-            App::setFlash('error', 'Keine Berechtigung für diese Aktion.');
-            App::redirect('/classes/' . $classId);
-            return;
-        }
+        if (!$this->requireStaff()) return;
 
         $studentId = (int) ($_POST['student_id'] ?? 0);
         $newClassId = (int) ($_POST['new_class_id'] ?? 0);

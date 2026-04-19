@@ -51,6 +51,18 @@ class User
         );
     }
 
+    /**
+     * Zaehlt aktive Administratoren. Wird genutzt, um zu verhindern,
+     * dass der letzte Admin degradiert oder deaktiviert wird.
+     */
+    public static function countActiveAdmins(): int
+    {
+        $row = Database::queryOne(
+            "SELECT COUNT(*) AS cnt FROM users WHERE role = 'admin' AND active = 1"
+        );
+        return (int) ($row['cnt'] ?? 0);
+    }
+
     public static function findAll(array $filters = []): array
     {
         $sql = 'SELECT id, username, email, role, active, must_change_password, last_login, created_at FROM users WHERE 1=1';
