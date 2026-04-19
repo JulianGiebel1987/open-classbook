@@ -12,6 +12,45 @@ use OpenClassbook\Models\Teacher;
 
 class AbsenceStudentController
 {
+    /**
+     * Liefert die IDs der Klassen, auf die der aktuelle Nutzer zugreifen darf.
+     * - Lehrkraefte: nur zugewiesene Klassen
+     * - Admin/Schulleitung/Sekretariat: null (= alle)
+     * - Schueler: leeres Array (kein Zugriff auf Fehlzeiten-Verwaltung)
+     */
+    private function accessibleClassIds(): ?array
+    {
+        $role = App::currentUserRole();
+        if (in_array($role, ['admin', 'schulleitung', 'sekretariat'], true)) {
+            return null;
+        }
+        if ($role === 'lehrer') {
+            $teacherId = Teacher::getTeacherIdByUserId($_SESSION['user_id']);
+            if (!$teacherId) {
+                return [];
+            }
+            return array_map('intval', array_column(Teacher::getClassesForTeacher($teacherId), 'id'));
+        }
+        return [];
+    }
+
+    /**
+     * Prueft, ob der aktuelle Nutzer auf die Fehlzeiten dieser/s Schueler:in
+     * zugreifen darf (anhand der Klassenzuordnung).
+     */
+    private function canAccessStudent(int $studentId): bool
+    {
+        $student = Student::findById($studentId);
+        if (!$student) {
+            return false;
+        }
+        $allowed = $this->accessibleClassIds();
+        if ($allowed === null) {
+            return true; // Staff: Vollzugriff
+        }
+        return in_array((int) $student['class_id'], $allowed, true);
+    }
+
     public function index(): void
     {
         // Schüler: nur eigene Fehlzeiten anzeigen
@@ -31,12 +70,13 @@ class AbsenceStudentController
         if (App::currentUserRole() === 'lehrer') {
             $teacherId = Teacher::getTeacherIdByUserId($_SESSION['user_id']);
             $accessibleClasses = $teacherId ? Teacher::getClassesForTeacher($teacherId) : [];
-            if (!empty($filters['class_id'])) {
-                $allowed = array_column($accessibleClasses, 'id');
-                if (!in_array((int) $filters['class_id'], $allowed)) {
-                    $filters['class_id'] = '';
-                }
+            $allowedIds = array_map('intval', array_column($accessibleClasses, 'id'));
+            // Nutzer-Filter gegen Whitelist pruefen
+            if (!empty($filters['class_id']) && !in_array((int) $filters['class_id'], $allowedIds, true)) {
+                $filters['class_id'] = '';
             }
+            // Harter Tenant-Scope im Model erzwingen
+            $filters['class_ids'] = $allowedIds;
         } else {
             $accessibleClasses = SchoolClass::findAll();
         }
@@ -99,6 +139,13 @@ class AbsenceStudentController
             return;
         }
 
+        // Tenant-Scope: Lehrkraft darf nur fuer Schueler:innen ihrer Klassen erfassen
+        if (!$this->canAccessStudent($data['student_id'])) {
+            App::setFlash('error', 'Sie haben keinen Zugriff auf diese/n Schüler:in.');
+            App::redirect('/absences/students');
+            return;
+        }
+
         if ($data['date_to'] < $data['date_from']) {
             App::setFlash('error', 'Das Bis-Datum darf nicht vor dem Von-Datum liegen.');
             App::redirect('/absences/students/create');
@@ -124,6 +171,12 @@ class AbsenceStudentController
             return;
         }
 
+        if (!$this->canAccessStudent((int) $absence['student_id'])) {
+            App::setFlash('error', 'Sie haben keinen Zugriff auf diese Fehlzeit.');
+            App::redirect('/absences/students');
+            return;
+        }
+
         CsrfMiddleware::generateToken();
         View::render('absences/students-edit', [
             'title' => 'Fehlzeit bearbeiten',
@@ -141,6 +194,12 @@ class AbsenceStudentController
         $absence = AbsenceStudent::findById((int) $id);
         if (!$absence) {
             App::setFlash('error', 'Fehlzeit nicht gefunden.');
+            App::redirect('/absences/students');
+            return;
+        }
+
+        if (!$this->canAccessStudent((int) $absence['student_id'])) {
+            App::setFlash('error', 'Sie haben keinen Zugriff auf diese Fehlzeit.');
             App::redirect('/absences/students');
             return;
         }
@@ -165,7 +224,20 @@ class AbsenceStudentController
             return;
         }
 
-        AbsenceStudent::delete((int) $id);
+        $absence = AbsenceStudent::findById((int) $id);
+        if (!$absence) {
+            App::setFlash('error', 'Fehlzeit nicht gefunden.');
+            App::redirect('/absences/students');
+            return;
+        }
+
+        if (!$this->canAccessStudent((int) $absence['student_id'])) {
+            App::setFlash('error', 'Sie haben keinen Zugriff auf diese Fehlzeit.');
+            App::redirect('/absences/students');
+            return;
+        }
+
+        AbsenceStudent::delete((int) $absence['id']);
         App::setFlash('success', 'Fehlzeit gelöscht.');
         App::redirect('/absences/students');
     }

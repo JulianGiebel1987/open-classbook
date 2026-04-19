@@ -24,6 +24,17 @@ class MessageController
         }
     }
 
+    private function requireModuleEnabledJson(): void
+    {
+        $role = App::currentUserRole();
+        if (!ModuleSettings::canAccess('messages', $role)) {
+            http_response_code(403);
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'Modul deaktiviert']);
+            exit;
+        }
+    }
+
     /**
      * Inbox: alle Konversationen (1:1 und Gruppen) des eingeloggten Nutzers
      */
@@ -207,6 +218,7 @@ class MessageController
      */
     public function loadMore(string $id): void
     {
+        $this->requireModuleEnabledJson();
         $userId = $_SESSION['user_id'];
         $conversationId = (int) $id;
 
@@ -378,6 +390,7 @@ class MessageController
      */
     public function loadMoreGroup(string $id): void
     {
+        $this->requireModuleEnabledJson();
         $userId = $_SESSION['user_id'];
         $groupId = (int) $id;
 

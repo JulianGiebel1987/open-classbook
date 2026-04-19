@@ -3,11 +3,13 @@
 /storage/uploads/*
 /storage/cache/*
 /storage/files/*
+/storage/keys/*
 !storage/logs/.gitkeep
 !storage/uploads/.gitkeep
 !storage/uploads/.htaccess
 !storage/cache/.gitkeep
 !storage/files/.gitkeep
+!storage/keys/.gitkeep
 config/config.php
 .env
 *.log

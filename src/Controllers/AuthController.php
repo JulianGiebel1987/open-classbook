@@ -210,7 +210,7 @@ class AuthController
         return 'unknown';
     }
 
-    private static function baseUrl(): string
+    public static function baseUrl(): string
     {
         $configured = App::config('app.url');
         if (is_string($configured) && $configured !== '') {

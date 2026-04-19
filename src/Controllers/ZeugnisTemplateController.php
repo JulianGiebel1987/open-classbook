@@ -274,6 +274,12 @@ class ZeugnisTemplateController
             return;
         }
 
+        if (!ModuleSettings::canAccess('templates', $role)) {
+            App::setFlash('error', 'Das Modul Vorlagen ist derzeit deaktiviert.');
+            App::redirect('/dashboard');
+            return;
+        }
+
         $template = ZeugnisTemplate::findById((int) $id);
         if (!$template) {
             App::setFlash('error', 'Vorlage nicht gefunden.');

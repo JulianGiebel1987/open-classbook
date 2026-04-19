@@ -60,30 +60,6 @@ class NotificationService
     }
 
     /**
-     * Temporäres Passwort per E-Mail an den betroffenen Nutzer senden
-     */
-    public static function sendTemporaryPasswordMail(string $to, string $username, string $tempPassword): bool
-    {
-        if (!App::config('mail.enabled')) {
-            Logger::warning('Mail deaktiviert - temporäres Passwort nicht per E-Mail versendet', ['to' => $to]);
-            return false;
-        }
-
-        $subject = 'Ihre Zugangsdaten für Open-Classbook';
-
-        $body  = "Sehr geehrte/r " . $username . ",\n\n";
-        $body .= "Ihr Passwort in Open-Classbook wurde zurückgesetzt.\n\n";
-        $body .= "Ihre neuen Zugangsdaten:\n";
-        $body .= "  Benutzername: " . $username . "\n";
-        $body .= "  Passwort:     " . $tempPassword . "\n\n";
-        $body .= "Bitte melden Sie sich an und ändern Sie das Passwort sofort beim ersten Login.\n\n";
-        $body .= "--\nDiese Nachricht wurde automatisch von Open-Classbook versendet.\n";
-        $body .= "Bitte antworten Sie nicht auf diese E-Mail.";
-
-        return self::sendMail($to, $subject, $body);
-    }
-
-    /**
      * Empfänger für Abwesenheits-Benachrichtigungen: Schulleitung und Sekretariat
      */
     private static function getNotificationRecipients(): array

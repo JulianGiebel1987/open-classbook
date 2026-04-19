@@ -21,6 +21,8 @@ use OpenClassbook\Controllers\ZeugnisController;
 use OpenClassbook\Middleware\AuthMiddleware;
 use OpenClassbook\Middleware\CsrfMiddleware;
 use OpenClassbook\Middleware\ZeugnisAdminMiddleware;
+use OpenClassbook\Middleware\AdminMiddleware;
+use OpenClassbook\Middleware\StaffMiddleware;
 
 /** @var Router $router */
 
@@ -54,28 +56,28 @@ $router->get('/two-factor/recovery-codes', [TwoFactorController::class, 'recover
 $router->post('/two-factor/regenerate-codes', [TwoFactorController::class, 'regenerateCodes'], [AuthMiddleware::class, CsrfMiddleware::class]);
 $router->post('/two-factor/disable', [TwoFactorController::class, 'disable'], [AuthMiddleware::class, CsrfMiddleware::class]);
 
-// === Benutzerverwaltung ===
-$router->get('/users', [UserController::class, 'index'], [AuthMiddleware::class]);
-$router->get('/users/create', [UserController::class, 'createForm'], [AuthMiddleware::class]);
-$router->post('/users', [UserController::class, 'create'], [AuthMiddleware::class, CsrfMiddleware::class]);
-$router->get('/users/{id}/edit', [UserController::class, 'editForm'], [AuthMiddleware::class]);
-$router->post('/users/{id}', [UserController::class, 'update'], [AuthMiddleware::class, CsrfMiddleware::class]);
-$router->post('/users/{id}/toggle', [UserController::class, 'toggleActive'], [AuthMiddleware::class, CsrfMiddleware::class]);
-$router->post('/users/{id}/reset-password', [UserController::class, 'resetPassword'], [AuthMiddleware::class, CsrfMiddleware::class]);
-$router->post('/users/{id}/email-password', [UserController::class, 'emailNewPassword'], [AuthMiddleware::class, CsrfMiddleware::class]);
-$router->post('/users/{id}/send-temp-password', [UserController::class, 'sendTempPassword'], [AuthMiddleware::class, CsrfMiddleware::class]);
-$router->post('/users/{id}/delete', [UserController::class, 'delete'], [AuthMiddleware::class, CsrfMiddleware::class]);
-$router->post('/users/{id}/reset-2fa', [UserController::class, 'resetTwoFactor'], [AuthMiddleware::class, CsrfMiddleware::class]);
-$router->get('/users/reset-password-info', [UserController::class, 'resetPasswordInfo'], [AuthMiddleware::class]);
+// === Benutzerverwaltung (nur Admin) ===
+$router->get('/users', [UserController::class, 'index'], [AuthMiddleware::class, AdminMiddleware::class]);
+$router->get('/users/create', [UserController::class, 'createForm'], [AuthMiddleware::class, AdminMiddleware::class]);
+$router->post('/users', [UserController::class, 'create'], [AuthMiddleware::class, AdminMiddleware::class, CsrfMiddleware::class]);
+$router->get('/users/{id}/edit', [UserController::class, 'editForm'], [AuthMiddleware::class, AdminMiddleware::class]);
+$router->post('/users/{id}', [UserController::class, 'update'], [AuthMiddleware::class, AdminMiddleware::class, CsrfMiddleware::class]);
+$router->post('/users/{id}/toggle', [UserController::class, 'toggleActive'], [AuthMiddleware::class, AdminMiddleware::class, CsrfMiddleware::class]);
+$router->post('/users/{id}/reset-password', [UserController::class, 'resetPassword'], [AuthMiddleware::class, AdminMiddleware::class, CsrfMiddleware::class]);
+$router->post('/users/{id}/email-password', [UserController::class, 'emailNewPassword'], [AuthMiddleware::class, AdminMiddleware::class, CsrfMiddleware::class]);
+$router->post('/users/{id}/send-temp-password', [UserController::class, 'sendTempPassword'], [AuthMiddleware::class, AdminMiddleware::class, CsrfMiddleware::class]);
+$router->post('/users/{id}/delete', [UserController::class, 'delete'], [AuthMiddleware::class, AdminMiddleware::class, CsrfMiddleware::class]);
+$router->post('/users/{id}/reset-2fa', [UserController::class, 'resetTwoFactor'], [AuthMiddleware::class, AdminMiddleware::class, CsrfMiddleware::class]);
+$router->get('/users/reset-password-info', [UserController::class, 'resetPasswordInfo'], [AuthMiddleware::class, AdminMiddleware::class]);
 
-// === Klassenverwaltung ===
-$router->get('/classes', [ClassController::class, 'index'], [AuthMiddleware::class]);
-$router->get('/classes/create', [ClassController::class, 'createForm'], [AuthMiddleware::class]);
-$router->post('/classes', [ClassController::class, 'create'], [AuthMiddleware::class, CsrfMiddleware::class]);
-$router->get('/classes/{id}', [ClassController::class, 'show'], [AuthMiddleware::class]);
-$router->get('/classes/{id}/edit', [ClassController::class, 'editForm'], [AuthMiddleware::class]);
-$router->post('/classes/{id}', [ClassController::class, 'update'], [AuthMiddleware::class, CsrfMiddleware::class]);
-$router->post('/classes/{id}/transfer', [ClassController::class, 'transferStudent'], [AuthMiddleware::class, CsrfMiddleware::class]);
+// === Klassenverwaltung (Admin / Schulleitung / Sekretariat) ===
+$router->get('/classes', [ClassController::class, 'index'], [AuthMiddleware::class, StaffMiddleware::class]);
+$router->get('/classes/create', [ClassController::class, 'createForm'], [AuthMiddleware::class, StaffMiddleware::class]);
+$router->post('/classes', [ClassController::class, 'create'], [AuthMiddleware::class, StaffMiddleware::class, CsrfMiddleware::class]);
+$router->get('/classes/{id}', [ClassController::class, 'show'], [AuthMiddleware::class, StaffMiddleware::class]);
+$router->get('/classes/{id}/edit', [ClassController::class, 'editForm'], [AuthMiddleware::class, StaffMiddleware::class]);
+$router->post('/classes/{id}', [ClassController::class, 'update'], [AuthMiddleware::class, StaffMiddleware::class, CsrfMiddleware::class]);
+$router->post('/classes/{id}/transfer', [ClassController::class, 'transferStudent'], [AuthMiddleware::class, StaffMiddleware::class, CsrfMiddleware::class]);
 
 // === Klassenbuch ===
 $router->get('/classbook', [ClassbookController::class, 'index'], [AuthMiddleware::class]);
@@ -187,14 +189,14 @@ $router->get('/substitution/pdf', [SubstitutionController::class, 'exportPdf'], 
 $router->post('/substitution/{id}', [SubstitutionController::class, 'update'], [AuthMiddleware::class, CsrfMiddleware::class]);
 $router->post('/substitution/{id}/delete', [SubstitutionController::class, 'delete'], [AuthMiddleware::class, CsrfMiddleware::class]);
 
-// === Import ===
-$router->get('/import', [ImportController::class, 'index'], [AuthMiddleware::class]);
-$router->post('/import/teachers', [ImportController::class, 'uploadTeachers'], [AuthMiddleware::class, CsrfMiddleware::class]);
-$router->post('/import/teachers/confirm', [ImportController::class, 'confirmTeachers'], [AuthMiddleware::class, CsrfMiddleware::class]);
-$router->post('/import/students', [ImportController::class, 'uploadStudents'], [AuthMiddleware::class, CsrfMiddleware::class]);
-$router->post('/import/students/confirm', [ImportController::class, 'confirmStudents'], [AuthMiddleware::class, CsrfMiddleware::class]);
-$router->get('/import/students/credentials', [ImportController::class, 'studentCredentials'], [AuthMiddleware::class]);
-$router->get('/import/template/{type}', [ImportController::class, 'downloadTemplate'], [AuthMiddleware::class]);
+// === Import (Admin / Schulleitung / Sekretariat) ===
+$router->get('/import', [ImportController::class, 'index'], [AuthMiddleware::class, StaffMiddleware::class]);
+$router->post('/import/teachers', [ImportController::class, 'uploadTeachers'], [AuthMiddleware::class, StaffMiddleware::class, CsrfMiddleware::class]);
+$router->post('/import/teachers/confirm', [ImportController::class, 'confirmTeachers'], [AuthMiddleware::class, StaffMiddleware::class, CsrfMiddleware::class]);
+$router->post('/import/students', [ImportController::class, 'uploadStudents'], [AuthMiddleware::class, StaffMiddleware::class, CsrfMiddleware::class]);
+$router->post('/import/students/confirm', [ImportController::class, 'confirmStudents'], [AuthMiddleware::class, StaffMiddleware::class, CsrfMiddleware::class]);
+$router->get('/import/students/credentials', [ImportController::class, 'studentCredentials'], [AuthMiddleware::class, StaffMiddleware::class]);
+$router->get('/import/template/{type}', [ImportController::class, 'downloadTemplate'], [AuthMiddleware::class, StaffMiddleware::class]);
 
 // === Zeugniserstellung: Vorlagenverwaltung (Admin, Schulleitung, Sekretariat) ===
 $router->get('/zeugnis/templates', [ZeugnisTemplateController::class, 'index'], [AuthMiddleware::class, ZeugnisAdminMiddleware::class]);

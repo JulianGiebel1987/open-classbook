@@ -179,21 +179,35 @@ class TwoFactorService
     }
 
     /**
-     * TOTP-Secret entschluesseln
+     * TOTP-Secret entschluesseln.
+     * Versucht primaer den aktuellen Key. Falls das fehlschlaegt und ein
+     * Legacy-Fallback-Key existiert (Altbestand aus DB-Passwort), wird dieser
+     * als Fallback versucht, um bestehende 2FA-Setups nicht zu invalidieren.
      */
     public static function decryptSecret(string $encrypted): ?string
     {
-        $key = self::getEncryptionKey();
         $data = base64_decode($encrypted);
         if ($data === false || strlen($data) < 17) {
             return null;
         }
-
         $iv = substr($data, 0, 16);
         $ciphertext = substr($data, 16);
-        $decrypted = openssl_decrypt($ciphertext, 'aes-256-cbc', $key, OPENSSL_RAW_DATA, $iv);
 
-        return $decrypted !== false ? $decrypted : null;
+        $decrypted = openssl_decrypt($ciphertext, 'aes-256-cbc', self::getEncryptionKey(), OPENSSL_RAW_DATA, $iv);
+        if ($decrypted !== false) {
+            return $decrypted;
+        }
+
+        $legacyKey = self::getLegacyEncryptionKey();
+        if ($legacyKey !== null) {
+            $legacyDecrypted = openssl_decrypt($ciphertext, 'aes-256-cbc', $legacyKey, OPENSSL_RAW_DATA, $iv);
+            if ($legacyDecrypted !== false) {
+                Logger::warning('TOTP-Secret mit Legacy-Key entschluesselt. Bitte Nutzer zum 2FA-Re-Setup auffordern.');
+                return $legacyDecrypted;
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -219,25 +233,48 @@ class TwoFactorService
     }
 
     /**
-     * Prüfen ob Nutzer wegen zu vieler Fehlversuche gesperrt ist
+     * Prueft, ob weitere 2FA-Versuche gesperrt sind.
+     * Die Sperre ist primaer IP-basiert (bzw. deren Pseudonym), damit
+     * ein Angreifer nicht durch gezielte Fehlversuche einen fremden
+     * Account aussperren kann. Bei nicht ermittelbarer IP wird auf den
+     * Username-Scope zurueckgefallen.
      */
     public static function isLockedOut(int $userId): bool
     {
         $maxAttempts = (int) (Setting::get('two_factor_max_attempts') ?? 5);
         $lockoutDuration = App::config('security.lockout_duration') ?? 900;
+        $ip = self::pseudonymizeIp($_SERVER['REMOTE_ADDR'] ?? '0.0.0.0');
 
-        $result = Database::queryOne(
-            'SELECT COUNT(*) as cnt FROM two_factor_codes WHERE user_id = ? AND type = ? AND used_at IS NULL AND created_at > DATE_SUB(NOW(), INTERVAL ? SECOND)',
-            [$userId, 'email', $lockoutDuration]
-        );
-
-        // Wir zählen fehlgeschlagene Versuche über die login_attempts-Tabelle
-        $attempts = Database::queryOne(
-            'SELECT COUNT(*) as cnt FROM login_attempts WHERE username = (SELECT username FROM users WHERE id = ?) AND successful = 0 AND attempted_at > DATE_SUB(NOW(), INTERVAL ? SECOND)',
-            [$userId, $lockoutDuration]
-        );
+        if ($ip === 'unknown') {
+            $attempts = Database::queryOne(
+                'SELECT COUNT(*) as cnt FROM login_attempts WHERE username = (SELECT username FROM users WHERE id = ?) AND successful = 0 AND attempted_at > DATE_SUB(NOW(), INTERVAL ? SECOND)',
+                [$userId, $lockoutDuration]
+            );
+        } else {
+            $attempts = Database::queryOne(
+                'SELECT COUNT(*) as cnt FROM login_attempts WHERE ip_address = ? AND successful = 0 AND attempted_at > DATE_SUB(NOW(), INTERVAL ? SECOND)',
+                [$ip, $lockoutDuration]
+            );
+        }
 
         return ($attempts['cnt'] ?? 0) >= $maxAttempts;
+    }
+
+    /**
+     * IP-Adresse pseudonymisieren (DSGVO Art. 5 Abs. 1 lit. e)
+     */
+    private static function pseudonymizeIp(string $ip): string
+    {
+        if (str_contains($ip, ':')) {
+            $parts = explode(':', $ip);
+            return implode(':', array_slice($parts, 0, 4)) . ':xxxx:xxxx:xxxx:xxxx';
+        }
+        $parts = explode('.', $ip);
+        if (count($parts) === 4) {
+            $parts[3] = 'xxx';
+            return implode('.', $parts);
+        }
+        return 'unknown';
     }
 
     /**
@@ -268,17 +305,68 @@ class TwoFactorService
     }
 
     /**
-     * Verschlüsselungsschlüssel laden
+     * Verschluesselungsschluessel laden.
+     * Reihenfolge:
+     *   1. Explizit konfigurierter Key (security.two_factor_encryption_key)
+     *   2. Persistenter Auto-Key in storage/keys/two_factor.key
+     *      (wird einmalig mit 32 zufaelligen Bytes erzeugt, Datei 0600)
+     *
+     * Der frueher genutzte, aus dem DB-Passwort abgeleitete Fallback ist entfernt.
      */
     private static function getEncryptionKey(): string
     {
-        $key = App::config('security.two_factor_encryption_key') ?? '';
-        if (empty($key)) {
-            // Fallback: SHA-256 Hash des Datenbank-Passworts als Key
-            $key = hash('sha256', App::config('database.password') ?? 'open-classbook-default-key', true);
-        } else {
-            $key = hex2bin($key) ?: hash('sha256', $key, true);
+        $configured = App::config('security.two_factor_encryption_key') ?? '';
+        if (!empty($configured)) {
+            $decoded = @hex2bin($configured);
+            return $decoded !== false ? $decoded : hash('sha256', $configured, true);
         }
-        return $key;
+
+        return self::loadOrCreateKeyFile();
+    }
+
+    /**
+     * Liefert den Legacy-Fallback-Key (Altbestand aus Datenbank-Passwort),
+     * sofern das Datenbank-Passwort konfiguriert ist. Wird nur zum
+     * nachtraeglichen Entschluesseln bestehender Secrets genutzt.
+     */
+    private static function getLegacyEncryptionKey(): ?string
+    {
+        $dbPassword = App::config('database.password');
+        if (!is_string($dbPassword) || $dbPassword === '') {
+            return null;
+        }
+        return hash('sha256', $dbPassword, true);
+    }
+
+    /**
+     * Persistenten Auto-Key aus storage/keys/two_factor.key laden;
+     * falls nicht vorhanden, einmalig generieren und schreiben.
+     */
+    private static function loadOrCreateKeyFile(): string
+    {
+        $dir = __DIR__ . '/../../storage/keys';
+        $path = $dir . '/two_factor.key';
+
+        if (is_file($path)) {
+            $raw = @file_get_contents($path);
+            if ($raw !== false && strlen($raw) >= 32) {
+                return substr($raw, 0, 32);
+            }
+        }
+
+        if (!is_dir($dir)) {
+            @mkdir($dir, 0700, true);
+        }
+
+        $newKey = random_bytes(32);
+        $tmp = $path . '.tmp';
+        if (@file_put_contents($tmp, $newKey, LOCK_EX) === false || !@rename($tmp, $path)) {
+            // Als letzter Ausweg: ephemeren Key liefern, Fehler loggen
+            Logger::error('TOTP-Key konnte nicht persistiert werden. Bitte security.two_factor_encryption_key setzen.', ['path' => $path]);
+            return $newKey;
+        }
+        @chmod($path, 0600);
+        Logger::info('Neuen persistenten TOTP-Key erzeugt.', ['path' => $path]);
+        return $newKey;
     }
 }
