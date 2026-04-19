@@ -213,7 +213,9 @@ textarea:focus-visible {
 }
 
 .navbar-menu a {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
     width: 100%;
     color: var(--color-navbar-text);
     padding: var(--spacing-sm) var(--spacing-md);
@@ -221,6 +223,17 @@ textarea:focus-visible {
     transition: all var(--transition);
     font-size: var(--font-size-sm);
     font-weight: 500;
+}
+
+.nav-icon {
+    display: flex;
+    flex-shrink: 0;
+    opacity: 0.8;
+}
+
+.navbar-menu a:hover .nav-icon,
+.navbar-menu a[aria-current="page"] .nav-icon {
+    opacity: 1;
 }
 
 .navbar-menu a:hover {
