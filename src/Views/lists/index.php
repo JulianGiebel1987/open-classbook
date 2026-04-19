@@ -34,7 +34,7 @@ $visibilityBadges = ['private' => 'badge-muted', 'global' => 'badge-success', 's
                     <td><?= htmlspecialchars($l['owner_username'], ENT_QUOTES, 'UTF-8') ?></td>
                     <td>
                         <div class="btn-group">
-                            <a href="/lists/<?= (int) $l['id'] ?>" class="btn btn-sm btn-secondary">Oeffnen</a>
+                            <a href="/lists/<?= (int) $l['id'] ?>" class="btn btn-sm btn-secondary">Öffnen</a>
                             <?php if ((int) $l['owner_id'] === $currentUserId): ?>
                                 <form method="post" action="/lists/<?= (int) $l['id'] ?>/delete" class="d-inline">
                                     <?= \OpenClassbook\View::csrfField() ?>
