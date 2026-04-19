@@ -54,7 +54,7 @@ return [
         ['label' => 'Meine Klassen',   'url' => '/classbook',                      'icon' => 'classbook'],
         ['label' => 'Mein Stundenplan','url' => '/timetable/my-schedule',          'icon' => 'timetable',   'module' => 'timetable'],
         ['label' => 'Vertretung',      'url' => '/substitution/my-substitutions',  'icon' => 'substitution','module' => 'substitution'],
-        ['label' => 'Krankmeldung',    'url' => '/absences/teachers/self',         'icon' => 'sick-note'],
+        ['label' => 'Lehrkraft-Abwesenheit', 'url' => '/absences/teachers/self',    'icon' => 'sick-note'],
         ['label' => 'Nachrichten',     'url' => '/messages',                       'icon' => 'messages',    'module' => 'messages'],
         ['label' => 'Listen',          'url' => '/lists',                          'icon' => 'lists',       'module' => 'lists'],
         ['label' => 'Dateien',         'url' => '/files',                          'icon' => 'files',       'module' => 'files'],
