@@ -49,6 +49,9 @@ document.addEventListener('DOMContentLoaded', function () {
     // === Aktive Navigation markieren ===
     markActiveNavItem();
 
+    // === Gruppen-Mitglieder-Toggle ===
+    initGroupMembersToggle();
+
     // === Chat-Funktionen ===
     initChat();
 
@@ -231,6 +234,21 @@ function markActiveNavItem() {
         } else if (href === currentPath) {
             link.setAttribute('aria-current', 'page');
         }
+    });
+}
+
+/**
+ * Gruppen-Mitglieder-Panel ein-/ausblenden
+ */
+function initGroupMembersToggle() {
+    var toggleBtn = document.getElementById('toggleMembersBtn');
+    var panel = document.getElementById('groupMembersPanel');
+    if (!toggleBtn || !panel) return;
+
+    toggleBtn.addEventListener('click', function () {
+        var isHidden = panel.hidden;
+        panel.hidden = !isHidden;
+        toggleBtn.setAttribute('aria-expanded', isHidden ? 'true' : 'false');
     });
 }
 

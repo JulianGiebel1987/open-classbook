@@ -213,7 +213,9 @@ textarea:focus-visible {
 }
 
 .navbar-menu a {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
     width: 100%;
     color: var(--color-navbar-text);
     padding: var(--spacing-sm) var(--spacing-md);
@@ -221,6 +223,17 @@ textarea:focus-visible {
     transition: all var(--transition);
     font-size: var(--font-size-sm);
     font-weight: 500;
+}
+
+.nav-icon {
+    display: flex;
+    flex-shrink: 0;
+    opacity: 0.8;
+}
+
+.navbar-menu a:hover .nav-icon,
+.navbar-menu a[aria-current="page"] .nav-icon {
+    opacity: 1;
 }
 
 .navbar-menu a:hover {
@@ -1499,6 +1512,25 @@ a.widget:hover {
 
 .group-member-name {
     font-size: var(--font-size-sm);
+}
+
+.group-members-panel {
+    margin-bottom: var(--spacing-lg);
+}
+
+.group-members-list {
+    list-style: none;
+    margin: var(--spacing-sm) 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.group-member-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
 }
 
 .group-members-bar {

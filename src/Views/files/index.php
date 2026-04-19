@@ -17,7 +17,7 @@
         <div class="file-overview-card-body">
             <h2>Meine Dateien</h2>
             <p class="text-muted">Privater Bereich — nur für Sie sichtbar</p>
-            <span class="file-overview-card-link">Oeffnen &rarr;</span>
+            <span class="file-overview-card-link">Öffnen &rarr;</span>
         </div>
     </a>
     <a href="/files/shared" class="file-overview-card card">
@@ -25,7 +25,7 @@
         <div class="file-overview-card-body">
             <h2>Gemeinschaftliche Dateien</h2>
             <p class="text-muted">Für alle Lehrkräfte und Verwaltung sichtbar</p>
-            <span class="file-overview-card-link">Oeffnen &rarr;</span>
+            <span class="file-overview-card-link">Öffnen &rarr;</span>
         </div>
     </a>
 </div>

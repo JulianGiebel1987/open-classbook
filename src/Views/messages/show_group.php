@@ -25,9 +25,9 @@
     </div>
 </div>
 
-<div id="groupMembersPanel" class="card" style="display: none; margin-bottom: 1rem;">
-    <strong>Mitglieder dieser Gruppe:</strong>
-    <ul style="margin: 0.5rem 0 0 0; padding-left: 1.25rem;">
+<div id="groupMembersPanel" class="card group-members-panel" hidden>
+    <strong>Mitglieder dieser Gruppe</strong>
+    <ul class="group-members-list">
         <?php
         $roleLabels = [
             'admin'        => 'Admin',
@@ -37,10 +37,13 @@
             'schueler'     => 'Schüler:in',
         ];
         foreach ($members as $m): ?>
-            <li>
-                <?= htmlspecialchars($m['username'], ENT_QUOTES, 'UTF-8') ?>
-                <span class="badge badge-muted"><?= $roleLabels[$m['role']] ?? $m['role'] ?></span>
-                <?php if ((int) $m['id'] === $currentUserId): ?>
+            <li class="group-member-item">
+                <span class="group-member-avatar-sm" aria-hidden="true">
+                    <?= htmlspecialchars(mb_strtoupper(mb_substr($m['username'], 0, 1, 'UTF-8'), 'UTF-8'), ENT_QUOTES, 'UTF-8') ?>
+                </span>
+                <span><?= htmlspecialchars($m['username'], ENT_QUOTES, 'UTF-8') ?></span>
+                <span class="badge badge-muted"><?= htmlspecialchars($roleLabels[$m['role']] ?? $m['role'], ENT_QUOTES, 'UTF-8') ?></span>
+                <?php if ((int) $m['id'] === (int) $currentUserId): ?>
                     <span class="text-muted">(Sie)</span>
                 <?php endif; ?>
             </li>
@@ -89,16 +92,3 @@
     </form>
 </div>
 
-<script>
-(function () {
-    var toggleBtn = document.getElementById('toggleMembersBtn');
-    var panel = document.getElementById('groupMembersPanel');
-    if (toggleBtn && panel) {
-        toggleBtn.addEventListener('click', function () {
-            var isHidden = panel.style.display === 'none';
-            panel.style.display = isHidden ? '' : 'none';
-            toggleBtn.setAttribute('aria-expanded', isHidden ? 'true' : 'false');
-        });
-    }
-})();
-</script>
