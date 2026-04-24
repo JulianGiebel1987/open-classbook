@@ -1,5 +1,5 @@
 <div class="page-header">
-    <h1>Krankmeldung</h1>
+    <h1>Lehrkraft-Abwesenheit</h1>
 </div>
 
 <div class="card">
@@ -32,7 +32,7 @@
         </div>
 
         <div class="btn-group">
-            <button type="submit" class="btn">Krankmeldung absenden</button>
+            <button type="submit" class="btn">Lehrkraft-Abwesenheit absenden</button>
             <a href="/dashboard" class="btn btn-secondary">Abbrechen</a>
         </div>
     </form>

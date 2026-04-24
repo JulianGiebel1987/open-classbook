@@ -101,7 +101,7 @@ class AbsenceTeacherController
     {
         CsrfMiddleware::generateToken();
         View::render('absences/teachers-self', [
-            'title' => 'Krankmeldung',
+            'title' => 'Lehrkraft-Abwesenheit',
         ]);
     }
 
@@ -140,7 +140,7 @@ class AbsenceTeacherController
             }
         }
 
-        App::setFlash('success', 'Ihre Krankmeldung wurde erfolgreich eingetragen.');
+        App::setFlash('success', 'Ihre Lehrkraft-Abwesenheit wurde erfolgreich eingetragen.');
         App::redirect('/dashboard');
     }
 
