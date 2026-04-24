@@ -321,7 +321,7 @@ class ClassbookController
         $students = Student::findByClassId((int) $classId);
 
         View::render('classbook/remarks-index', [
-            'title'    => 'Schülerbemerkungen – ' . $class['name'],
+            'title'    => 'Schüler:innen-Bemerkungen – ' . $class['name'],
             'class'    => $class,
             'remarks'  => $remarks,
             'students' => $students,
