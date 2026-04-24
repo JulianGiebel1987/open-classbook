@@ -6,7 +6,7 @@
             <a href="/classbook/<?= $class['id'] ?>/create" class="btn">Neuer Eintrag</a>
         <?php endif; ?>
         <a href="/absences/students?class_id=<?= $class['id'] ?>" class="btn btn-secondary">Schüler:innen-Fehlzeiten</a>
-        <a href="/classbook/<?= $class['id'] ?>/remarks" class="btn btn-secondary">Schülerbemerkungen</a>
+        <a href="/classbook/<?= $class['id'] ?>/remarks" class="btn btn-secondary">Schüler:innen-Bemerkungen</a>
         <a href="/classbook/<?= $class['id'] ?>/export-csv?date_from=<?= urlencode($filters['date_from'] ?? '') ?>&date_to=<?= urlencode($filters['date_to'] ?? '') ?>" class="btn btn-secondary">CSV Export</a>
         <a href="/classbook/<?= $class['id'] ?>/export-pdf?date_from=<?= urlencode($filters['date_from'] ?? '') ?>&date_to=<?= urlencode($filters['date_to'] ?? '') ?>" class="btn btn-secondary">PDF Export</a>
     </div>

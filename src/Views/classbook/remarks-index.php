@@ -1,7 +1,7 @@
 <?php $role = \OpenClassbook\App::currentUserRole(); ?>
 
 <div class="page-header">
-    <h1>Schülerbemerkungen: <?= htmlspecialchars($class['name'], ENT_QUOTES, 'UTF-8') ?></h1>
+    <h1>Schüler:innen-Bemerkungen: <?= htmlspecialchars($class['name'], ENT_QUOTES, 'UTF-8') ?></h1>
     <div class="btn-group">
         <?php if ($role === 'admin' || $role === 'lehrer'): ?>
             <a href="/classbook/<?= $class['id'] ?>/remarks/create" class="btn">Neue Bemerkung</a>
@@ -44,7 +44,7 @@
 <?php else: ?>
 <div class="card mt-1">
     <div class="table-responsive">
-        <table aria-label="Schülerbemerkungen">
+        <table aria-label="Schüler:innen-Bemerkungen">
             <thead>
                 <tr>
                     <th scope="col" style="white-space:nowrap">Datum</th>

@@ -43,6 +43,6 @@
         <h2>Schnellzugriff</h2>
     </div>
     <div class="btn-group flex-wrap">
-        <a href="/absences/teachers/self" class="btn">Krankmeldung erstellen</a>
+        <a href="/absences/teachers/self" class="btn">Lehrkraft-Abwesenheit erstellen</a>
     </div>
 </div>
