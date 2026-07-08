@@ -42,6 +42,28 @@ class ImportService
     }
 
     /**
+     * Prueft, ob eine Lehrkraft-E-Mail als Anmeldename verwendbar ist.
+     * Gibt einen Fehlertext zurueck, falls die E-Mail bereits als Anmeldename
+     * vergeben ist oder innerhalb derselben Datei mehrfach vorkommt; sonst null.
+     * $seenEmails wird dabei fortgeschrieben (Referenz).
+     */
+    private static function teacherEmailLoginError(string $email, array &$seenEmails): ?string
+    {
+        $normalized = strtolower(trim($email));
+        if ($normalized === '') {
+            return null;
+        }
+        if (isset($seenEmails[$normalized])) {
+            return 'E-Mail "' . $email . '" kommt in der Datei mehrfach vor';
+        }
+        $seenEmails[$normalized] = true;
+        if (User::usernameExists($normalized)) {
+            return 'E-Mail "' . $email . '" ist bereits als Anmeldename vergeben';
+        }
+        return null;
+    }
+
+    /**
      * Lehrer-Vorschau aus CSV-Datei
      */
     private static function previewTeachersFromCsv(string $filePath): array
@@ -49,6 +71,7 @@ class ImportService
         $csvRows = self::parseCsv($filePath);
         $rows = [];
         $errors = [];
+        $seenEmails = [];
 
         foreach ($csvRows as $csvRow) {
             $data = array_pad($csvRow['data'], 6, '');
@@ -62,6 +85,10 @@ class ImportService
 
             if (!empty($abbreviation) && Teacher::abbreviationExists($abbreviation)) {
                 $rowErrors[] = 'Kürzel "' . $abbreviation . '" existiert bereits';
+            }
+
+            if (!empty($email) && ($emailError = self::teacherEmailLoginError($email, $seenEmails)) !== null) {
+                $rowErrors[] = $emailError;
             }
 
             $rows[] = [
@@ -150,6 +177,7 @@ class ImportService
         $sheet = $spreadsheet->getActiveSheet();
         $rows = [];
         $errors = [];
+        $seenEmails = [];
 
         foreach ($sheet->getRowIterator(2) as $row) { // Ab Zeile 2 (Zeile 1 = Header)
             $rowIndex = $row->getRowIndex();
@@ -172,6 +200,10 @@ class ImportService
 
             if (!empty($abbreviation) && Teacher::abbreviationExists($abbreviation)) {
                 $rowErrors[] = 'Kürzel "' . $abbreviation . '" existiert bereits';
+            }
+
+            if (!empty($email) && ($emailError = self::teacherEmailLoginError($email, $seenEmails)) !== null) {
+                $rowErrors[] = $emailError;
             }
 
             $rows[] = [
@@ -209,16 +241,15 @@ class ImportService
                 continue;
             }
 
-            // User-Account erstellen
+            // User-Account erstellen: Anmeldename ist die E-Mail-Adresse
             $password = bin2hex(random_bytes(5));
-            $username = strtolower($row['abbreviation']);
+            $username = strtolower(trim($row['email']));
 
-            // Sicherstellen, dass Username eindeutig ist
-            $baseUsername = $username;
-            $counter = 1;
-            while (User::usernameExists($username)) {
-                $username = $baseUsername . $counter;
-                $counter++;
+            // E-Mail bereits als Anmeldename vergeben -> Zeile ueberspringen
+            // (Duplikate werden bereits in der Vorschau als Fehler markiert)
+            if ($username === '' || User::usernameExists($username)) {
+                $skipped++;
+                continue;
             }
 
             $userId = User::create([

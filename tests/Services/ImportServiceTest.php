@@ -280,8 +280,8 @@ class ImportServiceTest extends DatabaseTestCase
         $this->assertEquals('Anna', $teacher['firstname']);
         $this->assertEquals('Bauer', $teacher['lastname']);
 
-        // Verify user account was created
-        $user = self::$pdo->query("SELECT * FROM users WHERE username = 'bau'")->fetch();
+        // Verify user account was created with the e-mail as login name
+        $user = self::$pdo->query("SELECT * FROM users WHERE username = 'bauer@schule.de'")->fetch();
         $this->assertNotFalse($user);
         $this->assertEquals('lehrer', $user['role']);
         $this->assertEquals(1, $user['must_change_password']);
@@ -300,10 +300,10 @@ class ImportServiceTest extends DatabaseTestCase
         $this->assertEquals(1, $result['skipped']);
     }
 
-    public function testImportTeachersHandlesUsernameCollision(): void
+    public function testImportTeachersSkipsExistingEmailLogin(): void
     {
-        // Create existing user with username 'bau'
-        $this->createTestUser(['username' => 'bau']);
+        // Ein Konto belegt die E-Mail bereits als Anmeldename
+        $this->createTestUser(['username' => 'bauer3@schule.de']);
 
         $path = $this->createTeacherExcel([
             ['Anna', 'Bauer', 'BAU3', 'bauer3@schule.de', 'Kunst', ''],
@@ -311,12 +311,12 @@ class ImportServiceTest extends DatabaseTestCase
 
         $result = ImportService::importTeachers($path);
 
-        $this->assertEquals(1, $result['imported']);
+        // Zeile wird uebersprungen, kein zweites Konto angelegt
+        $this->assertEquals(0, $result['imported']);
+        $this->assertEquals(1, $result['skipped']);
 
-        // Username should be 'bau1' because 'bau' was taken
-        // Note: the abbreviation is BAU3, so username base is 'bau3'
-        $user = self::$pdo->query("SELECT * FROM users WHERE username = 'bau3'")->fetch();
-        $this->assertNotFalse($user);
+        $count = self::$pdo->query("SELECT COUNT(*) AS c FROM users WHERE username = 'bauer3@schule.de'")->fetch();
+        $this->assertEquals(1, (int) $count['c']);
     }
 
     // --- Student preview tests ---

@@ -18,14 +18,15 @@ $roleLabels = [
 
         <?php $old = $old ?? []; ?>
 
-        <div class="form-group">
+        <div class="form-group" id="username-field">
             <label for="username">Benutzername <span aria-hidden="true">*</span><span class="sr-only">(Pflichtfeld)</span></label>
             <input type="text" id="username" name="username" class="form-control" required autocomplete="username" value="<?= htmlspecialchars($old['username'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
         </div>
 
         <div class="form-group">
             <label for="email">E-Mail</label>
-            <input type="email" id="email" name="email" class="form-control" autocomplete="email" value="<?= htmlspecialchars($old['email'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+            <input type="email" id="email" name="email" class="form-control" autocomplete="email" aria-describedby="email_help" value="<?= htmlspecialchars($old['email'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+            <span class="form-help" id="email_help">Bei Lehrkräften wird die E-Mail als Anmeldename verwendet.</span>
         </div>
 
         <div class="form-group">

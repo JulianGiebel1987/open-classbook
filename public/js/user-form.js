@@ -11,6 +11,9 @@
     var lastname = document.getElementById('lastname');
     var abbreviation = document.getElementById('abbreviation');
     var classId = document.getElementById('class_id');
+    var usernameField = document.getElementById('username-field');
+    var username = document.getElementById('username');
+    var email = document.getElementById('email');
 
     if (!roleSelect || !profileFields) {
         return; // Nicht auf dieser Seite
@@ -32,6 +35,12 @@
         if (lastname) lastname.required = needsProfile;
         if (abbreviation) abbreviation.required = isTeacher;
         if (classId) classId.required = isStudent;
+
+        // Lehrkräfte melden sich mit der E-Mail an -> Benutzername-Feld ausblenden.
+        // Ein verstecktes required-Feld wuerde den Submit blockieren.
+        if (usernameField) usernameField.style.display = isTeacher ? 'none' : '';
+        if (username) username.required = !isTeacher;
+        if (email) email.required = isTeacher;
     }
 
     roleSelect.addEventListener('change', toggleFields);
