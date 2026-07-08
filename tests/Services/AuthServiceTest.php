@@ -343,4 +343,44 @@ class AuthServiceTest extends DatabaseTestCase
         // Just verify the static call works without error
         $this->assertTrue(true);
     }
+
+    // --- generateRandomPassword ---
+
+    public function testGenerateRandomPasswordMeetsPasswordPolicy(): void
+    {
+        for ($i = 0; $i < 100; $i++) {
+            $password = AuthService::generateRandomPassword(12);
+
+            $errors = AuthService::validatePassword($password);
+            $this->assertEmpty(
+                $errors,
+                'Generiertes Passwort erfuellt Policy nicht: ' . $password . ' (' . implode(' ', $errors) . ')'
+            );
+            $this->assertSame(12, strlen($password));
+        }
+    }
+
+    public function testGenerateRandomPasswordRespectsCustomLength(): void
+    {
+        $this->assertSame(20, strlen(AuthService::generateRandomPassword(20)));
+    }
+
+    public function testGenerateRandomPasswordEnforcesMinLength(): void
+    {
+        // Zu kurze Laengen werden auf die Policy-Mindestlaenge angehoben.
+        $password = AuthService::generateRandomPassword(4);
+        $this->assertEmpty(AuthService::validatePassword($password));
+    }
+
+    public function testGenerateRandomPasswordIsDifferentEachCall(): void
+    {
+        $passwords = [];
+        for ($i = 0; $i < 20; $i++) {
+            $passwords[] = AuthService::generateRandomPassword(12);
+        }
+
+        // Es sollte praktisch unmoeglich sein, dass 20 aufeinanderfolgende
+        // Generierungen Duplikate enthalten (Geburtstagsparadoxon vernachlaessigbar).
+        $this->assertCount(20, array_unique($passwords));
+    }
 }

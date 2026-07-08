@@ -93,4 +93,30 @@ class Database
     {
         return self::getConnection()->lastInsertId();
     }
+
+    /**
+     * Transaktion starten
+     */
+    public static function beginTransaction(): void
+    {
+        self::getConnection()->beginTransaction();
+    }
+
+    /**
+     * Transaktion bestaetigen
+     */
+    public static function commit(): void
+    {
+        self::getConnection()->commit();
+    }
+
+    /**
+     * Transaktion zuruecksetzen
+     */
+    public static function rollBack(): void
+    {
+        if (self::getConnection()->inTransaction()) {
+            self::getConnection()->rollBack();
+        }
+    }
 }

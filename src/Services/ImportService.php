@@ -331,30 +331,9 @@ class ImportService
 
             $class = SchoolClass::findByName($row['class_name'], $schoolYear);
 
-            // User-Account erstellen (analog zum Lehrer-Import)
-            $password = bin2hex(random_bytes(5));
-            $username = strtolower(
-                mb_substr($row['firstname'], 0, 1) . '.' . self::sanitizeUsername($row['lastname'])
-            );
-
-            // Sicherstellen, dass Username eindeutig ist
-            $baseUsername = $username;
-            $counter = 1;
-            while (User::usernameExists($username)) {
-                $username = $baseUsername . $counter;
-                $counter++;
-            }
-
-            $userId = User::create([
-                'username' => $username,
-                'email' => $row['guardian_email'] ?: null,
-                'password' => $password,
-                'role' => 'schueler',
-                'must_change_password' => 1,
-            ]);
-
-            Student::create([
-                'user_id' => $userId,
+            // Schueler-Datensatz + verknuepftes Benutzerkonto ueber den
+            // gemeinsamen Service anlegen (identisch zur Einzelanlage).
+            $created = StudentService::createStudentWithAccount([
                 'firstname' => $row['firstname'],
                 'lastname' => $row['lastname'],
                 'class_id' => $class['id'],
@@ -362,11 +341,7 @@ class ImportService
                 'guardian_email' => $row['guardian_email'] ?: null,
             ]);
 
-            $credentials[] = [
-                'name' => $row['firstname'] . ' ' . $row['lastname'],
-                'username' => $username,
-                'password' => $password,
-            ];
+            $credentials[] = $created['credentials'];
 
             $imported++;
         }
@@ -379,18 +354,4 @@ class ImportService
         ];
     }
 
-    /**
-     * Username-sicheren String aus Namen erzeugen (Umlaute ersetzen, Sonderzeichen entfernen)
-     */
-    private static function sanitizeUsername(string $name): string
-    {
-        $replacements = [
-            'ae' => 'ae', 'oe' => 'oe', 'ue' => 'ue', 'ss' => 'ss',
-            'ä' => 'ae', 'ö' => 'oe', 'ü' => 'ue', 'ß' => 'ss',
-            'Ä' => 'ae', 'Ö' => 'oe', 'Ü' => 'ue',
-        ];
-        $name = str_replace(array_keys($replacements), array_values($replacements), $name);
-        $name = preg_replace('/[^a-z0-9]/', '', strtolower($name));
-        return $name;
-    }
 }

@@ -101,6 +101,7 @@ abstract class DatabaseTestCase extends TestCase
                 class_id INTEGER NOT NULL,
                 birthday DATE DEFAULT NULL,
                 guardian_email VARCHAR(255) DEFAULT NULL,
+                archived_at DATETIME DEFAULT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (user_id) REFERENCES users(id),

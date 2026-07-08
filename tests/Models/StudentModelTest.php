@@ -107,4 +107,55 @@ class StudentModelTest extends DatabaseTestCase
         $classId = $this->createTestClass();
         $this->assertEquals(0, Student::countByClassId($classId));
     }
+
+    public function testArchiveHidesStudentFromClassRoster(): void
+    {
+        $classId = $this->createTestClass();
+        $keptId = $this->createTestStudent($classId, ['firstname' => 'Anna', 'lastname' => 'Alpha']);
+        $archivedId = $this->createTestStudent($classId, ['firstname' => 'Ben', 'lastname' => 'Beta']);
+
+        Student::archive($archivedId);
+
+        $roster = Student::findByClassId($classId);
+        $this->assertCount(1, $roster);
+        $this->assertEquals($keptId, $roster[0]['id']);
+
+        // Archivierte werden aus Zaehlung und findAll ausgeblendet ...
+        $this->assertEquals(1, Student::countByClassId($classId));
+        $this->assertCount(1, Student::findAll(['class_id' => $classId]));
+
+        // ... aber ueber die Archiv-Abfrage bzw. include_archived weiterhin sichtbar.
+        $archived = Student::findArchivedByClassId($classId);
+        $this->assertCount(1, $archived);
+        $this->assertEquals($archivedId, $archived[0]['id']);
+        $this->assertCount(2, Student::findByClassId($classId, true));
+        $this->assertEquals(2, Student::countByClassId($classId, true));
+        $this->assertCount(2, Student::findAll(['class_id' => $classId, 'include_archived' => true]));
+    }
+
+    public function testRestoreReturnsStudentToRoster(): void
+    {
+        $classId = $this->createTestClass();
+        $studentId = $this->createTestStudent($classId);
+
+        Student::archive($studentId);
+        $this->assertCount(0, Student::findByClassId($classId));
+
+        Student::restore($studentId);
+        $roster = Student::findByClassId($classId);
+        $this->assertCount(1, $roster);
+        $this->assertNull($roster[0]['archived_at']);
+    }
+
+    public function testSetUserIdLinksAccount(): void
+    {
+        $classId = $this->createTestClass();
+        $studentId = $this->createTestStudent($classId, ['user_id' => null]);
+        $userId = $this->createTestUser(['username' => 'linkme', 'role' => 'schueler']);
+
+        Student::setUserId($studentId, $userId);
+
+        $student = Student::findById($studentId);
+        $this->assertEquals($userId, $student['user_id']);
+    }
 }
