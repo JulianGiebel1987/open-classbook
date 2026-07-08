@@ -5,6 +5,7 @@ namespace OpenClassbook\Controllers;
 use OpenClassbook\App;
 use OpenClassbook\View;
 use OpenClassbook\Middleware\CsrfMiddleware;
+use OpenClassbook\Models\AbsenceStudent;
 use OpenClassbook\Models\ClassbookEntry;
 use OpenClassbook\Models\SchoolClass;
 use OpenClassbook\Models\Student;
@@ -474,6 +475,79 @@ class ClassbookController
 
         App::setFlash('success', 'Bemerkung gelöscht.');
         App::redirect('/classbook/' . $classId . '/remarks');
+    }
+
+    // === Schülerakte (Fehlzeiten & Bemerkungen einer/eines Schüler:in) ===
+
+    /**
+     * Übersicht aller Schüler:innen der Klasse mit Verlinkung auf die jeweilige Akte.
+     */
+    public function studentsIndex(string $classId): void
+    {
+        $class = SchoolClass::findById((int) $classId);
+        if (!$class || !$this->hasAccessToClass((int) $classId)) {
+            App::setFlash('error', 'Klasse nicht gefunden oder kein Zugriff.');
+            App::redirect('/classbook');
+            return;
+        }
+
+        $students = Student::findByClassId((int) $classId);
+
+        View::render('classbook/students-index', [
+            'title'    => 'Schülerakten – ' . $class['name'],
+            'class'    => $class,
+            'students' => $students,
+            'breadcrumbs' => View::breadcrumbs([
+                ['label' => 'Meine Klassen', 'url' => '/classbook'],
+                ['label' => $class['name'], 'url' => '/classbook/' . $class['id']],
+                ['label' => 'Schülerakten'],
+            ]),
+        ]);
+    }
+
+    /**
+     * Akte einer/eines Schüler:in: alle Fehlzeiten und Bemerkungen gebündelt.
+     */
+    public function studentRecord(string $classId, string $studentId): void
+    {
+        $class = SchoolClass::findById((int) $classId);
+        if (!$class || !$this->hasAccessToClass((int) $classId)) {
+            App::setFlash('error', 'Klasse nicht gefunden oder kein Zugriff.');
+            App::redirect('/classbook');
+            return;
+        }
+
+        $student = Student::findById((int) $studentId);
+        if (!$student || (int) $student['class_id'] !== (int) $classId) {
+            App::setFlash('error', 'Schüler:in nicht in dieser Klasse gefunden.');
+            App::redirect('/classbook/' . $classId . '/students');
+            return;
+        }
+
+        $absences       = AbsenceStudent::findAll(['student_id' => (int) $studentId]);
+        $absenceSummary = AbsenceStudent::getStudentSummary((int) $studentId);
+        $remarks        = StudentRemark::findByStudent((int) $studentId);
+        $students       = Student::findByClassId((int) $classId);
+
+        $role = App::currentUserRole();
+
+        View::render('classbook/student-record', [
+            'title'          => 'Schülerakte – ' . $student['firstname'] . ' ' . $student['lastname'],
+            'class'          => $class,
+            'student'        => $student,
+            'students'       => $students,
+            'absences'       => $absences,
+            'absenceSummary' => $absenceSummary,
+            'remarks'        => $remarks,
+            // Fehlzeitengründe nur für Sekretariat/Admin/Schulleitung sichtbar (Art. 5 Abs. 1 lit. c DSGVO)
+            'canViewReason'  => in_array($role, ['admin', 'schulleitung', 'sekretariat'], true),
+            'breadcrumbs' => View::breadcrumbs([
+                ['label' => 'Meine Klassen', 'url' => '/classbook'],
+                ['label' => $class['name'], 'url' => '/classbook/' . $class['id']],
+                ['label' => 'Schülerakten', 'url' => '/classbook/' . $class['id'] . '/students'],
+                ['label' => $student['lastname'] . ', ' . $student['firstname']],
+            ]),
+        ]);
     }
 
     private function getAccessibleClasses(): array

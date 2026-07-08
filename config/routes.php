@@ -105,6 +105,10 @@ $router->get('/classbook/{classId}/export-pdf', [ClassbookController::class, 'ex
 $router->get('/classbook/entry/{id}/edit', [ClassbookController::class, 'editForm'], [AuthMiddleware::class]);
 $router->post('/classbook/entry/{id}', [ClassbookController::class, 'update'], [AuthMiddleware::class, CsrfMiddleware::class]);
 
+// Schülerakten (Fehlzeiten & Bemerkungen pro Schüler:in)
+$router->get('/classbook/{classId}/students', [ClassbookController::class, 'studentsIndex'], [AuthMiddleware::class]);
+$router->get('/classbook/{classId}/students/{studentId}', [ClassbookController::class, 'studentRecord'], [AuthMiddleware::class]);
+
 // Schülerbemerkungen
 $router->get('/classbook/{classId}/remarks', [ClassbookController::class, 'remarksIndex'], [AuthMiddleware::class]);
 $router->get('/classbook/{classId}/remarks/create', [ClassbookController::class, 'remarkCreateForm'], [AuthMiddleware::class]);

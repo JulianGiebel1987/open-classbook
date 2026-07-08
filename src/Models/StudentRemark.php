@@ -61,6 +61,36 @@ class StudentRemark
         return Database::query($sql, $params);
     }
 
+    /**
+     * Alle Bemerkungen einer/eines Schüler:in (klassenübergreifend), optional nach Datum gefiltert.
+     */
+    public static function findByStudent(int $studentId, array $filters = []): array
+    {
+        $sql = 'SELECT sr.*,
+                       t.firstname   AS teacher_firstname,
+                       t.lastname    AS teacher_lastname,
+                       t.abbreviation,
+                       c.name        AS class_name
+                FROM student_remarks sr
+                JOIN teachers t ON t.id = sr.teacher_id
+                JOIN classes  c ON c.id = sr.class_id
+                WHERE sr.student_id = ?';
+        $params = [$studentId];
+
+        if (!empty($filters['date_from'])) {
+            $sql .= ' AND sr.remark_date >= ?';
+            $params[] = $filters['date_from'];
+        }
+
+        if (!empty($filters['date_to'])) {
+            $sql .= ' AND sr.remark_date <= ?';
+            $params[] = $filters['date_to'];
+        }
+
+        $sql .= ' ORDER BY sr.remark_date DESC, sr.created_at DESC';
+        return Database::query($sql, $params);
+    }
+
     public static function create(array $data): int
     {
         Database::execute(
