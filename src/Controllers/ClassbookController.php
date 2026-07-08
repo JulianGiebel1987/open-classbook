@@ -23,7 +23,7 @@ class ClassbookController
             'title' => 'Klassenbuch',
             'classes' => $classes,
             'breadcrumbs' => View::breadcrumbs([
-                ['label' => 'Meine Klassen'],
+                ['label' => 'Meine Klassenbücher'],
             ]),
         ]);
     }
@@ -53,7 +53,7 @@ class ClassbookController
             'teachers' => $teachers,
             'filters' => $filters,
             'breadcrumbs' => View::breadcrumbs([
-                ['label' => 'Meine Klassen', 'url' => '/classbook'],
+                ['label' => 'Meine Klassenbücher', 'url' => '/classbook'],
                 ['label' => $class['name']],
             ]),
         ]);
@@ -73,7 +73,7 @@ class ClassbookController
             'title' => 'Neuer Klassenbucheintrag',
             'class' => $class,
             'breadcrumbs' => View::breadcrumbs([
-                ['label' => 'Meine Klassen', 'url' => '/classbook'],
+                ['label' => 'Meine Klassenbücher', 'url' => '/classbook'],
                 ['label' => $class['name'], 'url' => '/classbook/' . $class['id']],
                 ['label' => 'Neuer Eintrag'],
             ]),
@@ -153,7 +153,7 @@ class ClassbookController
             'title' => 'Eintrag bearbeiten',
             'entry' => $entry,
             'breadcrumbs' => View::breadcrumbs([
-                ['label' => 'Meine Klassen', 'url' => '/classbook'],
+                ['label' => 'Meine Klassenbücher', 'url' => '/classbook'],
                 ['label' => $entry['class_name'], 'url' => '/classbook/' . $entry['class_id']],
                 ['label' => 'Eintrag bearbeiten'],
             ]),
@@ -345,7 +345,7 @@ class ClassbookController
             'students' => $students,
             'filters'  => $filters,
             'breadcrumbs' => View::breadcrumbs([
-                ['label' => 'Meine Klassen', 'url' => '/classbook'],
+                ['label' => 'Meine Klassenbücher', 'url' => '/classbook'],
                 ['label' => $class['name'], 'url' => '/classbook/' . $class['id']],
                 ['label' => 'Bemerkungen'],
             ]),
@@ -369,7 +369,7 @@ class ClassbookController
             'class'    => $class,
             'students' => $students,
             'breadcrumbs' => View::breadcrumbs([
-                ['label' => 'Meine Klassen', 'url' => '/classbook'],
+                ['label' => 'Meine Klassenbücher', 'url' => '/classbook'],
                 ['label' => $class['name'], 'url' => '/classbook/' . $class['id']],
                 ['label' => 'Bemerkungen', 'url' => '/classbook/' . $class['id'] . '/remarks'],
                 ['label' => 'Neue Bemerkung'],
@@ -498,7 +498,7 @@ class ClassbookController
             'class'    => $class,
             'students' => $students,
             'breadcrumbs' => View::breadcrumbs([
-                ['label' => 'Meine Klassen', 'url' => '/classbook'],
+                ['label' => 'Meine Klassenbücher', 'url' => '/classbook'],
                 ['label' => $class['name'], 'url' => '/classbook/' . $class['id']],
                 ['label' => 'Schülerakten'],
             ]),
@@ -542,7 +542,7 @@ class ClassbookController
             // Fehlzeitengründe nur für Sekretariat/Admin/Schulleitung sichtbar (Art. 5 Abs. 1 lit. c DSGVO)
             'canViewReason'  => in_array($role, ['admin', 'schulleitung', 'sekretariat'], true),
             'breadcrumbs' => View::breadcrumbs([
-                ['label' => 'Meine Klassen', 'url' => '/classbook'],
+                ['label' => 'Meine Klassenbücher', 'url' => '/classbook'],
                 ['label' => $class['name'], 'url' => '/classbook/' . $class['id']],
                 ['label' => 'Schülerakten', 'url' => '/classbook/' . $class['id'] . '/students'],
                 ['label' => $student['lastname'] . ', ' . $student['firstname']],
