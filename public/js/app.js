@@ -275,15 +275,41 @@ function initChat() {
     // Enter = Senden, Shift+Enter = Zeilenumbruch
     var chatInput = document.getElementById('chatInput');
     var chatForm = document.getElementById('chatForm');
+    var chatAttachments = document.getElementById('chatAttachments');
     if (chatInput && chatForm) {
         chatInput.addEventListener('keydown', function (e) {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
-                if (chatInput.value.trim() !== '') {
+                // Senden, wenn Text vorhanden ODER Dateien ausgewählt sind
+                var hasFiles = chatAttachments && chatAttachments.files && chatAttachments.files.length > 0;
+                if (chatInput.value.trim() !== '' || hasFiles) {
                     chatForm.submit();
                 }
             }
         });
+    }
+
+    // Ausgewählte Anhänge anzeigen
+    var attachmentSelected = document.getElementById('attachmentSelected');
+    if (chatAttachments && attachmentSelected) {
+        chatAttachments.addEventListener('change', function () {
+            var count = chatAttachments.files ? chatAttachments.files.length : 0;
+            if (count === 0) {
+                attachmentSelected.textContent = '';
+            } else if (count === 1) {
+                attachmentSelected.textContent = chatAttachments.files[0].name;
+            } else {
+                attachmentSelected.textContent = count + ' Dateien ausgewählt';
+            }
+        });
+    }
+
+    // Dateigröße menschenlesbar (analog FileEntry::formatSize)
+    function formatSize(bytes) {
+        bytes = parseInt(bytes, 10) || 0;
+        if (bytes >= 1048576) return (Math.round(bytes / 1048576 * 10) / 10) + ' MB';
+        if (bytes >= 1024) return (Math.round(bytes / 1024 * 10) / 10) + ' KB';
+        return bytes + ' B';
     }
 
     // Hilfsfunktion: Chat-Bubble DOM-Element erstellen
@@ -299,10 +325,42 @@ function initChat() {
             bubble.appendChild(senderDiv);
         }
 
-        var bodyDiv = document.createElement('div');
-        bodyDiv.className = 'chat-bubble-body';
-        bodyDiv.textContent = m.body;
-        bubble.appendChild(bodyDiv);
+        if (m.body) {
+            var bodyDiv = document.createElement('div');
+            bodyDiv.className = 'chat-bubble-body';
+            bodyDiv.textContent = m.body;
+            bubble.appendChild(bodyDiv);
+        }
+
+        // Anhänge als Download-Links
+        if (m.attachments && m.attachments.length) {
+            var attWrap = document.createElement('div');
+            attWrap.className = 'chat-attachments';
+            m.attachments.forEach(function (att) {
+                var link = document.createElement('a');
+                link.className = 'chat-attachment';
+                link.href = '/messages/attachments/' + att.id + '/download';
+
+                var icon = document.createElement('span');
+                icon.className = 'chat-attachment-icon';
+                icon.setAttribute('aria-hidden', 'true');
+                icon.textContent = '📎';
+
+                var name = document.createElement('span');
+                name.className = 'chat-attachment-name';
+                name.textContent = att.original_name;
+
+                var size = document.createElement('span');
+                size.className = 'chat-attachment-size';
+                size.textContent = formatSize(att.file_size);
+
+                link.appendChild(icon);
+                link.appendChild(name);
+                link.appendChild(size);
+                attWrap.appendChild(link);
+            });
+            bubble.appendChild(attWrap);
+        }
 
         var metaDiv = document.createElement('div');
         metaDiv.className = 'chat-bubble-meta';

@@ -9,11 +9,32 @@ use OpenClassbook\Models\Conversation;
 use OpenClassbook\Models\Message;
 use OpenClassbook\Models\GroupConversation;
 use OpenClassbook\Models\GroupMessage;
+use OpenClassbook\Models\MessageAttachment;
 use OpenClassbook\Models\User;
 use OpenClassbook\Services\ModuleSettings;
 
 class MessageController
 {
+    private const MAX_ATTACHMENTS = 5;
+    private const MAX_FILE_SIZE = 15 * 1024 * 1024; // 15 MB
+
+    private const ALLOWED_MIME_TYPES = [
+        // Bilder
+        'image/jpeg', 'image/png', 'image/gif', 'image/webp',
+        // Dokumente
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/vnd.ms-excel',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'application/vnd.ms-powerpoint',
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        // Text
+        'text/plain', 'text/csv',
+        // Archiv
+        'application/zip',
+    ];
+
     private function requireModuleEnabled(): void
     {
         $role = App::currentUserRole();
@@ -110,6 +131,7 @@ class MessageController
 
         $messages = Message::findByConversation($conversationId, 50, 0);
         $messages = array_reverse($messages);
+        $messages = $this->withAttachments($messages, 'direct');
 
         $partner = Conversation::getPartner($conversationId, $userId);
 
@@ -143,7 +165,16 @@ class MessageController
         }
 
         $body = trim($_POST['body'] ?? '');
-        if ($body === '') {
+
+        $uploads = $this->collectValidatedUploads();
+        if ($uploads['error'] !== null) {
+            App::setFlash('error', $uploads['error']);
+            App::redirect('/messages/' . $conversationId);
+            return;
+        }
+        $hasFiles = !empty($uploads['files']);
+
+        if ($body === '' && !$hasFiles) {
             App::setFlash('error', 'Nachricht darf nicht leer sein.');
             App::redirect('/messages/' . $conversationId);
             return;
@@ -155,7 +186,8 @@ class MessageController
             return;
         }
 
-        Message::create($conversationId, $userId, $body);
+        $messageId = Message::create($conversationId, $userId, $body);
+        $this->persistUploads($uploads['files'], 'direct', $messageId);
         Conversation::updateLastMessageAt($conversationId);
 
         App::redirect('/messages/' . $conversationId);
@@ -205,7 +237,15 @@ class MessageController
             return;
         }
 
-        if ($body === '') {
+        $uploads = $this->collectValidatedUploads();
+        if ($uploads['error'] !== null) {
+            App::setFlash('error', $uploads['error']);
+            App::redirect('/messages/new');
+            return;
+        }
+        $hasFiles = !empty($uploads['files']);
+
+        if ($body === '' && !$hasFiles) {
             App::setFlash('error', 'Nachricht darf nicht leer sein.');
             App::redirect('/messages/new');
             return;
@@ -218,7 +258,8 @@ class MessageController
         }
 
         $conversation = Conversation::findOrCreate($userId, $recipientId);
-        Message::create($conversation['id'], $userId, $body);
+        $messageId = Message::create($conversation['id'], $userId, $body);
+        $this->persistUploads($uploads['files'], 'direct', $messageId);
         Conversation::updateLastMessageAt($conversation['id']);
 
         App::redirect('/messages/' . $conversation['id']);
@@ -242,6 +283,7 @@ class MessageController
 
         $offset = max(0, (int) ($_GET['offset'] ?? 0));
         $messages = Message::findByConversation($conversationId, 50, $offset);
+        $messages = $this->withAttachments($messages, 'direct');
 
         header('Content-Type: application/json');
         echo json_encode([
@@ -323,9 +365,18 @@ class MessageController
             return;
         }
 
+        $uploads = $this->collectValidatedUploads();
+        if ($uploads['error'] !== null) {
+            App::setFlash('error', $uploads['error']);
+            App::redirect('/messages/groups/new');
+            return;
+        }
+        $hasFiles = !empty($uploads['files']);
+
         $group = GroupConversation::create($name, $userId, $validMemberIds);
-        if ($body !== '') {
-            GroupMessage::create($group['id'], $userId, $body);
+        if ($body !== '' || $hasFiles) {
+            $messageId = GroupMessage::create($group['id'], $userId, $body);
+            $this->persistUploads($uploads['files'], 'group', $messageId);
             GroupConversation::updateLastMessageAt($group['id']);
         }
 
@@ -351,6 +402,7 @@ class MessageController
 
         $messages = GroupMessage::findByGroup($groupId, 50, 0);
         $messages = array_reverse($messages);
+        $messages = $this->withAttachments($messages, 'group');
 
         $group = GroupConversation::findById($groupId);
         $members = GroupConversation::getMembers($groupId);
@@ -386,7 +438,16 @@ class MessageController
         }
 
         $body = trim($_POST['body'] ?? '');
-        if ($body === '') {
+
+        $uploads = $this->collectValidatedUploads();
+        if ($uploads['error'] !== null) {
+            App::setFlash('error', $uploads['error']);
+            App::redirect('/messages/groups/' . $groupId);
+            return;
+        }
+        $hasFiles = !empty($uploads['files']);
+
+        if ($body === '' && !$hasFiles) {
             App::setFlash('error', 'Nachricht darf nicht leer sein.');
             App::redirect('/messages/groups/' . $groupId);
             return;
@@ -398,7 +459,8 @@ class MessageController
             return;
         }
 
-        GroupMessage::create($groupId, $userId, $body);
+        $messageId = GroupMessage::create($groupId, $userId, $body);
+        $this->persistUploads($uploads['files'], 'group', $messageId);
         GroupConversation::updateLastMessageAt($groupId);
 
         App::redirect('/messages/groups/' . $groupId);
@@ -422,11 +484,174 @@ class MessageController
 
         $offset = max(0, (int) ($_GET['offset'] ?? 0));
         $messages = GroupMessage::findByGroup($groupId, 50, $offset);
+        $messages = $this->withAttachments($messages, 'group');
 
         header('Content-Type: application/json');
         echo json_encode([
             'messages'      => $messages,
             'currentUserId' => $userId,
         ]);
+    }
+
+    // =========================================================================
+    // Anhänge
+    // =========================================================================
+
+    /**
+     * Anhang herunterladen (mit Zugriffsprüfung über die zugehörige Konversation/Gruppe).
+     */
+    public function downloadAttachment(string $id): void
+    {
+        $this->requireModuleEnabled();
+        $userId = $_SESSION['user_id'];
+
+        $attachment = MessageAttachment::findById((int) $id);
+        if (!$attachment) {
+            App::setFlash('error', 'Anhang nicht gefunden.');
+            App::redirect('/messages');
+            return;
+        }
+
+        if (!MessageAttachment::userCanAccess($attachment, $userId)) {
+            App::setFlash('error', 'Zugriff verweigert.');
+            App::redirect('/messages');
+            return;
+        }
+
+        $path = MessageAttachment::getStoragePath($attachment['stored_name']);
+        if (!file_exists($path)) {
+            App::setFlash('error', 'Datei nicht auf dem Server gefunden.');
+            App::redirect('/messages');
+            return;
+        }
+
+        header('Content-Type: ' . $attachment['mime_type']);
+        header('Content-Disposition: attachment; filename="' . addcslashes($attachment['original_name'], '"') . '"');
+        header('Content-Length: ' . $attachment['file_size']);
+        header('X-Content-Type-Options: nosniff');
+        header('Cache-Control: private, no-cache');
+        readfile($path);
+        exit;
+    }
+
+    /**
+     * Hochgeladene Anhänge validieren (Anzahl, Größe, MIME-Typ).
+     * Gibt ['files' => [...], 'error' => null|string] zurück. 'files' enthält
+     * validierte Metadaten inkl. sicherem Speichernamen; noch nichts wird gespeichert.
+     */
+    private function collectValidatedUploads(): array
+    {
+        if (empty($_FILES['attachments']) || !is_array($_FILES['attachments']['name'] ?? null)) {
+            return ['files' => [], 'error' => null];
+        }
+
+        $names = $_FILES['attachments']['name'];
+        $tmp   = $_FILES['attachments']['tmp_name'];
+        $errs  = $_FILES['attachments']['error'];
+        $sizes = $_FILES['attachments']['size'];
+
+        // Nur tatsächlich befüllte Datei-Felder betrachten
+        $indices = [];
+        foreach ($names as $i => $n) {
+            if ((int) ($errs[$i] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
+                continue;
+            }
+            $indices[] = $i;
+        }
+
+        if (empty($indices)) {
+            return ['files' => [], 'error' => null];
+        }
+
+        if (count($indices) > self::MAX_ATTACHMENTS) {
+            return ['files' => [], 'error' => 'Es sind maximal ' . self::MAX_ATTACHMENTS . ' Anhänge pro Nachricht erlaubt.'];
+        }
+
+        $finfo = new \finfo(FILEINFO_MIME_TYPE);
+        $valid = [];
+        foreach ($indices as $i) {
+            if ((int) $errs[$i] !== UPLOAD_ERR_OK) {
+                return ['files' => [], 'error' => 'Fehler beim Hochladen eines Anhangs.'];
+            }
+            if ((int) $sizes[$i] > self::MAX_FILE_SIZE) {
+                return ['files' => [], 'error' => 'Ein Anhang ist zu groß (max. 15 MB).'];
+            }
+            $mimeType = $finfo->file($tmp[$i]);
+            if (!in_array($mimeType, self::ALLOWED_MIME_TYPES, true)) {
+                return ['files' => [], 'error' => 'Ein Anhang hat einen nicht erlaubten Dateityp.'];
+            }
+
+            $originalName = basename((string) $names[$i]);
+            $originalName = preg_replace('/[^\w\.\-\(\) ]/', '_', $originalName);
+            if ($originalName === '' || $originalName === null) {
+                $originalName = 'anhang';
+            }
+            $extension = pathinfo($originalName, PATHINFO_EXTENSION);
+            $storedName = bin2hex(random_bytes(16)) . ($extension ? '.' . strtolower($extension) : '');
+
+            $valid[] = [
+                'tmp_name'      => $tmp[$i],
+                'original_name' => $originalName,
+                'stored_name'   => $storedName,
+                'mime_type'     => $mimeType,
+                'file_size'     => (int) $sizes[$i],
+            ];
+        }
+
+        return ['files' => $valid, 'error' => null];
+    }
+
+    /**
+     * Validierte Anhänge physisch speichern und mit einer Nachricht verknüpfen.
+     * $type: 'direct' (1:1) oder 'group'.
+     */
+    private function persistUploads(array $files, string $type, int $messageId): void
+    {
+        if (empty($files)) {
+            return;
+        }
+        MessageAttachment::ensureStorageDir();
+        foreach ($files as $f) {
+            $dest = MessageAttachment::getStoragePath($f['stored_name']);
+            if (!move_uploaded_file($f['tmp_name'], $dest)) {
+                continue; // fehlgeschlagenen Anhang überspringen
+            }
+            MessageAttachment::create([
+                'message_id'       => $type === 'group' ? null : $messageId,
+                'group_message_id' => $type === 'group' ? $messageId : null,
+                'original_name'    => $f['original_name'],
+                'stored_name'      => $f['stored_name'],
+                'mime_type'        => $f['mime_type'],
+                'file_size'        => $f['file_size'],
+            ]);
+        }
+    }
+
+    /**
+     * Nachrichtenliste um ihre Anhänge anreichern (batch, ohne N+1).
+     * $type: 'direct' oder 'group'.
+     */
+    private function withAttachments(array $messages, string $type): array
+    {
+        if (empty($messages)) {
+            return $messages;
+        }
+        $ids = array_map(static fn($m) => (int) $m['id'], $messages);
+        $map = $type === 'group'
+            ? MessageAttachment::findByGroupMessageIds($ids)
+            : MessageAttachment::findByMessageIds($ids);
+
+        foreach ($messages as &$m) {
+            $list = $map[(int) $m['id']] ?? [];
+            $m['attachments'] = array_map(static fn($a) => [
+                'id'            => (int) $a['id'],
+                'original_name' => $a['original_name'],
+                'file_size'     => (int) $a['file_size'],
+                'mime_type'     => $a['mime_type'],
+            ], $list);
+        }
+        unset($m);
+
+        return $messages;
     }
 }

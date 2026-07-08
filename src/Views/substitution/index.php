@@ -10,7 +10,7 @@
 <?php else: ?>
     <div class="card">
         <div class="card-header">
-            <h2>Naechste Schultage</h2>
+            <h2>Nächste Schultage</h2>
         </div>
         <div class="sub-day-grid">
             <?php foreach ($dates as $d): ?>

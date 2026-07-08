@@ -105,6 +105,10 @@ $router->get('/classbook/{classId}/export-pdf', [ClassbookController::class, 'ex
 $router->get('/classbook/entry/{id}/edit', [ClassbookController::class, 'editForm'], [AuthMiddleware::class]);
 $router->post('/classbook/entry/{id}', [ClassbookController::class, 'update'], [AuthMiddleware::class, CsrfMiddleware::class]);
 
+// Schülerakten (Fehlzeiten & Bemerkungen pro Schüler:in)
+$router->get('/classbook/{classId}/students', [ClassbookController::class, 'studentsIndex'], [AuthMiddleware::class]);
+$router->get('/classbook/{classId}/students/{studentId}', [ClassbookController::class, 'studentRecord'], [AuthMiddleware::class]);
+
 // Schülerbemerkungen
 $router->get('/classbook/{classId}/remarks', [ClassbookController::class, 'remarksIndex'], [AuthMiddleware::class]);
 $router->get('/classbook/{classId}/remarks/create', [ClassbookController::class, 'remarkCreateForm'], [AuthMiddleware::class]);
@@ -168,6 +172,7 @@ $router->post('/messages/groups/new', [MessageController::class, 'createGroup'],
 $router->get('/messages/groups/{id}', [MessageController::class, 'showGroup'], [AuthMiddleware::class]);
 $router->post('/messages/groups/{id}', [MessageController::class, 'sendGroup'], [AuthMiddleware::class, CsrfMiddleware::class]);
 $router->get('/messages/groups/{id}/older', [MessageController::class, 'loadMoreGroup'], [AuthMiddleware::class]);
+$router->get('/messages/attachments/{id}/download', [MessageController::class, 'downloadAttachment'], [AuthMiddleware::class]);
 $router->get('/messages/{id}', [MessageController::class, 'show'], [AuthMiddleware::class]);
 $router->post('/messages/{id}', [MessageController::class, 'send'], [AuthMiddleware::class, CsrfMiddleware::class]);
 $router->get('/messages/{id}/older', [MessageController::class, 'loadMore'], [AuthMiddleware::class]);
@@ -212,6 +217,7 @@ $router->post('/timetable/slot/{id}/delete', [TimetableController::class, 'delet
 $router->get('/timetable/{settingId}/class/select', [TimetableController::class, 'selectClass'], [AuthMiddleware::class]);
 $router->get('/timetable/{settingId}/class/{classId}', [TimetableController::class, 'editClass'], [AuthMiddleware::class]);
 $router->get('/timetable/{settingId}/class/{classId}/pdf', [TimetableController::class, 'exportPdf'], [AuthMiddleware::class]);
+$router->get('/timetable/{settingId}/units', [TimetableController::class, 'unitsOverview'], [AuthMiddleware::class]);
 $router->post('/timetable/{settingId}/publish', [TimetableController::class, 'publish'], [AuthMiddleware::class, CsrfMiddleware::class]);
 $router->post('/timetable/{settingId}/unpublish', [TimetableController::class, 'unpublish'], [AuthMiddleware::class, CsrfMiddleware::class]);
 $router->get('/timetable/teacher/{teacherId}', [TimetableController::class, 'teacherSchedule'], [AuthMiddleware::class]);

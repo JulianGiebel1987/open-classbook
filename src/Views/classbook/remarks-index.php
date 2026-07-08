@@ -58,7 +58,11 @@
                 <?php foreach ($remarks as $r): ?>
                 <tr>
                     <td style="white-space:nowrap"><?= date('d.m.Y', strtotime($r['remark_date'])) ?></td>
-                    <td style="white-space:nowrap"><?= htmlspecialchars($r['student_lastname'] . ', ' . $r['student_firstname'], ENT_QUOTES, 'UTF-8') ?></td>
+                    <td style="white-space:nowrap">
+                        <a href="/classbook/<?= $class['id'] ?>/students/<?= $r['student_id'] ?>">
+                            <?= htmlspecialchars($r['student_lastname'] . ', ' . $r['student_firstname'], ENT_QUOTES, 'UTF-8') ?>
+                        </a>
+                    </td>
                     <td style="white-space:nowrap"><?= htmlspecialchars($r['abbreviation'], ENT_QUOTES, 'UTF-8') ?></td>
                     <td><?= nl2br(htmlspecialchars($r['remark'], ENT_QUOTES, 'UTF-8')) ?></td>
                     <td style="text-align:right">

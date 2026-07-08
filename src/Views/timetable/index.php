@@ -49,6 +49,7 @@
                         <div class="btn-group">
                             <a href="/timetable/settings?id=<?= (int) $s['id'] ?>" class="btn btn-sm btn-secondary">Bearbeiten</a>
                             <a href="/timetable/<?= (int) $s['id'] ?>/class/select" class="btn btn-sm btn-primary">Planen</a>
+                            <a href="/timetable/<?= (int) $s['id'] ?>/units" class="btn btn-sm btn-secondary">Einheiten</a>
                             <?php if ($s['is_published']): ?>
                                 <form method="post" action="/timetable/<?= (int) $s['id'] ?>/unpublish" style="display:inline;">
                                     <?= \OpenClassbook\View::csrfField() ?>

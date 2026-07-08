@@ -83,6 +83,11 @@ class UserController
             'password' => $_POST['password'] ?? '',
         ];
 
+        // Lehrkräfte melden sich mit ihrer E-Mail an -> Anmeldename = E-Mail
+        if ($data['role'] === 'lehrer') {
+            $data['username'] = strtolower(trim($_POST['email'] ?? ''));
+        }
+
         // Validierung
         $errors = $this->validateUser($data);
 
@@ -245,6 +250,11 @@ class UserController
             'role' => $_POST['role'] ?? $user['role'],
         ];
 
+        // Lehrkräfte melden sich mit ihrer E-Mail an -> Anmeldename = E-Mail
+        if ($data['role'] === 'lehrer') {
+            $data['username'] = strtolower(trim($_POST['email'] ?? ''));
+        }
+
         $errors = [];
 
         // Selbst-Deprivilegierung/Eskalation nur kontrolliert zulassen
@@ -259,7 +269,9 @@ class UserController
 
         // Username-Duplikat prüfen
         if ($data['username'] !== $user['username'] && User::usernameExists($data['username'], $userId)) {
-            $errors[] = 'Dieser Benutzername ist bereits vergeben.';
+            $errors[] = ($data['role'] === 'lehrer')
+                ? 'Diese E-Mail-Adresse ist bereits als Anmeldename vergeben.'
+                : 'Dieser Benutzername ist bereits vergeben.';
         }
 
         // E-Mail-Pflicht für Lehrkräfte
@@ -671,9 +683,15 @@ class UserController
         $errors = [];
 
         if (empty($data['username'])) {
-            $errors[] = 'Benutzername ist erforderlich.';
+            // Für Lehrkräfte ist der Anmeldename die E-Mail; die fehlende
+            // E-Mail wird weiter unten separat gemeldet.
+            if (($data['role'] ?? '') !== 'lehrer') {
+                $errors[] = 'Benutzername ist erforderlich.';
+            }
         } elseif (User::usernameExists($data['username'], $excludeId)) {
-            $errors[] = 'Dieser Benutzername ist bereits vergeben.';
+            $errors[] = (($data['role'] ?? '') === 'lehrer')
+                ? 'Diese E-Mail-Adresse ist bereits als Anmeldename vergeben.'
+                : 'Dieser Benutzername ist bereits vergeben.';
         }
 
         if (!in_array($data['role'], ['admin', 'schulleitung', 'sekretariat', 'lehrer', 'schueler', 'schulbegleiter'])) {

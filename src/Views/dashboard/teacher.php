@@ -4,14 +4,14 @@
 
 <div class="card">
     <div class="card-header">
-        <h2>Meine Klassen</h2>
+        <h2>Meine Klassenbücher</h2>
     </div>
 
     <?php if (empty($classes)): ?>
         <p class="text-muted">Ihnen sind noch keine Klassen zugewiesen.</p>
     <?php else: ?>
         <div class="table-responsive">
-            <table aria-label="Meine Klassen">
+            <table aria-label="Meine Klassenbücher">
                 <thead>
                     <tr>
                         <th scope="col">Klasse</th>
