@@ -21,6 +21,9 @@ class ClassbookController
         View::render('classbook/index', [
             'title' => 'Klassenbuch',
             'classes' => $classes,
+            'breadcrumbs' => View::breadcrumbs([
+                ['label' => 'Meine Klassen'],
+            ]),
         ]);
     }
 
@@ -48,6 +51,10 @@ class ClassbookController
             'entries' => $entries,
             'teachers' => $teachers,
             'filters' => $filters,
+            'breadcrumbs' => View::breadcrumbs([
+                ['label' => 'Meine Klassen', 'url' => '/classbook'],
+                ['label' => $class['name']],
+            ]),
         ]);
     }
 
@@ -64,6 +71,11 @@ class ClassbookController
         View::render('classbook/create', [
             'title' => 'Neuer Klassenbucheintrag',
             'class' => $class,
+            'breadcrumbs' => View::breadcrumbs([
+                ['label' => 'Meine Klassen', 'url' => '/classbook'],
+                ['label' => $class['name'], 'url' => '/classbook/' . $class['id']],
+                ['label' => 'Neuer Eintrag'],
+            ]),
         ]);
     }
 
@@ -139,6 +151,11 @@ class ClassbookController
         View::render('classbook/edit', [
             'title' => 'Eintrag bearbeiten',
             'entry' => $entry,
+            'breadcrumbs' => View::breadcrumbs([
+                ['label' => 'Meine Klassen', 'url' => '/classbook'],
+                ['label' => $entry['class_name'], 'url' => '/classbook/' . $entry['class_id']],
+                ['label' => 'Eintrag bearbeiten'],
+            ]),
         ]);
     }
 
@@ -326,6 +343,11 @@ class ClassbookController
             'remarks'  => $remarks,
             'students' => $students,
             'filters'  => $filters,
+            'breadcrumbs' => View::breadcrumbs([
+                ['label' => 'Meine Klassen', 'url' => '/classbook'],
+                ['label' => $class['name'], 'url' => '/classbook/' . $class['id']],
+                ['label' => 'Bemerkungen'],
+            ]),
         ]);
     }
 
@@ -345,6 +367,12 @@ class ClassbookController
             'title'    => 'Neue Bemerkung',
             'class'    => $class,
             'students' => $students,
+            'breadcrumbs' => View::breadcrumbs([
+                ['label' => 'Meine Klassen', 'url' => '/classbook'],
+                ['label' => $class['name'], 'url' => '/classbook/' . $class['id']],
+                ['label' => 'Bemerkungen', 'url' => '/classbook/' . $class['id'] . '/remarks'],
+                ['label' => 'Neue Bemerkung'],
+            ]),
         ]);
     }
 

@@ -34,7 +34,13 @@ class ImportController
         if (!is_writable($uploadsDir)) {
             App::setFlash('error', 'Import nicht möglich: Das Verzeichnis storage/uploads/ ist nicht beschreibbar. Bitte Berechtigungen prüfen (z.B.: chmod 775 storage/uploads/).');
         }
-        View::render('import/index', ['title' => 'Daten importieren']);
+        View::render('import/index', [
+            'title' => 'Daten importieren',
+            'breadcrumbs' => View::breadcrumbs([
+                ['label' => 'Benutzer', 'url' => '/users'],
+                ['label' => 'Daten importieren'],
+            ]),
+        ]);
     }
 
     public function uploadTeachers(): void
@@ -73,6 +79,11 @@ class ImportController
             'title' => 'Import-Vorschau: Lehrkräfte',
             'preview' => $preview,
             'storedFile' => basename($storedPath),
+            'breadcrumbs' => View::breadcrumbs([
+                ['label' => 'Benutzer', 'url' => '/users'],
+                ['label' => 'Daten importieren', 'url' => '/import'],
+                ['label' => 'Vorschau: Lehrkräfte'],
+            ]),
         ]);
     }
 
@@ -150,6 +161,11 @@ class ImportController
             'preview' => $preview,
             'storedFile' => basename($storedPath),
             'schoolYear' => $schoolYear,
+            'breadcrumbs' => View::breadcrumbs([
+                ['label' => 'Benutzer', 'url' => '/users'],
+                ['label' => 'Daten importieren', 'url' => '/import'],
+                ['label' => 'Vorschau: Schüler'],
+            ]),
         ]);
     }
 
@@ -212,6 +228,11 @@ class ImportController
         View::render('import/student-credentials', [
             'title' => 'Schüler-Zugangsdaten',
             'credentials' => $credentials,
+            'breadcrumbs' => View::breadcrumbs([
+                ['label' => 'Benutzer', 'url' => '/users'],
+                ['label' => 'Daten importieren', 'url' => '/import'],
+                ['label' => 'Zugangsdaten'],
+            ]),
         ]);
     }
 

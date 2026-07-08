@@ -50,6 +50,9 @@ class ZeugnisController
             'title'     => 'Meine Zeugnisse',
             'instances' => $instances,
             'userId'    => $_SESSION['user_id'],
+            'breadcrumbs' => View::breadcrumbs([
+                ['label' => 'Zeugnisse'],
+            ]),
         ]);
     }
 
@@ -65,6 +68,10 @@ class ZeugnisController
         View::render('zeugnis/browse', [
             'title'     => 'Zeugnisvorlagen',
             'templates' => $templates,
+            'breadcrumbs' => View::breadcrumbs([
+                ['label' => 'Zeugnisse', 'url' => '/zeugnis'],
+                ['label' => 'Vorlage wählen'],
+            ]),
         ]);
     }
 
@@ -90,6 +97,11 @@ class ZeugnisController
             'title'    => 'Zeugnis erstellen: ' . htmlspecialchars($template['name']),
             'template' => $template,
             'students' => $students,
+            'breadcrumbs' => View::breadcrumbs([
+                ['label' => 'Zeugnisse', 'url' => '/zeugnis'],
+                ['label' => 'Vorlage wählen', 'url' => '/zeugnis/browse'],
+                ['label' => 'Neues Zeugnis'],
+            ]),
         ]);
     }
 
@@ -177,6 +189,11 @@ class ZeugnisController
             'classes'         => $classes,
             'students'        => $students,
             'selectedClassId' => $selectedClassId,
+            'breadcrumbs' => View::breadcrumbs([
+                ['label' => 'Zeugnisse', 'url' => '/zeugnis'],
+                ['label' => 'Vorlage wählen', 'url' => '/zeugnis/browse'],
+                ['label' => 'Stapel-Erstellung'],
+            ]),
         ]);
     }
 
@@ -270,6 +287,10 @@ class ZeugnisController
             'fieldValues' => $fieldValues,
             'tokens'      => $tokens,
             'canEdit'     => $canEdit,
+            'breadcrumbs' => View::breadcrumbs([
+                ['label' => 'Zeugnisse', 'url' => '/zeugnis'],
+                ['label' => $instance['student_first_name'] . ' ' . $instance['student_last_name']],
+            ]),
         ]);
     }
 
@@ -417,6 +438,11 @@ class ZeugnisController
             'instance' => $instance,
             'shares'   => $shares,
             'users'    => array_values($users),
+            'breadcrumbs' => View::breadcrumbs([
+                ['label' => 'Zeugnisse', 'url' => '/zeugnis'],
+                ['label' => $instance['student_first_name'] . ' ' . $instance['student_last_name'], 'url' => '/zeugnis/' . $instance['id'] . '/edit'],
+                ['label' => 'Freigeben'],
+            ]),
         ]);
     }
 

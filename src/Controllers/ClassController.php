@@ -45,6 +45,9 @@ class ClassController
             'classes' => $classes,
             'filters' => $filters,
             'schoolYears' => $schoolYears,
+            'breadcrumbs' => View::breadcrumbs([
+                ['label' => 'Klassenverwaltung'],
+            ]),
         ]);
     }
 
@@ -56,6 +59,10 @@ class ClassController
         View::render('classes/create', [
             'title' => 'Neue Klasse',
             'teachers' => Teacher::findAll(),
+            'breadcrumbs' => View::breadcrumbs([
+                ['label' => 'Klassenverwaltung', 'url' => '/classes'],
+                ['label' => 'Neue Klasse'],
+            ]),
         ]);
     }
 
@@ -107,6 +114,11 @@ class ClassController
             'class' => $class,
             'teachers' => Teacher::findAll(),
             'assignedTeacherIds' => $assignedIds,
+            'breadcrumbs' => View::breadcrumbs([
+                ['label' => 'Klassenverwaltung', 'url' => '/classes'],
+                ['label' => $class['name'], 'url' => '/classes/' . $class['id']],
+                ['label' => 'Bearbeiten'],
+            ]),
         ]);
     }
 
@@ -165,6 +177,10 @@ class ClassController
             'teachers' => $teachers,
             'otherClasses' => $otherClasses,
             'canTransfer' => $canTransfer,
+            'breadcrumbs' => View::breadcrumbs([
+                ['label' => 'Klassenverwaltung', 'url' => '/classes'],
+                ['label' => $class['name']],
+            ]),
         ]);
     }
 

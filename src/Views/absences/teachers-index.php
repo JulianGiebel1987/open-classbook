@@ -1,6 +1,11 @@
 <div class="page-header">
     <h1>Lehrkraft-Abwesenheiten</h1>
-    <a href="/absences/teachers/create" class="btn">Abwesenheit eintragen</a>
+    <div class="page-header-actions">
+        <?php if (!empty($canAccessSubstitution)): ?>
+            <a href="/substitution" class="btn btn-secondary">Zum Vertretungsplan</a>
+        <?php endif; ?>
+        <a href="/absences/teachers/create" class="btn">Abwesenheit eintragen</a>
+    </div>
 </div>
 
 <div class="card">

@@ -9,7 +9,6 @@ $dayNames = [1 => 'Montag', 2 => 'Dienstag', 3 => 'Mittwoch', 4 => 'Donnerstag',
         <a href="/timetable/<?= (int) $setting['id'] ?>/teacher/<?= (int) $teacher['id'] ?>/pdf"
            class="btn btn-secondary">PDF-Export</a>
         <?php endif; ?>
-        <a href="/timetable" class="btn btn-secondary">Zurück</a>
     </div>
 </div>
 

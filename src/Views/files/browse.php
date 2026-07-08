@@ -2,7 +2,7 @@
     <div>
         <?php
         if ($currentFolderId) {
-            $parentFolderId = $breadcrumbs[count($breadcrumbs) - 1]['parent_id'] ?? null;
+            $parentFolderId = $folderPath[count($folderPath) - 1]['parent_id'] ?? null;
             $backUrl = $parentFolderId
                 ? '/files/folder/' . (int) $parentFolderId
                 : ($isShared ? '/files/shared' : '/files/private');
@@ -15,13 +15,13 @@
     </div>
 </div>
 
-<?php if (!empty($breadcrumbs)): ?>
+<?php if (!empty($folderPath)): ?>
 <nav aria-label="Ordnerpfad">
     <ol class="breadcrumb">
         <li><a href="<?= $isShared ? '/files/shared' : '/files/private' ?>"><?= $isShared ? 'Gemeinschaftlich' : 'Meine Dateien' ?></a></li>
-        <?php foreach ($breadcrumbs as $i => $crumb): ?>
+        <?php foreach ($folderPath as $i => $crumb): ?>
             <li>
-                <?php if ($i < count($breadcrumbs) - 1): ?>
+                <?php if ($i < count($folderPath) - 1): ?>
                     <a href="/files/folder/<?= (int) $crumb['id'] ?>"><?= htmlspecialchars($crumb['name'], ENT_QUOTES, 'UTF-8') ?></a>
                 <?php else: ?>
                     <span aria-current="page"><?= htmlspecialchars($crumb['name'], ENT_QUOTES, 'UTF-8') ?></span>

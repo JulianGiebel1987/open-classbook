@@ -85,6 +85,9 @@ class MessageController
             'title'         => 'Nachrichten',
             'items'         => $items,
             'currentUserId' => $userId,
+            'breadcrumbs'   => View::breadcrumbs([
+                ['label' => 'Nachrichten'],
+            ]),
         ]);
     }
 
@@ -117,6 +120,10 @@ class MessageController
             'partner'        => $partner,
             'conversationId' => $conversationId,
             'currentUserId'  => $userId,
+            'breadcrumbs'    => View::breadcrumbs([
+                ['label' => 'Nachrichten', 'url' => '/messages'],
+                ['label' => 'Chat mit ' . ($partner['username'] ?? 'Unbekannt')],
+            ]),
         ]);
     }
 
@@ -168,6 +175,10 @@ class MessageController
         View::render('messages/new', [
             'title' => 'Neue Nachricht',
             'users' => array_values($users),
+            'breadcrumbs' => View::breadcrumbs([
+                ['label' => 'Nachrichten', 'url' => '/messages'],
+                ['label' => 'Neue Nachricht'],
+            ]),
         ]);
     }
 
@@ -257,6 +268,10 @@ class MessageController
         View::render('messages/new_group', [
             'title' => 'Neue Gruppe erstellen',
             'users' => array_values($users),
+            'breadcrumbs' => View::breadcrumbs([
+                ['label' => 'Nachrichten', 'url' => '/messages'],
+                ['label' => 'Neue Gruppe'],
+            ]),
         ]);
     }
 
@@ -348,6 +363,10 @@ class MessageController
             'members'       => $members,
             'groupId'       => $groupId,
             'currentUserId' => $userId,
+            'breadcrumbs'   => View::breadcrumbs([
+                ['label' => 'Nachrichten', 'url' => '/messages'],
+                ['label' => $group['name']],
+            ]),
         ]);
     }
 

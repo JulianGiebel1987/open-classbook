@@ -1,6 +1,5 @@
 <div class="page-header">
     <div>
-        <a href="/messages" class="btn btn-sm btn-secondary mb-05">Zurück</a>
         <h1>
             <?= htmlspecialchars($group['name'], ENT_QUOTES, 'UTF-8') ?>
             <span class="badge badge-muted" style="font-size: 0.75rem; vertical-align: middle;">Gruppe</span>

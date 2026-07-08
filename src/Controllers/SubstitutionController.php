@@ -30,6 +30,9 @@ class SubstitutionController
                 'setting' => null,
                 'dates' => [],
                 'plans' => [],
+                'breadcrumbs' => View::breadcrumbs([
+                    ['label' => 'Vertretung'],
+                ]),
             ]);
             return;
         }
@@ -59,6 +62,9 @@ class SubstitutionController
             'dates' => $dates,
             'absentCounts' => $absentCounts,
             'planStatusMap' => $planStatusMap,
+            'breadcrumbs' => View::breadcrumbs([
+                ['label' => 'Vertretung'],
+            ]),
         ]);
     }
 
@@ -113,6 +119,10 @@ class SubstitutionController
             'assignedSubstitutions' => $assignedSubstitutions,
             'timeSlots' => $timeSlots,
             'plan' => $plan,
+            'breadcrumbs' => View::breadcrumbs([
+                ['label' => 'Vertretung', 'url' => '/substitution'],
+                ['label' => 'Tagesplan ' . date('d.m.Y', strtotime($date))],
+            ]),
         ]);
     }
 
@@ -436,6 +446,9 @@ class SubstitutionController
             'mySubstitutions' => $mySubstitutions,
             'myAbsences' => $myAbsences,
             'teacherId' => $teacherId,
+            'breadcrumbs' => View::breadcrumbs([
+                ['label' => 'Vertretung'],
+            ]),
         ]);
     }
 

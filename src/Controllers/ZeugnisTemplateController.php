@@ -53,6 +53,9 @@ class ZeugnisTemplateController
             'title'     => 'Zeugnisvorlagen',
             'templates' => $templates,
             'filters'   => $filters,
+            'breadcrumbs' => View::breadcrumbs([
+                ['label' => 'Vorlagen'],
+            ]),
         ]);
     }
 
@@ -139,6 +142,10 @@ class ZeugnisTemplateController
             'tokens'     => ZeugnisPlaceholderService::getAvailableTokens(),
             'images'     => ZeugnisImage::findByTemplate((int) $id),
             'formAction' => '/zeugnis/templates/' . $id,
+            'breadcrumbs' => View::breadcrumbs([
+                ['label' => 'Vorlagen', 'url' => '/zeugnis/templates'],
+                ['label' => $template['name']],
+            ]),
         ]);
     }
 
@@ -298,6 +305,11 @@ class ZeugnisTemplateController
             'title'    => 'Vorschau: ' . htmlspecialchars($template['name']),
             'template' => $template,
             'tokens'   => ZeugnisPlaceholderService::getAvailableTokens(),
+            'breadcrumbs' => View::breadcrumbs([
+                ['label' => 'Vorlagen', 'url' => '/zeugnis/templates'],
+                ['label' => $template['name'], 'url' => '/zeugnis/templates/' . $template['id'] . '/edit'],
+                ['label' => 'Vorschau'],
+            ]),
         ]);
     }
 
