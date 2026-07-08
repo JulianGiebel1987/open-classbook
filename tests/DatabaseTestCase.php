@@ -194,6 +194,70 @@ abstract class DatabaseTestCase extends TestCase
         ');
 
         self::$pdo->exec('
+            CREATE TABLE school_aides (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                firstname VARCHAR(100) NOT NULL,
+                lastname VARCHAR(100) NOT NULL,
+                comment TEXT DEFAULT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id)
+            )
+        ');
+
+        self::$pdo->exec('
+            CREATE TABLE aide_student (
+                aide_id INTEGER NOT NULL,
+                student_id INTEGER NOT NULL,
+                PRIMARY KEY (aide_id, student_id),
+                FOREIGN KEY (aide_id) REFERENCES school_aides(id),
+                FOREIGN KEY (student_id) REFERENCES students(id)
+            )
+        ');
+
+        self::$pdo->exec('
+            CREATE TABLE absences_school_aides (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                aide_id INTEGER NOT NULL,
+                date_from DATE NOT NULL,
+                date_to DATE NOT NULL,
+                type VARCHAR(20) NOT NULL DEFAULT "krank",
+                reason VARCHAR(500) DEFAULT NULL,
+                notes TEXT DEFAULT NULL,
+                created_by INTEGER DEFAULT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (aide_id) REFERENCES school_aides(id),
+                FOREIGN KEY (created_by) REFERENCES users(id)
+            )
+        ');
+
+        self::$pdo->exec('
+            CREATE TABLE aide_substitutions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                date_from DATE NOT NULL,
+                date_to DATE NOT NULL,
+                absent_aide_id INTEGER NOT NULL,
+                student_id INTEGER NOT NULL,
+                substitute_aide_id INTEGER DEFAULT NULL,
+                absence_aide_id INTEGER DEFAULT NULL,
+                priority INTEGER NOT NULL DEFAULT 3,
+                status VARCHAR(20) NOT NULL DEFAULT "offen",
+                notes TEXT DEFAULT NULL,
+                created_by INTEGER NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE (absent_aide_id, student_id, date_from),
+                FOREIGN KEY (absent_aide_id) REFERENCES school_aides(id),
+                FOREIGN KEY (student_id) REFERENCES students(id),
+                FOREIGN KEY (substitute_aide_id) REFERENCES school_aides(id),
+                FOREIGN KEY (absence_aide_id) REFERENCES absences_school_aides(id),
+                FOREIGN KEY (created_by) REFERENCES users(id)
+            )
+        ');
+
+        self::$pdo->exec('
             CREATE TABLE settings (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 setting_key VARCHAR(100) NOT NULL UNIQUE,
@@ -318,6 +382,28 @@ abstract class DatabaseTestCase extends TestCase
             $classId,
             $data['birthday'],
             $data['guardian_email'],
+        ]);
+
+        return (int) self::$pdo->lastInsertId();
+    }
+
+    protected function createTestAide(int $userId, array $overrides = []): int
+    {
+        $defaults = [
+            'firstname' => 'Erika',
+            'lastname' => 'Beispiel',
+            'comment' => null,
+        ];
+
+        $data = array_merge($defaults, $overrides);
+
+        self::$pdo->prepare(
+            'INSERT INTO school_aides (user_id, firstname, lastname, comment) VALUES (?, ?, ?, ?)'
+        )->execute([
+            $userId,
+            $data['firstname'],
+            $data['lastname'],
+            $data['comment'],
         ]);
 
         return (int) self::$pdo->lastInsertId();

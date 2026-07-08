@@ -11,6 +11,9 @@ use OpenClassbook\Controllers\StudentController;
 use OpenClassbook\Controllers\ClassbookController;
 use OpenClassbook\Controllers\AbsenceStudentController;
 use OpenClassbook\Controllers\AbsenceTeacherController;
+use OpenClassbook\Controllers\SchoolAideController;
+use OpenClassbook\Controllers\AbsenceSchoolAideController;
+use OpenClassbook\Controllers\AideSubstitutionController;
 use OpenClassbook\Controllers\FileController;
 use OpenClassbook\Controllers\ImportController;
 use OpenClassbook\Controllers\ListController;
@@ -130,6 +133,32 @@ $router->get('/absences/teachers/{id}/edit', [AbsenceTeacherController::class, '
 $router->post('/absences/teachers/{id}', [AbsenceTeacherController::class, 'update'], [AuthMiddleware::class, CsrfMiddleware::class]);
 $router->post('/absences/teachers/{id}/delete', [AbsenceTeacherController::class, 'delete'], [AuthMiddleware::class, CsrfMiddleware::class]);
 
+// === Schulbegleiter:innen (Verwaltung: Admin / Schulleitung / Sekretariat) ===
+$router->get('/aides', [SchoolAideController::class, 'index'], [AuthMiddleware::class, StaffMiddleware::class]);
+$router->get('/aides/create', [SchoolAideController::class, 'createForm'], [AuthMiddleware::class, StaffMiddleware::class]);
+$router->post('/aides', [SchoolAideController::class, 'create'], [AuthMiddleware::class, StaffMiddleware::class, CsrfMiddleware::class]);
+$router->get('/aides/{id}/edit', [SchoolAideController::class, 'editForm'], [AuthMiddleware::class, StaffMiddleware::class]);
+$router->post('/aides/{id}', [SchoolAideController::class, 'update'], [AuthMiddleware::class, StaffMiddleware::class, CsrfMiddleware::class]);
+$router->post('/aides/{id}/delete', [SchoolAideController::class, 'delete'], [AuthMiddleware::class, AdminMiddleware::class, CsrfMiddleware::class]);
+
+// === Schulbegleiter:innen-Abwesenheiten ===
+$router->get('/absences/aides', [AbsenceSchoolAideController::class, 'index'], [AuthMiddleware::class]);
+$router->get('/absences/aides/self', [AbsenceSchoolAideController::class, 'selfReportForm'], [AuthMiddleware::class]);
+$router->post('/absences/aides/self', [AbsenceSchoolAideController::class, 'selfReport'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->get('/absences/aides/create', [AbsenceSchoolAideController::class, 'createForm'], [AuthMiddleware::class]);
+$router->post('/absences/aides', [AbsenceSchoolAideController::class, 'create'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->get('/absences/aides/{id}/edit', [AbsenceSchoolAideController::class, 'editForm'], [AuthMiddleware::class]);
+$router->post('/absences/aides/{id}', [AbsenceSchoolAideController::class, 'update'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/absences/aides/{id}/delete', [AbsenceSchoolAideController::class, 'delete'], [AuthMiddleware::class, CsrfMiddleware::class]);
+
+// === Schulbegleiter:innen-Vertretung ===
+$router->get('/aide-substitution', [AideSubstitutionController::class, 'index'], [AuthMiddleware::class]);
+$router->get('/aide-substitution/plan', [AideSubstitutionController::class, 'plan'], [AuthMiddleware::class]);
+$router->get('/aide-substitution/my-substitutions', [AideSubstitutionController::class, 'aideView'], [AuthMiddleware::class]);
+$router->post('/aide-substitution/assign', [AideSubstitutionController::class, 'assign'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/aide-substitution/{id}', [AideSubstitutionController::class, 'update'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/aide-substitution/{id}/delete', [AideSubstitutionController::class, 'delete'], [AuthMiddleware::class, CsrfMiddleware::class]);
+
 // === Nachrichten ===
 $router->get('/messages', [MessageController::class, 'inbox'], [AuthMiddleware::class]);
 $router->get('/messages/new', [MessageController::class, 'newConversation'], [AuthMiddleware::class]);
@@ -208,6 +237,8 @@ $router->post('/import/teachers', [ImportController::class, 'uploadTeachers'], [
 $router->post('/import/teachers/confirm', [ImportController::class, 'confirmTeachers'], [AuthMiddleware::class, StaffMiddleware::class, CsrfMiddleware::class]);
 $router->post('/import/students', [ImportController::class, 'uploadStudents'], [AuthMiddleware::class, StaffMiddleware::class, CsrfMiddleware::class]);
 $router->post('/import/students/confirm', [ImportController::class, 'confirmStudents'], [AuthMiddleware::class, StaffMiddleware::class, CsrfMiddleware::class]);
+$router->post('/import/aides', [ImportController::class, 'uploadSchoolAides'], [AuthMiddleware::class, StaffMiddleware::class, CsrfMiddleware::class]);
+$router->post('/import/aides/confirm', [ImportController::class, 'confirmSchoolAides'], [AuthMiddleware::class, StaffMiddleware::class, CsrfMiddleware::class]);
 $router->get('/import/students/credentials', [ImportController::class, 'studentCredentials'], [AuthMiddleware::class, StaffMiddleware::class]);
 $router->get('/import/template/{type}', [ImportController::class, 'downloadTemplate'], [AuthMiddleware::class, StaffMiddleware::class]);
 

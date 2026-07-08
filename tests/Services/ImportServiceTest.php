@@ -76,6 +76,84 @@ class ImportServiceTest extends DatabaseTestCase
         return $path;
     }
 
+    private function createAideExcel(array $rows): string
+    {
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->fromArray(['Vorname', 'Nachname', 'Kommentar'], null, 'A1');
+
+        $rowNum = 2;
+        foreach ($rows as $row) {
+            $sheet->fromArray($row, null, 'A' . $rowNum);
+            $rowNum++;
+        }
+
+        $path = $this->tempDir . '/aides.xlsx';
+        $writer = new Xlsx($spreadsheet);
+        $writer->save($path);
+
+        return $path;
+    }
+
+    // --- School aide tests ---
+
+    public function testPreviewSchoolAidesWithValidData(): void
+    {
+        $path = $this->createAideExcel([
+            ['Erika', 'Beispiel', 'Vormittags'],
+        ]);
+
+        $result = ImportService::previewSchoolAides($path);
+
+        $this->assertCount(1, $result['rows']);
+        $this->assertEmpty($result['errors']);
+        $this->assertEquals('Erika', $result['rows'][0]['firstname']);
+        $this->assertEquals('Vormittags', $result['rows'][0]['comment']);
+    }
+
+    public function testPreviewSchoolAidesDetectsMissingNames(): void
+    {
+        $path = $this->createAideExcel([
+            ['', 'Beispiel', ''],
+        ]);
+
+        $result = ImportService::previewSchoolAides($path);
+        $this->assertContains('Vorname fehlt', $result['rows'][0]['errors']);
+    }
+
+    public function testPreviewSchoolAidesSkipsEmptyRows(): void
+    {
+        $path = $this->createAideExcel([
+            ['Erika', 'Beispiel', ''],
+            ['', '', ''],
+            ['Max', 'Muster', ''],
+        ]);
+
+        $result = ImportService::previewSchoolAides($path);
+        $this->assertCount(2, $result['rows']);
+    }
+
+    public function testImportSchoolAidesCreatesUsersAndAides(): void
+    {
+        $path = $this->createAideExcel([
+            ['Erika', 'Beispiel', 'Vormittags'],
+        ]);
+
+        $result = ImportService::importSchoolAides($path);
+
+        $this->assertEquals(1, $result['imported']);
+        $this->assertEquals(0, $result['skipped']);
+        $this->assertNotEmpty($result['credentials']);
+
+        $aide = self::$pdo->query("SELECT * FROM school_aides WHERE lastname = 'Beispiel'")->fetch();
+        $this->assertNotFalse($aide);
+        $this->assertEquals('Vormittags', $aide['comment']);
+
+        $user = self::$pdo->query("SELECT * FROM users WHERE username = 'e.beispiel'")->fetch();
+        $this->assertNotFalse($user);
+        $this->assertEquals('schulbegleiter', $user['role']);
+    }
+
     // --- Teacher preview tests ---
 
     public function testPreviewTeachersWithValidData(): void

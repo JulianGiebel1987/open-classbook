@@ -6,6 +6,7 @@
     var profileFields = document.getElementById('profile-fields');
     var teacherFields = document.getElementById('teacher-fields');
     var studentFields = document.getElementById('student-fields');
+    var aideFields = document.getElementById('aide-fields');
     var firstname = document.getElementById('firstname');
     var lastname = document.getElementById('lastname');
     var abbreviation = document.getElementById('abbreviation');
@@ -19,11 +20,13 @@
         var role = roleSelect.value;
         var isTeacher = (role === 'lehrer');
         var isStudent = (role === 'schueler');
-        var needsProfile = isTeacher || isStudent;
+        var isAide = (role === 'schulbegleiter');
+        var needsProfile = isTeacher || isStudent || isAide;
 
         profileFields.style.display = needsProfile ? '' : 'none';
         teacherFields.style.display = isTeacher ? '' : 'none';
         studentFields.style.display = isStudent ? '' : 'none';
+        if (aideFields) aideFields.style.display = isAide ? '' : 'none';
 
         if (firstname) firstname.required = needsProfile;
         if (lastname) lastname.required = needsProfile;

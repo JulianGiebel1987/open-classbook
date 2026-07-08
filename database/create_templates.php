@@ -58,3 +58,25 @@ $sheet->setCellValue('E2', 'eltern@beispiel.de');
 $writer = new Xlsx($spreadsheet);
 $writer->save(__DIR__ . '/../templates/Schüler-Import.xlsx');
 echo "Schüler-Import.xlsx erstellt.\n";
+
+// Schulbegleiter-Import-Vorlage
+$spreadsheet = new Spreadsheet();
+$sheet = $spreadsheet->getActiveSheet();
+$sheet->setTitle('Schulbegleiter-Import');
+
+$headers = ['Vorname', 'Nachname', 'Kommentar'];
+foreach ($headers as $i => $header) {
+    $col = chr(65 + $i);
+    $sheet->setCellValue($col . '1', $header);
+    $sheet->getColumnDimension($col)->setAutoSize(true);
+    $sheet->getStyle($col . '1')->getFont()->setBold(true);
+}
+
+// Beispielzeile
+$sheet->setCellValue('A2', 'Erika');
+$sheet->setCellValue('B2', 'Beispiel');
+$sheet->setCellValue('C2', 'Begleitet vormittags');
+
+$writer = new Xlsx($spreadsheet);
+$writer->save(__DIR__ . '/../templates/Schulbegleiter-Import.xlsx');
+echo "Schulbegleiter-Import.xlsx erstellt.\n";
