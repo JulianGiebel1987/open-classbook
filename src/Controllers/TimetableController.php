@@ -439,6 +439,7 @@ class TimetableController
                 'slots' => [],
                 'slotGrid' => [],
                 'timeSlots' => [],
+                'totalUnits' => 0,
                 'breadcrumbs' => View::breadcrumbs([
                     ['label' => 'Mein Stundenplan'],
                 ]),
@@ -464,6 +465,7 @@ class TimetableController
             'slots' => $slots,
             'slotGrid' => $slotGrid,
             'timeSlots' => $timeSlots,
+            'totalUnits' => count($slots),
             'teacherId' => $teacherId,
             'breadcrumbs' => View::breadcrumbs([
                 ['label' => 'Mein Stundenplan'],
@@ -630,6 +632,53 @@ class TimetableController
             (int) $teacherId,
             'PDF-Export Stundenplan Lehrer ' . $teacher['firstname'] . ' ' . $teacher['lastname']
         );
+    }
+
+    /**
+     * Übersicht: summierte Unterrichtseinheiten je Lehrkraft für einen Stundenplan.
+     * Pausen sind keine Slots und werden daher nicht mitgezählt.
+     */
+    public function unitsOverview(string $settingId): void
+    {
+        $this->requireAdminRole();
+
+        $setting = TimetableSetting::findById((int) $settingId);
+        if (!$setting) {
+            App::setFlash('error', 'Stundenplan nicht gefunden.');
+            App::redirect('/timetable');
+            return;
+        }
+
+        $counts   = TimetableSlot::getTeacherUnitCounts((int) $setting['id']);
+        $teachers = Teacher::findAll();
+
+        $rows = [];
+        $totalUnits = 0;
+        foreach ($teachers as $t) {
+            $units = (int) ($counts[$t['id']] ?? 0);
+            $totalUnits += $units;
+            $rows[] = [
+                'id'           => (int) $t['id'],
+                'abbreviation' => $t['abbreviation'],
+                'name'         => $t['lastname'] . ', ' . $t['firstname'],
+                'units'        => $units,
+            ];
+        }
+
+        // Nach Nachname/Vorname sortieren (Standard-App-Konvention)
+        usort($rows, fn($a, $b) => strcasecmp($a['name'], $b['name']));
+
+        View::render('timetable/units-overview', [
+            'title'        => 'Einheitenübersicht ' . $setting['school_year'],
+            'setting'      => $setting,
+            'rows'         => $rows,
+            'totalUnits'   => $totalUnits,
+            'unitDuration' => (int) $setting['unit_duration'],
+            'breadcrumbs'  => View::breadcrumbs([
+                ['label' => 'Stundenplanung', 'url' => '/timetable'],
+                ['label' => 'Einheitenübersicht'],
+            ]),
+        ]);
     }
 
     // === Private Hilfsmethoden ===

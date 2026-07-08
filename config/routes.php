@@ -216,6 +216,7 @@ $router->post('/timetable/slot/{id}/delete', [TimetableController::class, 'delet
 $router->get('/timetable/{settingId}/class/select', [TimetableController::class, 'selectClass'], [AuthMiddleware::class]);
 $router->get('/timetable/{settingId}/class/{classId}', [TimetableController::class, 'editClass'], [AuthMiddleware::class]);
 $router->get('/timetable/{settingId}/class/{classId}/pdf', [TimetableController::class, 'exportPdf'], [AuthMiddleware::class]);
+$router->get('/timetable/{settingId}/units', [TimetableController::class, 'unitsOverview'], [AuthMiddleware::class]);
 $router->post('/timetable/{settingId}/publish', [TimetableController::class, 'publish'], [AuthMiddleware::class, CsrfMiddleware::class]);
 $router->post('/timetable/{settingId}/unpublish', [TimetableController::class, 'unpublish'], [AuthMiddleware::class, CsrfMiddleware::class]);
 $router->get('/timetable/teacher/{teacherId}', [TimetableController::class, 'teacherSchedule'], [AuthMiddleware::class]);

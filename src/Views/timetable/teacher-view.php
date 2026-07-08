@@ -21,7 +21,8 @@ $dayNames = [1 => 'Montag', 2 => 'Dienstag', 3 => 'Mittwoch', 4 => 'Donnerstag',
 <?php else: ?>
     <div class="card">
         <p class="text-muted">Schuljahr: <?= htmlspecialchars($setting['school_year'], ENT_QUOTES, 'UTF-8') ?>
-            | Einheitsdauer: <?= (int) $setting['unit_duration'] ?> Min.</p>
+            | Einheitsdauer: <?= (int) $setting['unit_duration'] ?> Min.
+            | Gesamt: <strong><?= (int) ($totalUnits ?? 0) ?></strong> Einheiten pro Woche</p>
     </div>
 
     <div class="card timetable-view-card">
