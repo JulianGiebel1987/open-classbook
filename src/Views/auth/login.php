@@ -5,7 +5,8 @@
 
         <div class="form-group">
             <label for="username">Benutzername oder E-Mail</label>
-            <input type="text" id="username" name="username" class="form-control" required autofocus autocomplete="username">
+            <input type="text" id="username" name="username" class="form-control" required autofocus autocomplete="username" aria-describedby="username_help">
+            <span class="form-help" id="username_help">Lehrkräfte melden sich mit ihrer E-Mail-Adresse an.</span>
         </div>
 
         <div class="form-group">
