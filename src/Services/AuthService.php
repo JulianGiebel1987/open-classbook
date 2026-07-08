@@ -141,6 +141,44 @@ class AuthService
     }
 
     /**
+     * Zufaelliges Passwort erzeugen, das die Komplexitaetsanforderungen erfuellt
+     * (mind. 1 Grossbuchstabe, 1 Kleinbuchstabe, 1 Ziffer). Verwechselbare Zeichen
+     * (I, O, l, o, 0, 1) sind ausgeschlossen. Nutzt ausschliesslich random_int
+     * (kryptographisch sicher).
+     */
+    public static function generateRandomPassword(int $length = 12): string
+    {
+        $minLength = App::config('security.password_min_length') ?? 10;
+        if ($length < $minLength) {
+            $length = $minLength;
+        }
+
+        $upper  = 'ABCDEFGHJKLMNPQRSTUVWXYZ'; // ohne I, O (Verwechslung)
+        $lower  = 'abcdefghijkmnpqrstuvwxyz'; // ohne l, o
+        $digits = '23456789';                 // ohne 0, 1
+
+        // Garantiere mind. je 1 Zeichen jeder Klasse
+        $chars = [
+            $upper[random_int(0, strlen($upper) - 1)],
+            $lower[random_int(0, strlen($lower) - 1)],
+            $digits[random_int(0, strlen($digits) - 1)],
+        ];
+
+        $all = $upper . $lower . $digits;
+        for ($i = count($chars); $i < $length; $i++) {
+            $chars[] = $all[random_int(0, strlen($all) - 1)];
+        }
+
+        // Fisher-Yates-Shuffle mit random_int (nicht shuffle(), das nutzt mt_rand)
+        for ($i = count($chars) - 1; $i > 0; $i--) {
+            $j = random_int(0, $i);
+            [$chars[$i], $chars[$j]] = [$chars[$j], $chars[$i]];
+        }
+
+        return implode('', $chars);
+    }
+
+    /**
      * Prueft, ob der Login-Versuch gesperrt ist.
      * Die Sperre basiert primaer auf der IP-Adresse (bzw. deren Pseudonym),
      * damit ein Angreifer nicht durch gezielte Fehlversuche fremde Accounts

@@ -161,22 +161,26 @@ class ClassController
         }
 
         $students = Student::findByClassId($class['id']);
+        $archivedStudents = Student::findArchivedByClassId($class['id']);
         $teachers = SchoolClass::getTeachers($class['id']);
 
         // Alle Klassen für Versetzungs-Dropdown laden (ausser aktuelle)
         $allClasses = SchoolClass::findAll();
         $otherClasses = array_filter($allClasses, fn($c) => $c['id'] !== $class['id']);
 
-        $canTransfer = in_array(App::currentUserRole(), ['admin', 'sekretariat', 'schulleitung']);
+        $canTransfer = in_array(App::currentUserRole(), self::STAFF_ROLES, true);
+        $isAdmin = App::currentUserRole() === 'admin';
 
         CsrfMiddleware::generateToken();
         View::render('classes/show', [
             'title' => 'Klasse ' . $class['name'],
             'class' => $class,
             'students' => $students,
+            'archivedStudents' => $archivedStudents,
             'teachers' => $teachers,
             'otherClasses' => $otherClasses,
             'canTransfer' => $canTransfer,
+            'isAdmin' => $isAdmin,
             'breadcrumbs' => View::breadcrumbs([
                 ['label' => 'Klassenverwaltung', 'url' => '/classes'],
                 ['label' => $class['name']],

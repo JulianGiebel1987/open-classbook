@@ -73,6 +73,16 @@ $roleLabels = [
                     <?php endforeach; ?>
                 </select>
             </div>
+
+            <div class="form-group">
+                <label for="birthday">Geburtsdatum</label>
+                <input type="date" id="birthday" name="birthday" class="form-control" value="<?= htmlspecialchars($old['birthday'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+            </div>
+
+            <div class="form-group">
+                <label for="guardian_email">Erziehungsberechtigten-E-Mail</label>
+                <input type="email" id="guardian_email" name="guardian_email" class="form-control" maxlength="255" value="<?= htmlspecialchars($old['guardian_email'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+            </div>
         </div>
 
         <div class="form-group">

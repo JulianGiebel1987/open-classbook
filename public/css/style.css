@@ -425,6 +425,21 @@ textarea:focus-visible {
     flex-wrap: wrap;
 }
 
+/* Aktionsspalte in Tabellen (z.B. Schülerliste): mehrere Buttons/Formulare */
+.table-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.table-actions .form-inline {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    margin: 0;
+}
+
 /* ===== Formulare ===== */
 .form-group {
     margin-bottom: var(--spacing-lg);

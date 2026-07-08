@@ -7,6 +7,7 @@ use OpenClassbook\Controllers\UserController;
 use OpenClassbook\Controllers\TwoFactorController;
 use OpenClassbook\Controllers\SettingsController;
 use OpenClassbook\Controllers\ClassController;
+use OpenClassbook\Controllers\StudentController;
 use OpenClassbook\Controllers\ClassbookController;
 use OpenClassbook\Controllers\AbsenceStudentController;
 use OpenClassbook\Controllers\AbsenceTeacherController;
@@ -78,6 +79,18 @@ $router->get('/classes/{id}', [ClassController::class, 'show'], [AuthMiddleware:
 $router->get('/classes/{id}/edit', [ClassController::class, 'editForm'], [AuthMiddleware::class, StaffMiddleware::class]);
 $router->post('/classes/{id}', [ClassController::class, 'update'], [AuthMiddleware::class, StaffMiddleware::class, CsrfMiddleware::class]);
 $router->post('/classes/{id}/transfer', [ClassController::class, 'transferStudent'], [AuthMiddleware::class, StaffMiddleware::class, CsrfMiddleware::class]);
+
+// === Schuelerverwaltung (Admin / Schulleitung / Sekretariat) ===
+// Anlegen im Kontext einer Klasse (legt automatisch ein Benutzerkonto an)
+$router->get('/classes/{id}/students/create', [StudentController::class, 'createForm'], [AuthMiddleware::class, StaffMiddleware::class]);
+$router->post('/classes/{id}/students', [StudentController::class, 'create'], [AuthMiddleware::class, StaffMiddleware::class, CsrfMiddleware::class]);
+// Zugangsdaten-Einmalanzeige (muss vor den /students/{id}-Routen stehen)
+$router->get('/students/credentials', [StudentController::class, 'credentials'], [AuthMiddleware::class, StaffMiddleware::class]);
+$router->get('/students/{id}/edit', [StudentController::class, 'editForm'], [AuthMiddleware::class, StaffMiddleware::class]);
+$router->post('/students/{id}', [StudentController::class, 'update'], [AuthMiddleware::class, StaffMiddleware::class, CsrfMiddleware::class]);
+$router->post('/students/{id}/archive', [StudentController::class, 'archive'], [AuthMiddleware::class, StaffMiddleware::class, CsrfMiddleware::class]);
+$router->post('/students/{id}/restore', [StudentController::class, 'restore'], [AuthMiddleware::class, StaffMiddleware::class, CsrfMiddleware::class]);
+$router->post('/students/{id}/delete', [StudentController::class, 'delete'], [AuthMiddleware::class, AdminMiddleware::class, CsrfMiddleware::class]);
 
 // === Klassenbuch ===
 $router->get('/classbook', [ClassbookController::class, 'index'], [AuthMiddleware::class]);

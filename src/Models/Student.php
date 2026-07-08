@@ -24,6 +24,10 @@ class Student
         $sql = 'SELECT s.*, c.name as class_name FROM students s JOIN classes c ON c.id = s.class_id WHERE 1=1';
         $params = [];
 
+        if (empty($filters['include_archived'])) {
+            $sql .= ' AND s.archived_at IS NULL';
+        }
+
         if (!empty($filters['class_id'])) {
             $sql .= ' AND s.class_id = ?';
             $params[] = $filters['class_id'];
@@ -39,10 +43,23 @@ class Student
         return Database::query($sql, $params);
     }
 
-    public static function findByClassId(int $classId): array
+    public static function findByClassId(int $classId, bool $includeArchived = false): array
+    {
+        $sql = 'SELECT * FROM students WHERE class_id = ?';
+        if (!$includeArchived) {
+            $sql .= ' AND archived_at IS NULL';
+        }
+        $sql .= ' ORDER BY lastname, firstname';
+        return Database::query($sql, [$classId]);
+    }
+
+    /**
+     * Nur archivierte Schueler:innen einer Klasse.
+     */
+    public static function findArchivedByClassId(int $classId): array
     {
         return Database::query(
-            'SELECT * FROM students WHERE class_id = ? ORDER BY lastname, firstname',
+            'SELECT * FROM students WHERE class_id = ? AND archived_at IS NOT NULL ORDER BY lastname, firstname',
             [$classId]
         );
     }
@@ -81,9 +98,37 @@ class Student
         Database::execute('UPDATE students SET class_id = ? WHERE id = ?', [$newClassId, $id]);
     }
 
-    public static function countByClassId(int $classId): int
+    /**
+     * Verknuepft einen Schueler-Datensatz nachtraeglich mit einem Benutzerkonto.
+     */
+    public static function setUserId(int $id, int $userId): void
     {
-        $result = Database::queryOne('SELECT COUNT(*) as cnt FROM students WHERE class_id = ?', [$classId]);
+        Database::execute('UPDATE students SET user_id = ? WHERE id = ?', [$userId, $id]);
+    }
+
+    /**
+     * Schueler:in archivieren (Soft-Delete): archived_at wird gesetzt.
+     */
+    public static function archive(int $id): void
+    {
+        Database::execute('UPDATE students SET archived_at = NOW() WHERE id = ?', [$id]);
+    }
+
+    /**
+     * Archivierte Schueler:in wiederherstellen.
+     */
+    public static function restore(int $id): void
+    {
+        Database::execute('UPDATE students SET archived_at = NULL WHERE id = ?', [$id]);
+    }
+
+    public static function countByClassId(int $classId, bool $includeArchived = false): int
+    {
+        $sql = 'SELECT COUNT(*) as cnt FROM students WHERE class_id = ?';
+        if (!$includeArchived) {
+            $sql .= ' AND archived_at IS NULL';
+        }
+        $result = Database::queryOne($sql, [$classId]);
         return (int) ($result['cnt'] ?? 0);
     }
 }
