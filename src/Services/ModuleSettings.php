@@ -28,6 +28,7 @@ class ModuleSettings
         'lists'       => 'module_lists',
         'files'       => 'module_files',
         'templates'   => 'module_templates',
+        'school_aides'=> 'module_school_aides',
     ];
 
     /** Role-specific access: [module][role] => setting key */
@@ -43,6 +44,10 @@ class ModuleSettings
         'substitution' => [
             'schulleitung' => 'module_substitution_schulleitung',
             'sekretariat'  => 'module_substitution_sekretariat',
+        ],
+        'school_aides' => [
+            'schulleitung' => 'module_school_aides_schulleitung',
+            'sekretariat'  => 'module_school_aides_sekretariat',
         ],
     ];
 

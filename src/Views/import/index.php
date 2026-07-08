@@ -44,3 +44,22 @@
         <button type="submit" class="btn">Vorschau anzeigen</button>
     </form>
 </div>
+
+<div class="card mt-1">
+    <div class="card-header">
+        <h2>Schulbegleiter:innen importieren</h2>
+    </div>
+    <p class="mb-sm">
+        <a href="/import/template/schulbegleiter" class="btn btn-sm btn-secondary">Excel-Vorlage (.xlsx)</a>
+        <a href="/import/template/schulbegleiter-csv" class="btn btn-sm btn-secondary">CSV-Vorlage (.csv)</a>
+    </p>
+    <form method="post" action="/import/aides" enctype="multipart/form-data">
+        <?= \OpenClassbook\View::csrfField() ?>
+        <div class="form-group">
+            <label for="file_aides">Import-Datei (.xlsx oder .csv)</label>
+            <input type="file" id="file_aides" name="file" class="form-control" accept=".xlsx,.csv" required aria-describedby="file_aides_help">
+            <span class="form-help" id="file_aides_help">Spalten: Vorname, Nachname, Kommentar. Excel (.xlsx) oder CSV (.csv).</span>
+        </div>
+        <button type="submit" class="btn">Vorschau anzeigen</button>
+    </form>
+</div>

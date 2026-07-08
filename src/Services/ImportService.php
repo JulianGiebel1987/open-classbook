@@ -354,4 +354,102 @@ class ImportService
         ];
     }
 
+    /**
+     * Schulbegleiter:innen-Vorschau aus Excel- oder CSV-Datei.
+     * Spalten: Vorname, Nachname, Kommentar
+     */
+    public static function previewSchoolAides(string $filePath, string $format = 'xlsx'): array
+    {
+        if ($format === 'csv') {
+            $csvRows = self::parseCsv($filePath);
+            $rows = [];
+            $errors = [];
+            foreach ($csvRows as $csvRow) {
+                $data = array_pad($csvRow['data'], 3, '');
+                [$firstname, $lastname, $comment] = $data;
+                $rows[] = self::buildAideRow($csvRow['lineNum'], $firstname, $lastname, $comment, $errors);
+            }
+            return ['rows' => $rows, 'errors' => $errors];
+        }
+
+        $spreadsheet = IOFactory::load($filePath);
+        $sheet = $spreadsheet->getActiveSheet();
+        $rows = [];
+        $errors = [];
+
+        foreach ($sheet->getRowIterator(2) as $row) { // Ab Zeile 2 (Zeile 1 = Header)
+            $rowIndex = $row->getRowIndex();
+            $cells = [];
+            foreach ($row->getCellIterator('A', 'C') as $cell) {
+                $cells[] = trim((string) $cell->getValue());
+            }
+            [$firstname, $lastname, $comment] = array_pad($cells, 3, '');
+
+            if (empty($firstname) && empty($lastname)) {
+                continue; // Leere Zeile
+            }
+
+            $rows[] = self::buildAideRow($rowIndex, $firstname, $lastname, $comment, $errors);
+        }
+
+        return ['rows' => $rows, 'errors' => $errors];
+    }
+
+    /**
+     * Eine einzelne Schulbegleiter-Zeile validieren und aufbereiten.
+     */
+    private static function buildAideRow(int $rowIndex, string $firstname, string $lastname, string $comment, array &$errors): array
+    {
+        $rowErrors = [];
+        if (empty($firstname)) $rowErrors[] = 'Vorname fehlt';
+        if (empty($lastname)) $rowErrors[] = 'Nachname fehlt';
+
+        if (!empty($rowErrors)) {
+            $errors[] = "Zeile {$rowIndex}: " . implode(', ', $rowErrors);
+        }
+
+        return [
+            'row' => $rowIndex,
+            'firstname' => $firstname,
+            'lastname' => $lastname,
+            'comment' => $comment,
+            'errors' => $rowErrors,
+        ];
+    }
+
+    /**
+     * Schulbegleiter:innen tatsächlich importieren (inkl. Benutzerkonto).
+     */
+    public static function importSchoolAides(string $filePath): array
+    {
+        $format = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+        $preview = self::previewSchoolAides($filePath, $format);
+        $imported = 0;
+        $skipped = 0;
+        $credentials = [];
+
+        foreach ($preview['rows'] as $row) {
+            if (!empty($row['errors'])) {
+                $skipped++;
+                continue;
+            }
+
+            $created = AideService::createAideWithAccount([
+                'firstname' => $row['firstname'],
+                'lastname' => $row['lastname'],
+                'comment' => $row['comment'] ?: null,
+            ]);
+
+            $credentials[] = $created['credentials'];
+            $imported++;
+        }
+
+        return [
+            'imported' => $imported,
+            'skipped' => $skipped,
+            'errors' => $preview['errors'],
+            'credentials' => $credentials,
+        ];
+    }
+
 }

@@ -1073,6 +1073,24 @@ a.widget:hover {
 .badge-warning { background: var(--color-warning-light); color: #92400e; }
 .badge-info { background: var(--color-info-light); color: #155e75; }
 
+/* Prioritaetsstufen (Schulbegleiter-Vertretung): 1 = sehr hoch ... 4 = niedrig */
+.badge.prio-1 { background: #fee2e2; color: #991b1b; }
+.badge.prio-2 { background: #ffedd5; color: #9a3412; }
+.badge.prio-3 { background: #fef9c3; color: #854d0e; }
+.badge.prio-4 { background: #e5e7eb; color: #374151; }
+
+/* Vertretungs-Planungszeile: mehrere Felder nebeneinander */
+.aide-sub-row {
+    display: flex;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
+    align-items: end;
+    padding: var(--spacing-sm) 0;
+    border-top: 1px solid var(--color-border);
+}
+.aide-sub-row .form-group { margin-bottom: 0; }
+.aide-sub-row .form-static { padding: 6px 0; font-weight: 600; }
+
 /* ===== Responsive: Tablet ===== */
 @media (max-width: 992px) {
     .dashboard-grid {

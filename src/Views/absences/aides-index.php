@@ -1,0 +1,83 @@
+<div class="page-header">
+    <h1>Schulbegleiter:innen-Abwesenheiten</h1>
+    <div class="page-header-actions">
+        <?php if (!empty($canAccessSubstitution)): ?>
+            <a href="/aide-substitution" class="btn btn-secondary">Zur Vertretungsplanung</a>
+        <?php endif; ?>
+        <a href="/absences/aides/create" class="btn">Abwesenheit eintragen</a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h2>Filter</h2>
+    </div>
+    <form method="get" action="/absences/aides" class="filter-form">
+        <div class="form-group">
+            <label for="type">Typ</label>
+            <select name="type" id="type" class="form-control">
+                <option value="">Alle</option>
+                <option value="krank" <?= ($filters['type'] ?? '') === 'krank' ? 'selected' : '' ?>>Krank</option>
+                <option value="fortbildung" <?= ($filters['type'] ?? '') === 'fortbildung' ? 'selected' : '' ?>>Fortbildung</option>
+                <option value="sonstiges" <?= ($filters['type'] ?? '') === 'sonstiges' ? 'selected' : '' ?>>Sonstiges</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="date_from">Von</label>
+            <input type="date" name="date_from" id="date_from" class="form-control" value="<?= htmlspecialchars($filters['date_from'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+        </div>
+        <div class="form-group">
+            <label for="date_to">Bis</label>
+            <input type="date" name="date_to" id="date_to" class="form-control" value="<?= htmlspecialchars($filters['date_to'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+        </div>
+        <button type="submit" class="btn btn-secondary">Filtern</button>
+    </form>
+</div>
+
+<div class="card mt-1">
+    <div class="table-responsive">
+        <table aria-label="Schulbegleiter:innen-Abwesenheiten">
+            <thead>
+                <tr>
+                    <th scope="col">Schulbegleiter:in</th>
+                    <th scope="col">Von</th>
+                    <th scope="col">Bis</th>
+                    <th scope="col">Typ</th>
+                    <th scope="col">Grund</th>
+                    <th scope="col">Aktionen</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php if (empty($absences)): ?>
+                    <tr><td colspan="6" class="text-center">Keine Abwesenheiten gefunden.</td></tr>
+                <?php endif; ?>
+                <?php foreach ($absences as $a): ?>
+                <tr>
+                    <td><?= htmlspecialchars($a['lastname'] . ', ' . $a['firstname'], ENT_QUOTES, 'UTF-8') ?></td>
+                    <td><?= date('d.m.Y', strtotime($a['date_from'])) ?></td>
+                    <td><?= date('d.m.Y', strtotime($a['date_to'])) ?></td>
+                    <td>
+                        <?php if ($a['type'] === 'krank'): ?>
+                            <span class="badge badge-danger">Krank</span>
+                        <?php elseif ($a['type'] === 'fortbildung'): ?>
+                            <span class="badge badge-info">Fortbildung</span>
+                        <?php else: ?>
+                            <span class="badge badge-warning">Sonstiges</span>
+                        <?php endif; ?>
+                    </td>
+                    <td><?= htmlspecialchars($a['reason'] ?? '-', ENT_QUOTES, 'UTF-8') ?></td>
+                    <td>
+                        <div class="btn-group">
+                            <a href="/absences/aides/<?= $a['id'] ?>/edit" class="btn btn-sm btn-secondary">Bearbeiten</a>
+                            <form method="post" action="/absences/aides/<?= $a['id'] ?>/delete" class="d-inline">
+                                <?= \OpenClassbook\View::csrfField() ?>
+                                <button type="submit" class="btn btn-sm btn-danger" data-confirm="Abwesenheit wirklich löschen?">Löschen</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+</div>

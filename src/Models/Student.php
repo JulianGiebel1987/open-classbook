@@ -122,6 +122,20 @@ class Student
         Database::execute('UPDATE students SET archived_at = NULL WHERE id = ?', [$id]);
     }
 
+    /**
+     * Der/den Schueler:in begleitende Schulbegleiter:innen (n:m ueber aide_student).
+     */
+    public static function getAides(int $studentId): array
+    {
+        return Database::query(
+            'SELECT a.* FROM school_aides a
+             JOIN aide_student ast ON ast.aide_id = a.id
+             WHERE ast.student_id = ?
+             ORDER BY a.lastname, a.firstname',
+            [$studentId]
+        );
+    }
+
     public static function countByClassId(int $classId, bool $includeArchived = false): int
     {
         $sql = 'SELECT COUNT(*) as cnt FROM students WHERE class_id = ?';

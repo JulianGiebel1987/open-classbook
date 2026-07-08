@@ -7,6 +7,7 @@ use OpenClassbook\View;
 use OpenClassbook\Models\User;
 use OpenClassbook\Models\Teacher;
 use OpenClassbook\Models\Student;
+use OpenClassbook\Models\SchoolAide;
 use OpenClassbook\Models\SchoolClass;
 use OpenClassbook\Middleware\CsrfMiddleware;
 use OpenClassbook\Services\AuthService;
@@ -39,7 +40,7 @@ class UserController
         ];
 
         $users = User::findAll($filters);
-        $roles = ['admin', 'schulleitung', 'sekretariat', 'lehrer', 'schueler'];
+        $roles = ['admin', 'schulleitung', 'sekretariat', 'lehrer', 'schueler', 'schulbegleiter'];
 
         View::render('users/index', [
             'title' => 'Benutzerverwaltung',
@@ -59,8 +60,10 @@ class UserController
         CsrfMiddleware::generateToken();
         View::render('users/create', [
             'title' => 'Neuer Benutzer',
-            'roles' => ['admin', 'schulleitung', 'sekretariat', 'lehrer', 'schueler'],
+            'roles' => ['admin', 'schulleitung', 'sekretariat', 'lehrer', 'schueler', 'schulbegleiter'],
             'classes' => SchoolClass::findAll(),
+            'students' => Student::findAll(),
+            'assignedStudentIds' => [],
             'breadcrumbs' => View::breadcrumbs([
                 ['label' => 'Benutzer', 'url' => '/users'],
                 ['label' => 'Neuer Benutzer'],
@@ -112,13 +115,25 @@ class UserController
             }
         }
 
+        // Zusätzliche Validierung für Schulbegleiter:innen
+        if ($data['role'] === 'schulbegleiter') {
+            if (empty(trim($_POST['firstname'] ?? ''))) {
+                $errors[] = 'Vorname ist für Schulbegleiter:innen erforderlich.';
+            }
+            if (empty(trim($_POST['lastname'] ?? ''))) {
+                $errors[] = 'Nachname ist für Schulbegleiter:innen erforderlich.';
+            }
+        }
+
         if (!empty($errors)) {
             App::setFlash('error', implode(' ', $errors));
             CsrfMiddleware::generateToken();
             View::render('users/create', [
                 'title' => 'Neuer Benutzer',
-                'roles' => ['admin', 'schulleitung', 'sekretariat', 'lehrer', 'schueler'],
+                'roles' => ['admin', 'schulleitung', 'sekretariat', 'lehrer', 'schueler', 'schulbegleiter'],
                 'classes' => SchoolClass::findAll(),
+                'students' => Student::findAll(),
+                'assignedStudentIds' => array_map('intval', (array) ($_POST['student_ids'] ?? [])),
                 'old' => $_POST,
                 'breadcrumbs' => View::breadcrumbs([
                     ['label' => 'Benutzer', 'url' => '/users'],
@@ -153,6 +168,17 @@ class UserController
             ]);
         }
 
+        // Schulbegleiter:innen-Profil anlegen
+        if ($data['role'] === 'schulbegleiter') {
+            $aideId = SchoolAide::create([
+                'user_id' => $userId,
+                'firstname' => trim($_POST['firstname']),
+                'lastname' => trim($_POST['lastname']),
+                'comment' => trim($_POST['comment'] ?? '') ?: null,
+            ]);
+            SchoolAide::setStudents($aideId, array_map('intval', (array) ($_POST['student_ids'] ?? [])));
+        }
+
         App::setFlash('success', 'Benutzer erfolgreich angelegt.');
         App::redirect('/users');
     }
@@ -168,12 +194,18 @@ class UserController
             return;
         }
 
-        // Profildaten laden (Lehrkraft oder Schüler:in)
+        // Profildaten laden (Lehrkraft, Schüler:in oder Schulbegleiter:in)
         $profile = null;
+        $assignedStudentIds = [];
         if ($user['role'] === 'lehrer') {
             $profile = Teacher::findByUserId($user['id']);
         } elseif ($user['role'] === 'schueler') {
             $profile = Student::findByUserId($user['id']);
+        } elseif ($user['role'] === 'schulbegleiter') {
+            $profile = SchoolAide::findByUserId($user['id']);
+            if ($profile) {
+                $assignedStudentIds = array_column(SchoolAide::getStudents((int) $profile['id']), 'id');
+            }
         }
 
         $twoFactorData = User::getTwoFactorData($user['id']);
@@ -183,8 +215,10 @@ class UserController
             'title' => 'Benutzer bearbeiten',
             'user' => $user,
             'profile' => $profile,
-            'roles' => ['admin', 'schulleitung', 'sekretariat', 'lehrer', 'schueler'],
+            'roles' => ['admin', 'schulleitung', 'sekretariat', 'lehrer', 'schueler', 'schulbegleiter'],
             'classes' => SchoolClass::findAll(),
+            'students' => Student::findAll(),
+            'assignedStudentIds' => $assignedStudentIds,
             'twoFactorData' => $twoFactorData,
             'breadcrumbs' => View::breadcrumbs([
                 ['label' => 'Benutzer', 'url' => '/users'],
@@ -263,6 +297,16 @@ class UserController
             }
         }
 
+        // Validierung Schulbegleiter:innen-Profil
+        if ($data['role'] === 'schulbegleiter') {
+            if (empty(trim($_POST['firstname'] ?? ''))) {
+                $errors[] = 'Vorname ist für Schulbegleiter:innen erforderlich.';
+            }
+            if (empty(trim($_POST['lastname'] ?? ''))) {
+                $errors[] = 'Nachname ist für Schulbegleiter:innen erforderlich.';
+            }
+        }
+
         if (!empty($errors)) {
             App::setFlash('error', implode(' ', $errors));
             CsrfMiddleware::generateToken();
@@ -275,9 +319,12 @@ class UserController
                     'abbreviation' => $_POST['abbreviation'] ?? '',
                     'subjects'  => $_POST['subjects'] ?? '',
                     'class_id'  => $_POST['class_id'] ?? '',
+                    'comment'   => $_POST['comment'] ?? '',
                 ],
-                'roles' => ['admin', 'schulleitung', 'sekretariat', 'lehrer', 'schueler'],
+                'roles' => ['admin', 'schulleitung', 'sekretariat', 'lehrer', 'schueler', 'schulbegleiter'],
                 'classes' => SchoolClass::findAll(),
+                'students' => Student::findAll(),
+                'assignedStudentIds' => array_map('intval', (array) ($_POST['student_ids'] ?? [])),
                 'old' => $_POST,
                 'breadcrumbs' => View::breadcrumbs([
                     ['label' => 'Benutzer', 'url' => '/users'],
@@ -322,6 +369,24 @@ class UserController
             } else {
                 Student::create($studentData);
             }
+        }
+
+        // Schulbegleiter:innen-Profil erstellen oder aktualisieren
+        if ($data['role'] === 'schulbegleiter') {
+            $aideData = [
+                'user_id' => $userId,
+                'firstname' => trim($_POST['firstname']),
+                'lastname' => trim($_POST['lastname']),
+                'comment' => trim($_POST['comment'] ?? '') ?: null,
+            ];
+            $existingAide = SchoolAide::findByUserId($userId);
+            if ($existingAide) {
+                SchoolAide::update((int) $existingAide['id'], $aideData);
+                $aideId = (int) $existingAide['id'];
+            } else {
+                $aideId = SchoolAide::create($aideData);
+            }
+            SchoolAide::setStudents($aideId, array_map('intval', (array) ($_POST['student_ids'] ?? [])));
         }
 
         App::setFlash('success', 'Benutzer erfolgreich aktualisiert.');
@@ -611,7 +676,7 @@ class UserController
             $errors[] = 'Dieser Benutzername ist bereits vergeben.';
         }
 
-        if (!in_array($data['role'], ['admin', 'schulleitung', 'sekretariat', 'lehrer', 'schueler'])) {
+        if (!in_array($data['role'], ['admin', 'schulleitung', 'sekretariat', 'lehrer', 'schueler', 'schulbegleiter'])) {
             $errors[] = 'Ungültige Rolle.';
         }
 

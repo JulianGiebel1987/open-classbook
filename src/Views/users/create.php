@@ -5,6 +5,7 @@ $roleLabels = [
     'sekretariat'  => 'Sekretariat',
     'lehrer'       => 'Lehrkraft',
     'schueler'     => 'Schüler:in',
+    'schulbegleiter' => 'Schulbegleiter:in',
 ];
 ?>
 <div class="page-header">
@@ -83,6 +84,29 @@ $roleLabels = [
                 <label for="guardian_email">Erziehungsberechtigten-E-Mail</label>
                 <input type="email" id="guardian_email" name="guardian_email" class="form-control" maxlength="255" value="<?= htmlspecialchars($old['guardian_email'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
             </div>
+        </div>
+
+        <div id="aide-fields" style="display: none;">
+            <div class="form-group">
+                <label for="comment">Kommentar</label>
+                <textarea id="comment" name="comment" class="form-control" rows="2" aria-describedby="comment_help"><?= htmlspecialchars($old['comment'] ?? '', ENT_QUOTES, 'UTF-8') ?></textarea>
+                <span class="form-help" id="comment_help">Freitext, z.B. Einsatzzeiten oder Hinweise.</span>
+            </div>
+
+            <fieldset class="form-group fieldset-clean">
+                <legend>Begleitete Schüler:innen zuweisen</legend>
+                <div class="checkbox-scroll">
+                    <?php foreach ($students ?? [] as $s): ?>
+                    <label>
+                        <input type="checkbox" name="student_ids[]" value="<?= $s['id'] ?>" <?= in_array($s['id'], $assignedStudentIds ?? []) ? 'checked' : '' ?>>
+                        <?= htmlspecialchars($s['lastname'] . ', ' . $s['firstname'] . ' (' . $s['class_name'] . ')', ENT_QUOTES, 'UTF-8') ?>
+                    </label>
+                    <?php endforeach; ?>
+                    <?php if (empty($students)): ?>
+                        <p class="form-help">Noch keine Schüler:innen vorhanden.</p>
+                    <?php endif; ?>
+                </div>
+            </fieldset>
         </div>
 
         <div class="form-group">

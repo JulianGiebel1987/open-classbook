@@ -209,6 +209,84 @@ class ImportController
         App::redirect('/import/students/credentials');
     }
 
+    public function uploadSchoolAides(): void
+    {
+        if (!$this->requireStaff()) return;
+
+        if (empty($_FILES['file']) || $_FILES['file']['error'] !== UPLOAD_ERR_OK) {
+            App::setFlash('error', 'Bitte wählen Sie eine Datei aus.');
+            App::redirect('/import');
+            return;
+        }
+
+        $file = $_FILES['file'];
+        $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        if (!in_array($ext, ['xlsx', 'csv'], true)) {
+            App::setFlash('error', 'Nur .xlsx- und .csv-Dateien werden unterstützt.');
+            App::redirect('/import');
+            return;
+        }
+
+        $tmpPath = $file['tmp_name'];
+        $preview = ImportService::previewSchoolAides($tmpPath, $ext);
+
+        $storedPath = __DIR__ . '/../../storage/uploads/' . bin2hex(random_bytes(16)) . '.' . $ext;
+        if (!move_uploaded_file($tmpPath, $storedPath)) {
+            App::setFlash('error', 'Datei konnte nicht gespeichert werden. Bitte Schreibrechte für storage/uploads/ prüfen.');
+            App::redirect('/import');
+            return;
+        }
+
+        CsrfMiddleware::generateToken();
+        View::render('import/preview-aides', [
+            'title' => 'Import-Vorschau: Schulbegleiter:innen',
+            'preview' => $preview,
+            'storedFile' => basename($storedPath),
+            'breadcrumbs' => View::breadcrumbs([
+                ['label' => 'Benutzer', 'url' => '/users'],
+                ['label' => 'Daten importieren', 'url' => '/import'],
+                ['label' => 'Vorschau: Schulbegleiter:innen'],
+            ]),
+        ]);
+    }
+
+    public function confirmSchoolAides(): void
+    {
+        if (!$this->requireStaff()) return;
+
+        $storedFile = $_POST['stored_file'] ?? '';
+
+        if (!preg_match('/^[0-9a-f]{32}\.(xlsx|csv)$/', $storedFile)) {
+            App::setFlash('error', 'Ungültige Import-Datei. Bitte erneut hochladen.');
+            App::redirect('/import');
+            return;
+        }
+
+        $storedPath = __DIR__ . '/../../storage/uploads/' . $storedFile;
+
+        if (!file_exists($storedPath)) {
+            App::setFlash('error', 'Import-Datei nicht gefunden. Bitte erneut hochladen.');
+            App::redirect('/import');
+            return;
+        }
+
+        $result = ImportService::importSchoolAides($storedPath);
+        unlink($storedPath);
+
+        $msg = "{$result['imported']} Schulbegleiter:in(nen) erfolgreich importiert.";
+        if ($result['skipped'] > 0) {
+            $msg .= " {$result['skipped']} Zeile(n) übersprungen.";
+        }
+
+        if (!empty($result['credentials'])) {
+            $_SESSION['import_credentials'] = $result['credentials'];
+            $msg .= ' Zugangsdaten werden unten angezeigt - bitte notieren!';
+        }
+
+        App::setFlash('success', $msg);
+        App::redirect('/import/students/credentials');
+    }
+
     public function studentCredentials(): void
     {
         if (!$this->requireStaff()) return;
@@ -259,9 +337,19 @@ class ImportController
             exit;
         }
 
+        if ($type === 'schulbegleiter-csv') {
+            header('Content-Type: text/csv; charset=UTF-8');
+            header('Content-Disposition: attachment; filename="Schulbegleiter-Import.csv"');
+            echo "\xEF\xBB\xBF"; // UTF-8 BOM für Excel-Kompatibilität
+            echo "Vorname;Nachname;Kommentar\n";
+            echo "Erika;Beispiel;Begleitet vormittags\n";
+            exit;
+        }
+
         $templates = [
             'lehrer' => 'Lehrer-Import.xlsx',
             'schueler' => 'Schüler-Import.xlsx',
+            'schulbegleiter' => 'Schulbegleiter-Import.xlsx',
         ];
 
         if (!isset($templates[$type])) {
