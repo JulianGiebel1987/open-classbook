@@ -61,7 +61,7 @@ return [
     ],
     'lehrer' => [
         ['label' => 'Dashboard',       'url' => '/dashboard',                      'icon' => 'dashboard'],
-        ['label' => 'Meine Klassen',   'url' => '/classbook',                      'icon' => 'classbook'],
+        ['label' => 'Meine Klassenbücher', 'url' => '/classbook',                  'icon' => 'classbook'],
         ['label' => 'Mein Stundenplan','url' => '/timetable/my-schedule',          'icon' => 'timetable',   'module' => 'timetable'],
         ['label' => 'Vertretung',      'url' => '/substitution/my-substitutions',  'icon' => 'substitution','module' => 'substitution'],
         ['label' => 'Lehrkraft-Abwesenheit', 'url' => '/absences/teachers/self',    'icon' => 'sick-note'],
