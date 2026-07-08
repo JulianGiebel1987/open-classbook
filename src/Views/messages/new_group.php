@@ -15,7 +15,7 @@ $roleLabels = [
 ?>
 
 <div class="card">
-    <form method="post" action="/messages/groups/new" id="createGroupForm">
+    <form method="post" action="/messages/groups/new" id="createGroupForm" enctype="multipart/form-data">
         <?= \OpenClassbook\View::csrfField() ?>
 
         <div class="form-group">
@@ -55,6 +55,12 @@ $roleLabels = [
             <label for="body">Erste Nachricht <span class="text-muted" style="font-weight:normal;">(optional)</span></label>
             <textarea name="body" id="body" class="form-control" rows="4"
                       maxlength="5000" placeholder="Optionale erste Nachricht an die Gruppe..."></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="attachments">Anhänge <span class="text-muted" style="font-weight:normal;">(optional)</span></label>
+            <input type="file" id="attachments" name="attachments[]" multiple class="form-control">
+            <span class="form-help">Bis zu 5 Dateien, je max. 15 MB.</span>
         </div>
 
         <div class="btn-group">

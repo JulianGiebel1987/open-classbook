@@ -73,7 +73,20 @@
                 <?php if ((int) $m['sender_id'] !== $currentUserId): ?>
                     <div class="chat-bubble-sender"><?= htmlspecialchars($m['sender_username'], ENT_QUOTES, 'UTF-8') ?></div>
                 <?php endif; ?>
-                <div class="chat-bubble-body"><?= nl2br(htmlspecialchars($m['body'], ENT_QUOTES, 'UTF-8')) ?></div>
+                <?php if ($m['body'] !== ''): ?>
+                    <div class="chat-bubble-body"><?= nl2br(htmlspecialchars($m['body'], ENT_QUOTES, 'UTF-8')) ?></div>
+                <?php endif; ?>
+                <?php if (!empty($m['attachments'])): ?>
+                    <div class="chat-attachments">
+                        <?php foreach ($m['attachments'] as $att): ?>
+                            <a class="chat-attachment" href="/messages/attachments/<?= (int) $att['id'] ?>/download">
+                                <span class="chat-attachment-icon" aria-hidden="true">📎</span>
+                                <span class="chat-attachment-name"><?= htmlspecialchars($att['original_name'], ENT_QUOTES, 'UTF-8') ?></span>
+                                <span class="chat-attachment-size"><?= htmlspecialchars(\OpenClassbook\Models\FileEntry::formatSize((int) $att['file_size']), ENT_QUOTES, 'UTF-8') ?></span>
+                            </a>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
                 <div class="chat-bubble-meta">
                     <?= date('d.m. H:i', strtotime($m['created_at'])) ?>
                 </div>
@@ -81,12 +94,18 @@
         <?php endforeach; ?>
     </div>
 
-    <form method="post" action="/messages/groups/<?= (int) $groupId ?>" class="chat-input-form" id="chatForm">
+    <form method="post" action="/messages/groups/<?= (int) $groupId ?>" class="chat-input-form" id="chatForm" enctype="multipart/form-data">
         <?= \OpenClassbook\View::csrfField() ?>
         <div class="chat-input-wrapper">
             <textarea name="body" id="chatInput" class="form-control" rows="2"
-                      placeholder="Nachricht an Gruppe schreiben..." required maxlength="5000"></textarea>
+                      placeholder="Nachricht an Gruppe schreiben..." maxlength="5000"></textarea>
             <button type="submit" class="btn">Senden</button>
+        </div>
+        <div class="chat-attachment-bar">
+            <label for="chatAttachments" class="btn btn-sm btn-secondary">📎 Anhang</label>
+            <input type="file" id="chatAttachments" name="attachments[]" multiple class="chat-file-input"
+                   aria-label="Dateien anhängen">
+            <span class="chat-attachment-selected text-muted" id="attachmentSelected"></span>
         </div>
     </form>
 </div>

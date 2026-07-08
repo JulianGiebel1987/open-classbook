@@ -1608,6 +1608,63 @@ a.widget:hover {
     flex-shrink: 0;
 }
 
+/* Anhänge-Leiste unter dem Eingabefeld */
+.chat-attachment-bar {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-sm);
+    flex-wrap: wrap;
+}
+
+.chat-file-input {
+    flex: 1;
+    min-width: 0;
+    font-size: var(--font-size-xs);
+}
+
+.chat-attachment-selected {
+    font-size: var(--font-size-xs);
+}
+
+/* Anhänge in einer Nachrichten-Bubble */
+.chat-attachments {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    margin-top: var(--spacing-xs);
+}
+
+.chat-attachment {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border: 1px solid var(--color-border);
+    border-radius: var(--spacing-xs);
+    background: rgba(0, 0, 0, 0.03);
+    text-decoration: none;
+    color: inherit;
+    font-size: var(--font-size-xs);
+    max-width: 100%;
+}
+
+.chat-attachment:hover {
+    background: rgba(0, 0, 0, 0.07);
+}
+
+.chat-attachment-name {
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.chat-attachment-size {
+    opacity: 0.7;
+    flex-shrink: 0;
+}
+
 .mb-05 {
     margin-bottom: var(--spacing-sm);
 }

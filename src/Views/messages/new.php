@@ -15,7 +15,7 @@ $roleLabels = [
 ?>
 
 <div class="card">
-    <form method="post" action="/messages/new">
+    <form method="post" action="/messages/new" enctype="multipart/form-data">
         <?= \OpenClassbook\View::csrfField() ?>
 
         <div class="form-group">
@@ -31,8 +31,14 @@ $roleLabels = [
         </div>
 
         <div class="form-group">
-            <label for="body">Nachricht <span aria-hidden="true">*</span></label>
-            <textarea name="body" id="body" class="form-control" rows="5" required maxlength="5000" placeholder="Ihre Nachricht..."></textarea>
+            <label for="body">Nachricht</label>
+            <textarea name="body" id="body" class="form-control" rows="5" maxlength="5000" placeholder="Ihre Nachricht..."></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="attachments">Anhänge</label>
+            <input type="file" id="attachments" name="attachments[]" multiple class="form-control">
+            <span class="form-help">Bis zu 5 Dateien, je max. 15 MB. Nachricht oder mindestens ein Anhang ist erforderlich.</span>
         </div>
 
         <div class="btn-group">
