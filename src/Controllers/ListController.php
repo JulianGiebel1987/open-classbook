@@ -74,6 +74,9 @@ class ListController
             'title' => 'Listen',
             'lists' => $lists,
             'currentUserId' => $_SESSION['user_id'],
+            'breadcrumbs' => View::breadcrumbs([
+                ['label' => 'Listen'],
+            ]),
         ]);
     }
 
@@ -96,6 +99,10 @@ class ListController
         View::render('lists/create', [
             'title' => 'Neue Liste',
             'classes' => $classes,
+            'breadcrumbs' => View::breadcrumbs([
+                ['label' => 'Listen', 'url' => '/lists'],
+                ['label' => 'Neue Liste'],
+            ]),
         ]);
     }
 
@@ -213,6 +220,10 @@ class ListController
             'canEdit' => $canEdit,
             'isOwner' => (int) $list['owner_id'] === $userId || App::currentUserRole() === 'admin',
             'currentUserId' => $userId,
+            'breadcrumbs' => View::breadcrumbs([
+                ['label' => 'Listen', 'url' => '/lists'],
+                ['label' => $list['title']],
+            ]),
         ]);
     }
 
@@ -624,6 +635,11 @@ class ListController
             'list' => $list,
             'shares' => $shares,
             'availableUsers' => array_values($availableUsers),
+            'breadcrumbs' => View::breadcrumbs([
+                ['label' => 'Listen', 'url' => '/lists'],
+                ['label' => $list['title'], 'url' => '/lists/' . $list['id']],
+                ['label' => 'Freigabe'],
+            ]),
         ]);
     }
 

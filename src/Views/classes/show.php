@@ -4,7 +4,6 @@
         <a href="/classbook/<?= $class['id'] ?>" class="btn">Klassenbuch</a>
         <a href="/absences/students?class_id=<?= $class['id'] ?>" class="btn">Schüler:innen-Fehlzeiten</a>
         <a href="/classes/<?= $class['id'] ?>/edit" class="btn btn-secondary">Bearbeiten</a>
-        <a href="/classes" class="btn btn-secondary">Zurück</a>
     </div>
 </div>
 

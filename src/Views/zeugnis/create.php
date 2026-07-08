@@ -1,6 +1,5 @@
 <div class="page-header">
     <h1><?= htmlspecialchars($title, ENT_QUOTES, 'UTF-8') ?></h1>
-    <a href="/zeugnis/browse" class="btn btn-muted">← Zurück</a>
 </div>
 
 <div class="card">

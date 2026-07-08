@@ -91,6 +91,9 @@ class AbsenceStudentController
             'filters' => $filters,
             // Fehlzeitengruende nur für Sekretariat/Admin sichtbar (Art. 5 Abs. 1 lit. c DSGVO)
             'canViewReason' => in_array($currentRole, ['admin', 'schulleitung', 'sekretariat'], true),
+            'breadcrumbs' => View::breadcrumbs([
+                ['label' => 'Schüler:innen-Fehlzeiten'],
+            ]),
         ]);
     }
 
@@ -113,6 +116,10 @@ class AbsenceStudentController
             'title' => 'Fehlzeit eintragen',
             'classes' => $classes,
             'selectedClassId' => $_GET['class_id'] ?? '',
+            'breadcrumbs' => View::breadcrumbs([
+                ['label' => 'Schüler:innen-Fehlzeiten', 'url' => '/absences/students'],
+                ['label' => 'Fehlzeit eintragen'],
+            ]),
         ]);
     }
 
@@ -181,6 +188,10 @@ class AbsenceStudentController
         View::render('absences/students-edit', [
             'title' => 'Fehlzeit bearbeiten',
             'absence' => $absence,
+            'breadcrumbs' => View::breadcrumbs([
+                ['label' => 'Schüler:innen-Fehlzeiten', 'url' => '/absences/students'],
+                ['label' => 'Fehlzeit bearbeiten'],
+            ]),
         ]);
     }
 
@@ -282,6 +293,9 @@ class AbsenceStudentController
         View::render('absences/students-self', [
             'title' => 'Krankmeldung',
             'student' => $student,
+            'breadcrumbs' => View::breadcrumbs([
+                ['label' => 'Krankmeldung'],
+            ]),
         ]);
     }
 
@@ -342,6 +356,9 @@ class AbsenceStudentController
             'title' => 'Meine Fehlzeiten',
             'absences' => $absences,
             'student' => $student,
+            'breadcrumbs' => View::breadcrumbs([
+                ['label' => 'Meine Fehlzeiten'],
+            ]),
         ]);
     }
 }

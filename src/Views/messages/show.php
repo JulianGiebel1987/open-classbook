@@ -1,6 +1,5 @@
 <div class="page-header">
     <div>
-        <a href="/messages" class="btn btn-sm btn-secondary mb-05">Zurück</a>
         <h1>Chat mit <?= htmlspecialchars($partner['username'] ?? 'Unbekannt', ENT_QUOTES, 'UTF-8') ?></h1>
     </div>
 </div>

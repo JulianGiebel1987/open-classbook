@@ -1,6 +1,5 @@
 <div class="page-header">
     <div>
-        <a href="/lists/<?= (int) $list['id'] ?>" class="btn btn-sm btn-secondary mb-05">Zurück zur Liste</a>
         <h1>Freigabe: <?= htmlspecialchars($list['title'], ENT_QUOTES, 'UTF-8') ?></h1>
     </div>
 </div>

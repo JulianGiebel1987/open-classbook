@@ -63,6 +63,9 @@ class FileController
             'maxStorage' => self::MAX_USER_STORAGE,
             'usedFormatted' => FileEntry::formatSize($usedStorage),
             'maxFormatted' => FileEntry::formatSize(self::MAX_USER_STORAGE),
+            'breadcrumbs' => View::breadcrumbs([
+                ['label' => 'Dateien'],
+            ]),
         ]);
     }
 
@@ -345,21 +348,23 @@ class FileController
         $folders = Folder::findByParent($folderId, $userId, $shared);
         $files = FileEntry::findByFolder($folderId, $userId, $shared);
 
-        $breadcrumbs = [];
+        $folderPath = [];
         if ($folderId) {
-            $breadcrumbs = Folder::getPath($folderId);
+            $folderPath = Folder::getPath($folderId);
         }
 
         $usedStorage = FileEntry::getTotalSizeByUser($userId);
 
         CsrfMiddleware::generateToken();
+        // Hinweis: bewusst kein Layout-Breadcrumb ($breadcrumbs) — die Datei-Ansicht
+        // nutzt einen eigenen Ordnerpfad ($folderPath), um doppelte Breadcrumbs zu vermeiden.
         View::render('files/browse', [
             'title' => $shared ? 'Gemeinschaftliche Dateien' : 'Meine Dateien',
             'folders' => $folders,
             'files' => $files,
             'currentFolderId' => $folderId,
             'isShared' => $shared,
-            'breadcrumbs' => $breadcrumbs,
+            'folderPath' => $folderPath,
             'usedStorage' => $usedStorage,
             'maxStorage' => self::MAX_USER_STORAGE,
             'usedFormatted' => FileEntry::formatSize($usedStorage),

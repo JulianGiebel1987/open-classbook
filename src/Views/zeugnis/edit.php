@@ -5,7 +5,6 @@
         <?php if ((int) $instance['created_by'] === $_SESSION['user_id']): ?>
         <a href="/zeugnis/<?= (int) $instance['id'] ?>/share" class="btn btn-muted">Teilen</a>
         <?php endif; ?>
-        <a href="/zeugnis" class="btn btn-muted">← Zurück</a>
     </div>
 </div>
 

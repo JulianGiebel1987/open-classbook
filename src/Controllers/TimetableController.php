@@ -34,6 +34,9 @@ class TimetableController
         View::render('timetable/index', [
             'title' => 'Stundenplanung',
             'settings' => $settings,
+            'breadcrumbs' => View::breadcrumbs([
+                ['label' => 'Stundenplanung'],
+            ]),
         ]);
     }
 
@@ -56,6 +59,10 @@ class TimetableController
         View::render('timetable/settings', [
             'title' => $setting ? 'Stundenplan bearbeiten' : 'Neuer Stundenplan',
             'setting' => $setting,
+            'breadcrumbs' => View::breadcrumbs([
+                ['label' => 'Stundenplanung', 'url' => '/timetable'],
+                ['label' => $setting ? 'Stundenplan bearbeiten' : 'Neuer Stundenplan'],
+            ]),
         ]);
     }
 
@@ -162,6 +169,10 @@ class TimetableController
             'title' => 'Klasse wählen – ' . $setting['school_year'],
             'setting' => $setting,
             'classes' => $classes,
+            'breadcrumbs' => View::breadcrumbs([
+                ['label' => 'Stundenplanung', 'url' => '/timetable'],
+                ['label' => 'Klasse wählen'],
+            ]),
         ]);
     }
 
@@ -212,6 +223,11 @@ class TimetableController
             'slotGrid' => $slotGrid,
             'teacherUnitCounts' => $teacherUnitCounts,
             'timeSlots' => $timeSlots,
+            'breadcrumbs' => View::breadcrumbs([
+                ['label' => 'Stundenplanung', 'url' => '/timetable'],
+                ['label' => 'Klasse wählen', 'url' => '/timetable/' . $setting['id'] . '/class/select'],
+                ['label' => $class['name']],
+            ]),
         ]);
     }
 
@@ -423,6 +439,9 @@ class TimetableController
                 'slots' => [],
                 'slotGrid' => [],
                 'timeSlots' => [],
+                'breadcrumbs' => View::breadcrumbs([
+                    ['label' => 'Mein Stundenplan'],
+                ]),
             ]);
             return;
         }
@@ -446,6 +465,9 @@ class TimetableController
             'slotGrid' => $slotGrid,
             'timeSlots' => $timeSlots,
             'teacherId' => $teacherId,
+            'breadcrumbs' => View::breadcrumbs([
+                ['label' => 'Mein Stundenplan'],
+            ]),
         ]);
     }
 
@@ -494,6 +516,10 @@ class TimetableController
             'slotGrid' => $slotGrid,
             'timeSlots' => $timeSlots,
             'allSettings' => TimetableSetting::findAll(),
+            'breadcrumbs' => View::breadcrumbs([
+                ['label' => 'Stundenplanung', 'url' => '/timetable'],
+                ['label' => $teacher['firstname'] . ' ' . $teacher['lastname']],
+            ]),
         ]);
     }
 

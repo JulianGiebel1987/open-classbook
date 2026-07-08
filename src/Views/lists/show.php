@@ -1,6 +1,5 @@
 <div class="page-header">
     <div>
-        <a href="/lists" class="btn btn-sm btn-secondary mb-05">Zurück</a>
         <h1><?= htmlspecialchars($list['title'], ENT_QUOTES, 'UTF-8') ?></h1>
         <?php if ($list['description']): ?>
             <p class="text-muted"><?= htmlspecialchars($list['description'], ENT_QUOTES, 'UTF-8') ?></p>

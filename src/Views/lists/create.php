@@ -1,6 +1,5 @@
 <div class="page-header">
     <div>
-        <a href="/lists" class="btn btn-sm btn-secondary mb-05">Zurück</a>
         <h1>Neue Liste</h1>
     </div>
 </div>

@@ -77,7 +77,3 @@
     </div>
 </div>
 <?php endif; ?>
-
-<div class="mt-1">
-    <a href="/classbook/<?= $class['id'] ?>" class="btn btn-secondary">Zurück zum Klassenbuch</a>
-</div>

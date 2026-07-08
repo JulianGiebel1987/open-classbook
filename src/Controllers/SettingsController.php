@@ -48,6 +48,9 @@ class SettingsController
             'settings'    => $settings,
             'enforceRoles'=> $enforceRoles,
             'allRoles'    => ['admin', 'schulleitung', 'sekretariat', 'lehrer'],
+            'breadcrumbs' => View::breadcrumbs([
+                ['label' => 'Einstellungen'],
+            ]),
         ]);
     }
 

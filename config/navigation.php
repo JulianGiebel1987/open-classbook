@@ -17,6 +17,7 @@ return [
         ['label' => 'Stundenplanung',   'url' => '/timetable',            'icon' => 'timetable',   'module' => 'timetable'],
         ['label' => 'Vertretung',       'url' => '/substitution',         'icon' => 'substitution','module' => 'substitution'],
         ['label' => 'Schüler:innen-Fehlzeiten','url' => '/absences/students', 'icon' => 'absences-students'],
+        ['label' => 'Lehrkraft-Abwesenheiten', 'url' => '/absences/teachers', 'icon' => 'absences-teachers'],
         ['label' => 'Nachrichten',      'url' => '/messages',             'icon' => 'messages',    'module' => 'messages'],
         ['label' => 'Listen',           'url' => '/lists',                'icon' => 'lists',       'module' => 'lists'],
         ['label' => 'Dateien',          'url' => '/files',                'icon' => 'files',       'module' => 'files'],

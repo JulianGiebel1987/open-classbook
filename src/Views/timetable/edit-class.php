@@ -18,7 +18,6 @@ $days = $setting['days_of_week'];
         </form>
         <a href="/timetable/<?= (int) $setting['id'] ?>/class/<?= (int) $class['id'] ?>/pdf"
            class="btn btn-secondary">PDF-Export</a>
-        <a href="/timetable" class="btn btn-secondary">Zurück</a>
     </div>
 </div>
 

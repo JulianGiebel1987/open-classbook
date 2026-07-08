@@ -46,6 +46,9 @@ class UserController
             'users' => $users,
             'filters' => $filters,
             'roles' => $roles,
+            'breadcrumbs' => View::breadcrumbs([
+                ['label' => 'Benutzer'],
+            ]),
         ]);
     }
 
@@ -58,6 +61,10 @@ class UserController
             'title' => 'Neuer Benutzer',
             'roles' => ['admin', 'schulleitung', 'sekretariat', 'lehrer', 'schueler'],
             'classes' => SchoolClass::findAll(),
+            'breadcrumbs' => View::breadcrumbs([
+                ['label' => 'Benutzer', 'url' => '/users'],
+                ['label' => 'Neuer Benutzer'],
+            ]),
         ]);
     }
 
@@ -113,6 +120,10 @@ class UserController
                 'roles' => ['admin', 'schulleitung', 'sekretariat', 'lehrer', 'schueler'],
                 'classes' => SchoolClass::findAll(),
                 'old' => $_POST,
+                'breadcrumbs' => View::breadcrumbs([
+                    ['label' => 'Benutzer', 'url' => '/users'],
+                    ['label' => 'Neuer Benutzer'],
+                ]),
             ]);
             return;
         }
@@ -173,6 +184,10 @@ class UserController
             'roles' => ['admin', 'schulleitung', 'sekretariat', 'lehrer', 'schueler'],
             'classes' => SchoolClass::findAll(),
             'twoFactorData' => $twoFactorData,
+            'breadcrumbs' => View::breadcrumbs([
+                ['label' => 'Benutzer', 'url' => '/users'],
+                ['label' => $user['username']],
+            ]),
         ]);
     }
 
@@ -262,6 +277,10 @@ class UserController
                 'roles' => ['admin', 'schulleitung', 'sekretariat', 'lehrer', 'schueler'],
                 'classes' => SchoolClass::findAll(),
                 'old' => $_POST,
+                'breadcrumbs' => View::breadcrumbs([
+                    ['label' => 'Benutzer', 'url' => '/users'],
+                    ['label' => $user['username']],
+                ]),
             ]);
             return;
         }
@@ -400,6 +419,10 @@ class UserController
             'info'        => $info,
             'mailEnabled' => $mailEnabled,
             'csrfToken'   => CsrfMiddleware::generateToken(),
+            'breadcrumbs' => View::breadcrumbs([
+                ['label' => 'Benutzer', 'url' => '/users'],
+                ['label' => 'Passwort zurücksetzen'],
+            ]),
         ]);
     }
 

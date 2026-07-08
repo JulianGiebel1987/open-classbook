@@ -47,6 +47,10 @@ class AbsenceTeacherController
             'absences' => $absences,
             'teachers' => $teachers,
             'filters' => $filters,
+            'canAccessSubstitution' => ModuleSettings::canAccess('substitution', App::currentUserRole()),
+            'breadcrumbs' => View::breadcrumbs([
+                ['label' => 'Lehrkraft-Abwesenheiten'],
+            ]),
         ]);
     }
 
@@ -60,6 +64,10 @@ class AbsenceTeacherController
         View::render('absences/teachers-create', [
             'title' => 'Lehrkraft-Abwesenheit eintragen',
             'teachers' => $teachers,
+            'breadcrumbs' => View::breadcrumbs([
+                ['label' => 'Lehrkraft-Abwesenheiten', 'url' => '/absences/teachers'],
+                ['label' => 'Abwesenheit eintragen'],
+            ]),
         ]);
     }
 
@@ -102,6 +110,9 @@ class AbsenceTeacherController
         CsrfMiddleware::generateToken();
         View::render('absences/teachers-self', [
             'title' => 'Lehrkraft-Abwesenheit',
+            'breadcrumbs' => View::breadcrumbs([
+                ['label' => 'Lehrkraft-Abwesenheit'],
+            ]),
         ]);
     }
 
@@ -159,6 +170,10 @@ class AbsenceTeacherController
         View::render('absences/teachers-edit', [
             'title' => 'Abwesenheit bearbeiten',
             'absence' => $absence,
+            'breadcrumbs' => View::breadcrumbs([
+                ['label' => 'Lehrkraft-Abwesenheiten', 'url' => '/absences/teachers'],
+                ['label' => 'Abwesenheit bearbeiten'],
+            ]),
         ]);
     }
 
