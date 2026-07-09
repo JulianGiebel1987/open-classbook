@@ -4,10 +4,13 @@ $dayNames = [1 => 'Montag', 2 => 'Dienstag', 3 => 'Mittwoch', 4 => 'Donnerstag',
 
 <div class="page-header">
     <h1>Mein Stundenplan</h1>
-    <?php if ($setting && !empty($teacherId)): ?>
-    <a href="/timetable/<?= (int) $setting['id'] ?>/teacher/<?= (int) $teacherId ?>/pdf"
-       class="btn btn-secondary">Als PDF herunterladen</a>
-    <?php endif; ?>
+    <div class="page-header-actions">
+        <a href="/supervision/my-supervision" class="btn btn-secondary">Meine Pausenaufsichten</a>
+        <?php if ($setting && !empty($teacherId)): ?>
+        <a href="/timetable/<?= (int) $setting['id'] ?>/teacher/<?= (int) $teacherId ?>/pdf"
+           class="btn btn-secondary">Als PDF herunterladen</a>
+        <?php endif; ?>
+    </div>
 </div>
 
 <?php if (!$setting): ?>

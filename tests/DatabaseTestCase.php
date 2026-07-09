@@ -287,6 +287,66 @@ abstract class DatabaseTestCase extends TestCase
                 FOREIGN KEY (user_id) REFERENCES users(id)
             )
         ');
+
+        self::$pdo->exec('
+            CREATE TABLE supervision_plans (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name VARCHAR(150) NOT NULL,
+                school_year VARCHAR(9) NOT NULL UNIQUE,
+                days_of_week TEXT NOT NULL,
+                is_published INTEGER NOT NULL DEFAULT 0,
+                published_at DATETIME DEFAULT NULL,
+                published_by INTEGER DEFAULT NULL,
+                created_by INTEGER NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (created_by) REFERENCES users(id)
+            )
+        ');
+
+        self::$pdo->exec('
+            CREATE TABLE supervision_breaks (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                plan_id INTEGER NOT NULL,
+                label VARCHAR(80) NOT NULL,
+                start_time TIME DEFAULT NULL,
+                end_time TIME DEFAULT NULL,
+                sort_order INTEGER NOT NULL DEFAULT 0,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (plan_id) REFERENCES supervision_plans(id)
+            )
+        ');
+
+        self::$pdo->exec('
+            CREATE TABLE supervision_locations (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                plan_id INTEGER NOT NULL,
+                name VARCHAR(120) NOT NULL,
+                sort_order INTEGER NOT NULL DEFAULT 0,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (plan_id) REFERENCES supervision_plans(id)
+            )
+        ');
+
+        self::$pdo->exec('
+            CREATE TABLE supervision_assignments (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                plan_id INTEGER NOT NULL,
+                break_id INTEGER NOT NULL,
+                location_id INTEGER NOT NULL,
+                day_of_week INTEGER NOT NULL,
+                teacher_id INTEGER NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE (break_id, location_id, day_of_week, teacher_id),
+                FOREIGN KEY (plan_id) REFERENCES supervision_plans(id),
+                FOREIGN KEY (break_id) REFERENCES supervision_breaks(id),
+                FOREIGN KEY (location_id) REFERENCES supervision_locations(id),
+                FOREIGN KEY (teacher_id) REFERENCES teachers(id)
+            )
+        ');
     }
 
     protected function createTestUser(array $overrides = []): int
