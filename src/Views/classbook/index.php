@@ -1,5 +1,5 @@
 <div class="page-header">
-    <h1>Klassenbuch</h1>
+    <h1><?= htmlspecialchars($heading ?? 'Klassenbuch', ENT_QUOTES, 'UTF-8') ?></h1>
 </div>
 
 <div class="card">
