@@ -105,9 +105,5 @@ $statusBadges = ['draft' => 'badge-draft', 'final' => 'badge-final'];
         </div>
     </form>
 </div>
-<script>
-document.getElementById('select-all-cb').addEventListener('change', function() {
-    document.querySelectorAll('.batch-cb').forEach(cb => cb.checked = this.checked);
-});
-</script>
+<script src="/js/zeugnis-index.js"></script>
 <?php endif; ?>

@@ -22,7 +22,7 @@
     <div class="btn-group" style="margin-top: var(--spacing-lg);">
         <form method="post" action="/two-factor/regenerate-codes" style="display: inline;">
             <?= \OpenClassbook\View::csrfField() ?>
-            <button type="submit" class="btn btn-secondary" onclick="return confirm('Achtung: Alle bisherigen Recovery-Codes werden ungültig. Möchten Sie fortfahren?')">Neue Codes generieren</button>
+            <button type="submit" class="btn btn-secondary" data-confirm="Achtung: Alle bisherigen Recovery-Codes werden ungültig. Möchten Sie fortfahren?">Neue Codes generieren</button>
         </form>
         <a href="/two-factor/setup" class="btn btn-secondary">Zurück zur 2FA-Einrichtung</a>
         <a href="/dashboard" class="btn">Zum Dashboard</a>

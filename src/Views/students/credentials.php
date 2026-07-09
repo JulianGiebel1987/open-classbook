@@ -30,6 +30,6 @@
 </div>
 
 <div class="mt-1 btn-group">
-    <button type="button" class="btn" onclick="window.print()">Zugangsdaten drucken</button>
+    <button type="button" class="btn" data-print>Zugangsdaten drucken</button>
     <a href="<?= htmlspecialchars($backUrl, ENT_QUOTES, 'UTF-8') ?>" class="btn btn-secondary">Zurück zur Klasse</a>
 </div>

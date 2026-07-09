@@ -12,7 +12,7 @@
             <a href="/two-factor/recovery-codes" class="btn btn-secondary">Recovery-Codes anzeigen</a>
             <form method="post" action="/two-factor/disable" style="display: inline;">
                 <?= \OpenClassbook\View::csrfField() ?>
-                <button type="submit" class="btn btn-danger" onclick="return confirm('Möchten Sie die Zwei-Faktor-Authentifizierung wirklich deaktivieren?')">2FA deaktivieren</button>
+                <button type="submit" class="btn btn-danger" data-confirm="Möchten Sie die Zwei-Faktor-Authentifizierung wirklich deaktivieren?">2FA deaktivieren</button>
             </form>
         </div>
     <?php else: ?>

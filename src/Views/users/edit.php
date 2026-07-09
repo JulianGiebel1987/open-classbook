@@ -129,7 +129,7 @@ $roleLabels = [
 
         <form method="post" action="/users/<?= $user['id'] ?>/reset-2fa" style="display: inline;">
             <?= \OpenClassbook\View::csrfField() ?>
-            <button type="submit" class="btn btn-danger" onclick="return confirm('Möchten Sie die 2FA für diesen Benutzer wirklich zurücksetzen? Der Benutzer muss 2FA anschließend neu einrichten.')">2FA zurücksetzen</button>
+            <button type="submit" class="btn btn-danger" data-confirm="Möchten Sie die 2FA für diesen Benutzer wirklich zurücksetzen? Der Benutzer muss 2FA anschließend neu einrichten.">2FA zurücksetzen</button>
         </form>
     <?php else: ?>
         <p><strong>Status:</strong> Nicht eingerichtet</p>
