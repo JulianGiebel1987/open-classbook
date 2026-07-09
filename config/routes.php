@@ -19,6 +19,7 @@ use OpenClassbook\Controllers\ImportController;
 use OpenClassbook\Controllers\ListController;
 use OpenClassbook\Controllers\MessageController;
 use OpenClassbook\Controllers\TimetableController;
+use OpenClassbook\Controllers\SupervisionController;
 use OpenClassbook\Controllers\SubstitutionController;
 use OpenClassbook\Controllers\ZeugnisTemplateController;
 use OpenClassbook\Controllers\ZeugnisController;
@@ -222,6 +223,21 @@ $router->post('/timetable/{settingId}/publish', [TimetableController::class, 'pu
 $router->post('/timetable/{settingId}/unpublish', [TimetableController::class, 'unpublish'], [AuthMiddleware::class, CsrfMiddleware::class]);
 $router->get('/timetable/teacher/{teacherId}', [TimetableController::class, 'teacherSchedule'], [AuthMiddleware::class]);
 $router->get('/timetable/{settingId}/teacher/{teacherId}/pdf', [TimetableController::class, 'exportTeacherPdf'], [AuthMiddleware::class]);
+
+// === Pausenaufsichtsplan ===
+$router->get('/supervision', [SupervisionController::class, 'index'], [AuthMiddleware::class]);
+$router->get('/supervision/settings', [SupervisionController::class, 'settingsForm'], [AuthMiddleware::class]);
+$router->post('/supervision/settings', [SupervisionController::class, 'saveSettings'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->get('/supervision/my-supervision', [SupervisionController::class, 'teacherView'], [AuthMiddleware::class]);
+$router->post('/supervision/assignment', [SupervisionController::class, 'saveAssignment'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/supervision/check-conflict', [SupervisionController::class, 'checkConflict'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/supervision/assignment/{id}/delete', [SupervisionController::class, 'deleteAssignment'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/supervision/location', [SupervisionController::class, 'addLocation'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/supervision/location/{id}/delete', [SupervisionController::class, 'deleteLocation'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->get('/supervision/{planId}', [SupervisionController::class, 'edit'], [AuthMiddleware::class]);
+$router->get('/supervision/{planId}/pdf', [SupervisionController::class, 'exportPdf'], [AuthMiddleware::class]);
+$router->post('/supervision/{planId}/publish', [SupervisionController::class, 'publish'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/supervision/{planId}/unpublish', [SupervisionController::class, 'unpublish'], [AuthMiddleware::class, CsrfMiddleware::class]);
 
 // === Vertretungsplan ===
 $router->get('/substitution', [SubstitutionController::class, 'index'], [AuthMiddleware::class]);

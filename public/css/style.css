@@ -2827,3 +2827,37 @@ a.widget:hover {
     .zeugnis-fill-sidebar { position: static; }
     .card-grid { grid-template-columns: 1fr; }
 }
+
+/* === Pausenaufsichtsplan (supervision grid) === */
+.supervision-grid {
+    table-layout: auto;
+    min-width: 100%;
+}
+
+.supervision-grid .supervision-day-col {
+    background: var(--bg-light, #f8f9fa);
+    font-weight: 600;
+    border-bottom: 2px solid var(--border-color, #dee2e6);
+}
+
+.supervision-grid .supervision-break-col {
+    background: var(--bg-light, #f8f9fa);
+    font-size: 0.78rem;
+    font-weight: 600;
+    min-width: 90px;
+}
+
+.supervision-grid .supervision-cell {
+    min-width: 90px;
+}
+
+.supervision-location-cell {
+    position: relative;
+    text-align: left !important;
+    min-width: 130px;
+}
+
+.supervision-location-delete {
+    display: inline;
+    margin-left: 4px;
+}
