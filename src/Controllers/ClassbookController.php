@@ -20,10 +20,11 @@ class ClassbookController
         $classes = $this->getAccessibleClasses();
 
         View::render('classbook/index', [
-            'title' => 'Klassenbuch',
+            'title' => $this->classbookRootLabel(),
+            'heading' => $this->classbookRootLabel(),
             'classes' => $classes,
             'breadcrumbs' => View::breadcrumbs([
-                ['label' => 'Meine Klassenbücher'],
+                ['label' => $this->classbookRootLabel()],
             ]),
         ]);
     }
@@ -53,7 +54,7 @@ class ClassbookController
             'teachers' => $teachers,
             'filters' => $filters,
             'breadcrumbs' => View::breadcrumbs([
-                ['label' => 'Meine Klassenbücher', 'url' => '/classbook'],
+                ['label' => $this->classbookRootLabel(), 'url' => '/classbook'],
                 ['label' => $class['name']],
             ]),
         ]);
@@ -73,7 +74,7 @@ class ClassbookController
             'title' => 'Neuer Klassenbucheintrag',
             'class' => $class,
             'breadcrumbs' => View::breadcrumbs([
-                ['label' => 'Meine Klassenbücher', 'url' => '/classbook'],
+                ['label' => $this->classbookRootLabel(), 'url' => '/classbook'],
                 ['label' => $class['name'], 'url' => '/classbook/' . $class['id']],
                 ['label' => 'Neuer Eintrag'],
             ]),
@@ -153,7 +154,7 @@ class ClassbookController
             'title' => 'Eintrag bearbeiten',
             'entry' => $entry,
             'breadcrumbs' => View::breadcrumbs([
-                ['label' => 'Meine Klassenbücher', 'url' => '/classbook'],
+                ['label' => $this->classbookRootLabel(), 'url' => '/classbook'],
                 ['label' => $entry['class_name'], 'url' => '/classbook/' . $entry['class_id']],
                 ['label' => 'Eintrag bearbeiten'],
             ]),
@@ -345,7 +346,7 @@ class ClassbookController
             'students' => $students,
             'filters'  => $filters,
             'breadcrumbs' => View::breadcrumbs([
-                ['label' => 'Meine Klassenbücher', 'url' => '/classbook'],
+                ['label' => $this->classbookRootLabel(), 'url' => '/classbook'],
                 ['label' => $class['name'], 'url' => '/classbook/' . $class['id']],
                 ['label' => 'Bemerkungen'],
             ]),
@@ -369,7 +370,7 @@ class ClassbookController
             'class'    => $class,
             'students' => $students,
             'breadcrumbs' => View::breadcrumbs([
-                ['label' => 'Meine Klassenbücher', 'url' => '/classbook'],
+                ['label' => $this->classbookRootLabel(), 'url' => '/classbook'],
                 ['label' => $class['name'], 'url' => '/classbook/' . $class['id']],
                 ['label' => 'Bemerkungen', 'url' => '/classbook/' . $class['id'] . '/remarks'],
                 ['label' => 'Neue Bemerkung'],
@@ -498,7 +499,7 @@ class ClassbookController
             'class'    => $class,
             'students' => $students,
             'breadcrumbs' => View::breadcrumbs([
-                ['label' => 'Meine Klassenbücher', 'url' => '/classbook'],
+                ['label' => $this->classbookRootLabel(), 'url' => '/classbook'],
                 ['label' => $class['name'], 'url' => '/classbook/' . $class['id']],
                 ['label' => 'Schülerakten'],
             ]),
@@ -542,12 +543,23 @@ class ClassbookController
             // Fehlzeitengründe nur für Sekretariat/Admin/Schulleitung sichtbar (Art. 5 Abs. 1 lit. c DSGVO)
             'canViewReason'  => in_array($role, ['admin', 'schulleitung', 'sekretariat'], true),
             'breadcrumbs' => View::breadcrumbs([
-                ['label' => 'Meine Klassenbücher', 'url' => '/classbook'],
+                ['label' => $this->classbookRootLabel(), 'url' => '/classbook'],
                 ['label' => $class['name'], 'url' => '/classbook/' . $class['id']],
                 ['label' => 'Schülerakten', 'url' => '/classbook/' . $class['id'] . '/students'],
                 ['label' => $student['lastname'] . ', ' . $student['firstname']],
             ]),
         ]);
+    }
+
+    /**
+     * Wurzel-Label für Breadcrumbs/Überschrift.
+     * Verwaltungsrollen sehen alle Klassenbücher, Lehrkräfte nur die eigenen.
+     */
+    private function classbookRootLabel(): string
+    {
+        return in_array(App::currentUserRole(), ['admin', 'schulleitung', 'sekretariat'], true)
+            ? 'Klassenbücher'
+            : 'Meine Klassenbücher';
     }
 
     private function getAccessibleClasses(): array

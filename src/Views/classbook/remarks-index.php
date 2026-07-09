@@ -6,6 +6,7 @@
         <?php if ($role === 'admin' || $role === 'lehrer'): ?>
             <a href="/classbook/<?= $class['id'] ?>/remarks/create" class="btn">Neue Bemerkung</a>
         <?php endif; ?>
+        <a href="/classbook/<?= $class['id'] ?>" class="btn btn-secondary">Zurück zum Klassenbuch</a>
     </div>
 </div>
 
