@@ -30,6 +30,6 @@
 </div>
 
 <div class="mt-1 btn-group">
-    <button type="button" class="btn" onclick="window.print()">Zugangsdaten drucken</button>
+    <button type="button" class="btn" data-print>Zugangsdaten drucken</button>
     <a href="/users?role=schueler" class="btn btn-secondary">Zur Benutzerverwaltung</a>
 </div>

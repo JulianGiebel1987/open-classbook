@@ -60,7 +60,38 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // === Listen ===
     initLists();
+
+    // === Inline-Aktionen (CSP-konform statt Inline-Handler) ===
+    initInlineActions();
 });
+
+/**
+ * CSP-konforme Ersätze für frühere Inline-Event-Handler.
+ * - [data-auto-submit]: Select sendet sein Formular bei Änderung ab.
+ * - [data-navigate-base]: Select navigiert bei Änderung zu Basis-URL + Wert.
+ * - [data-print]: Button öffnet den Druckdialog.
+ */
+function initInlineActions() {
+    document.querySelectorAll('select[data-auto-submit]').forEach(function (select) {
+        select.addEventListener('change', function () {
+            if (select.form) select.form.submit();
+        });
+    });
+
+    document.querySelectorAll('select[data-navigate-base]').forEach(function (select) {
+        select.addEventListener('change', function () {
+            if (select.value) {
+                window.location = select.dataset.navigateBase + select.value;
+            }
+        });
+    });
+
+    document.querySelectorAll('[data-print]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            window.print();
+        });
+    });
+}
 
 /**
  * Bestätigungsdialoge für kritische Aktionen

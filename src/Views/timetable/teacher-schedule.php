@@ -17,7 +17,7 @@ $dayNames = [1 => 'Montag', 2 => 'Dienstag', 3 => 'Mittwoch', 4 => 'Donnerstag',
     <form method="get" class="inline-form">
         <label for="settingSelect">Stundenplan:</label>
         <select id="settingSelect" name="setting_id" class="form-control"
-                onchange="this.form.submit()">
+                data-auto-submit>
             <?php foreach ($allSettings as $s): ?>
             <option value="<?= (int) $s['id'] ?>" <?= $setting && (int) $s['id'] === (int) $setting['id'] ? 'selected' : '' ?>>
                 <?= htmlspecialchars($s['school_year'], ENT_QUOTES, 'UTF-8') ?>

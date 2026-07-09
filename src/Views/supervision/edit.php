@@ -63,10 +63,10 @@ $numBreaks = count($breaks);
                     <td class="time-col supervision-location-cell">
                         <strong><?= htmlspecialchars($loc['name'], ENT_QUOTES, 'UTF-8') ?></strong>
                         <form method="post" action="/supervision/location/<?= (int) $loc['id'] ?>/delete"
-                              class="supervision-location-delete"
-                              onsubmit="return confirm('Aufsichtspunkt &quot;<?= htmlspecialchars($loc['name'], ENT_QUOTES, 'UTF-8') ?>&quot; mit allen Zuweisungen entfernen?');">
+                              class="supervision-location-delete">
                             <?= \OpenClassbook\View::csrfField() ?>
-                            <button type="submit" class="slot-remove" aria-label="Aufsichtspunkt entfernen" title="Aufsichtspunkt entfernen">&times;</button>
+                            <button type="submit" class="slot-remove" aria-label="Aufsichtspunkt entfernen" title="Aufsichtspunkt entfernen"
+                                    data-confirm="Aufsichtspunkt &quot;<?= htmlspecialchars($loc['name'], ENT_QUOTES, 'UTF-8') ?>&quot; mit allen Zuweisungen entfernen?">&times;</button>
                         </form>
                     </td>
                     <?php foreach ($days as $day): ?>

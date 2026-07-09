@@ -67,10 +67,9 @@
                     <td><?= nl2br(htmlspecialchars($r['remark'], ENT_QUOTES, 'UTF-8')) ?></td>
                     <td style="text-align:right">
                         <?php if (\OpenClassbook\Models\StudentRemark::canDelete($r, $_SESSION['user_id'], $role)): ?>
-                        <form method="post" action="/classbook/<?= $class['id'] ?>/remarks/<?= $r['id'] ?>/delete"
-                              onsubmit="return confirm('Bemerkung wirklich löschen?')">
+                        <form method="post" action="/classbook/<?= $class['id'] ?>/remarks/<?= $r['id'] ?>/delete">
                             <?= \OpenClassbook\View::csrfField() ?>
-                            <button type="submit" class="btn btn-sm btn-danger">Löschen</button>
+                            <button type="submit" class="btn btn-sm btn-danger" data-confirm="Bemerkung wirklich löschen?">Löschen</button>
                         </form>
                         <?php endif; ?>
                     </td>

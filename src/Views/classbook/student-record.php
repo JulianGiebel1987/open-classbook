@@ -25,10 +25,11 @@ $totalDays = array_sum($summaryDays);
 <p class="text-muted mb-1">Klasse <?= htmlspecialchars($class['name'], ENT_QUOTES, 'UTF-8') ?></p>
 
 <div class="card">
-    <form method="get" class="filter-form" onchange="if(this.student_id.value){window.location='/classbook/<?= $class['id'] ?>/students/'+this.student_id.value;}">
+    <form method="get" class="filter-form">
         <div class="form-group">
             <label for="student_id">Schüler:in wählen</label>
-            <select name="student_id" id="student_id" class="form-control">
+            <select name="student_id" id="student_id" class="form-control"
+                    data-navigate-base="/classbook/<?= (int) $class['id'] ?>/students/">
                 <?php foreach ($students as $s): ?>
                     <option value="<?= $s['id'] ?>" <?= (int) $s['id'] === (int) $student['id'] ? 'selected' : '' ?>>
                         <?= htmlspecialchars($s['lastname'] . ', ' . $s['firstname'], ENT_QUOTES, 'UTF-8') ?>

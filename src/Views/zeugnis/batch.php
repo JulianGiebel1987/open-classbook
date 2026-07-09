@@ -63,8 +63,4 @@
 </div>
 <?php endif; ?>
 
-<script>
-document.getElementById('select-all-cb')?.addEventListener('change', function() {
-    document.querySelectorAll('.student-cb').forEach(cb => cb.checked = this.checked);
-});
-</script>
+<script src="/js/zeugnis-batch.js"></script>
