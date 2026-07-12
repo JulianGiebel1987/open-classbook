@@ -428,26 +428,37 @@ class SupervisionController
             }
         }
 
-        $assignments = [];
+        // Kompletten, festgelegten Plan als Leseansicht aufbereiten
+        // (gleiche Grid-Struktur wie im Editor, jedoch schreibgeschützt).
+        $breaks = [];
+        $locations = [];
+        $grid = [];
+        $ownCount = 0;
         if ($plan) {
             $plan['days_of_week'] = json_decode($plan['days_of_week'], true) ?: [];
-            $assignments = SupervisionAssignment::findByPlanAndTeacher((int) $plan['id'], $teacherId);
-        }
+            $breaks = SupervisionBreak::findByPlan((int) $plan['id']);
+            $locations = SupervisionLocation::findByPlan((int) $plan['id']);
+            $assignments = SupervisionAssignment::findByPlan((int) $plan['id']);
 
-        // Gruppieren nach Wochentag
-        $byDay = [];
-        foreach ($assignments as $a) {
-            $byDay[$a['day_of_week']][] = $a;
+            foreach ($assignments as $a) {
+                $grid[$a['location_id']][$a['day_of_week']][$a['break_id']][] = $a;
+                if ((int) $a['teacher_id'] === (int) $teacherId) {
+                    $ownCount++;
+                }
+            }
         }
 
         View::render('supervision/teacher-view', [
-            'title' => 'Meine Pausenaufsichten',
+            'title' => 'Pausenaufsichtsplan',
             'plan' => $plan,
-            'byDay' => $byDay,
-            'totalCount' => count($assignments),
+            'breaks' => $breaks,
+            'locations' => $locations,
+            'grid' => $grid,
+            'teacherId' => $teacherId,
+            'ownCount' => $ownCount,
             'breadcrumbs' => View::breadcrumbs([
                 ['label' => 'Mein Stundenplan', 'url' => '/timetable/my-schedule'],
-                ['label' => 'Meine Pausenaufsichten'],
+                ['label' => 'Pausenaufsichtsplan'],
             ]),
         ]);
     }
