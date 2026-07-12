@@ -99,6 +99,9 @@ class SubstitutionController
         // Offene Slots (noch nicht zugewiesene Vertretungen)
         $openSlots = Substitution::getOpenSlots($setting['id'], $date);
 
+        // Anzahl offener Einheiten je abwesender Lehrkraft (für Ganztags-Vertretung)
+        $openSlotsByTeacher = Substitution::countOpenSlotsByTeacher($setting['id'], $date);
+
         // Bereits zugewiesene Vertretungen
         $assignedSubstitutions = Substitution::findByDate($setting['id'], $date);
 
@@ -116,6 +119,7 @@ class SubstitutionController
             'dayOfWeek' => $dayOfWeek,
             'absentTeachers' => $absentTeachers,
             'openSlots' => $openSlots,
+            'openSlotsByTeacher' => $openSlotsByTeacher,
             'assignedSubstitutions' => $assignedSubstitutions,
             'timeSlots' => $timeSlots,
             'plan' => $plan,
@@ -248,6 +252,119 @@ class SubstitutionController
 
         Substitution::delete((int) $id);
         echo json_encode(['success' => true]);
+    }
+
+    /**
+     * AJAX: Ganzen Tag einer abwesenden Lehrkraft vertreten oder als Entfall markieren.
+     * Weist alle offenen Einheiten der Lehrkraft mit einem Klick zu.
+     */
+    public function assignDay(): void
+    {
+        $this->requireAdminRole();
+        header('Content-Type: application/json');
+
+        $setting = $this->getActiveTimetableSetting();
+        if (!$setting) {
+            echo json_encode(['success' => false, 'error' => 'Kein aktiver Stundenplan.']);
+            return;
+        }
+
+        $date = $_POST['date'] ?? '';
+        $absentTeacherId = (int) ($_POST['absent_teacher_id'] ?? 0);
+        $substituteTeacherId = (int) ($_POST['substitute_teacher_id'] ?? 0);
+        $isCancelled = (int) ($_POST['is_cancelled'] ?? 0);
+        $notes = trim($_POST['notes'] ?? '');
+
+        if (!$date || !$absentTeacherId) {
+            echo json_encode(['success' => false, 'error' => 'Fehlende Pflichtfelder.']);
+            return;
+        }
+
+        if (!$isCancelled && !$substituteTeacherId) {
+            echo json_encode(['success' => false, 'error' => 'Bitte Vertretungslehrkraft wählen oder als Entfall markieren.']);
+            return;
+        }
+
+        $openSlots = Substitution::getOpenSlotsForTeacher($setting['id'], $date, $absentTeacherId);
+        if (empty($openSlots)) {
+            echo json_encode(['success' => false, 'error' => 'Keine offenen Einheiten für diese Lehrkraft vorhanden.']);
+            return;
+        }
+
+        $dayOfWeek = (int) date('N', strtotime($date));
+
+        // Plan-Eintrag sicherstellen
+        SubstitutionPlan::createOrUpdate($setting['id'], $date, $_SESSION['user_id']);
+
+        $assigned = 0;
+        $conflictSlots = [];
+        foreach ($openSlots as $slot) {
+            if (!$isCancelled && $substituteTeacherId) {
+                $conflicts = Substitution::checkSubstituteConflict($setting['id'], $date, $substituteTeacherId, (int) $slot['slot_number']);
+                if (!empty($conflicts)) {
+                    $conflictSlots[] = (int) $slot['slot_number'];
+                }
+            }
+
+            Substitution::create([
+                'timetable_setting_id' => $setting['id'],
+                'date' => $date,
+                'day_of_week' => $dayOfWeek,
+                'slot_number' => (int) $slot['slot_number'],
+                'class_id' => (int) $slot['class_id'],
+                'absent_teacher_id' => $absentTeacherId,
+                'substitute_teacher_id' => $isCancelled ? null : $substituteTeacherId,
+                'absence_teacher_id' => (int) ($slot['absence_id'] ?? 0) ?: null,
+                'subject' => $slot['subject'] ?: null,
+                'room' => $slot['room'] ?: null,
+                'notes' => $notes ?: null,
+                'is_cancelled' => $isCancelled,
+                'created_by' => $_SESSION['user_id'],
+            ]);
+            $assigned++;
+        }
+
+        $conflictWarning = null;
+        if (!empty($conflictSlots)) {
+            $teacher = Teacher::findById($substituteTeacherId);
+            $name = trim(($teacher['firstname'] ?? '') . ' ' . ($teacher['lastname'] ?? ''));
+            $conflictWarning = $name . ' ist in Einheit ' . implode(', ', $conflictSlots)
+                . ' bereits verplant (regulärer Unterricht oder andere Vertretung).';
+        }
+
+        echo json_encode([
+            'success' => true,
+            'assigned' => $assigned,
+            'conflict_warning' => $conflictWarning,
+        ]);
+    }
+
+    /**
+     * AJAX: Verfügbare Lehrer für alle offenen Einheiten einer abwesenden Lehrkraft.
+     */
+    public function availableTeachersDay(): void
+    {
+        $this->requireAdminRole();
+        header('Content-Type: application/json');
+
+        $setting = $this->getActiveTimetableSetting();
+        if (!$setting) {
+            echo json_encode(['teachers' => [], 'slot_count' => 0]);
+            return;
+        }
+
+        $date = $_POST['date'] ?? '';
+        $absentTeacherId = (int) ($_POST['absent_teacher_id'] ?? 0);
+
+        $openSlots = Substitution::getOpenSlotsForTeacher($setting['id'], $date, $absentTeacherId);
+        $slotNumbers = array_column($openSlots, 'slot_number');
+
+        $teachers = Substitution::getAvailableTeachersForDay($setting['id'], $date, $slotNumbers);
+
+        echo json_encode([
+            'teachers' => $teachers,
+            'slot_count' => count(array_unique($slotNumbers)),
+        ]);
     }
 
     /**

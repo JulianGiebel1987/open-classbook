@@ -235,6 +235,8 @@ $router->get('/substitution', [SubstitutionController::class, 'index'], [AuthMid
 $router->get('/substitution/plan', [SubstitutionController::class, 'plan'], [AuthMiddleware::class]);
 $router->get('/substitution/my-substitutions', [SubstitutionController::class, 'teacherView'], [AuthMiddleware::class]);
 $router->post('/substitution/assign', [SubstitutionController::class, 'assign'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/substitution/assign-day', [SubstitutionController::class, 'assignDay'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/substitution/available-teachers-day', [SubstitutionController::class, 'availableTeachersDay'], [AuthMiddleware::class, CsrfMiddleware::class]);
 $router->post('/substitution/cancel', [SubstitutionController::class, 'cancel'], [AuthMiddleware::class, CsrfMiddleware::class]);
 $router->post('/substitution/check-conflict', [SubstitutionController::class, 'checkConflict'], [AuthMiddleware::class, CsrfMiddleware::class]);
 $router->post('/substitution/available-teachers', [SubstitutionController::class, 'availableTeachers'], [AuthMiddleware::class, CsrfMiddleware::class]);
