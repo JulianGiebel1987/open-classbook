@@ -2481,12 +2481,29 @@ a.widget:hover {
 }
 
 .sub-absent-item {
-    padding: 6px 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 8px 0;
     border-bottom: 1px solid var(--border-light, #eee);
 }
 
 .sub-absent-item:last-child {
     border-bottom: none;
+}
+
+.sub-absent-info {
+    flex: 1 1 auto;
+    min-width: 200px;
+}
+
+.sub-absent-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    flex-shrink: 0;
 }
 
 /* Substitution table */

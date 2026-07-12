@@ -5,6 +5,15 @@ Alle wesentlichen Aenderungen an Open-Classbook werden in dieser Datei dokumenti
 Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.1.0/)
 und dieses Projekt verwendet [Semantic Versioning](https://semver.org/lang/de/).
 
+## [Unreleased]
+
+### Geaendert
+
+- Lehrkraft-Vertretung: Neben einzelnen Einheiten kann nun mit einem Klick der
+  gesamte Tag einer abwesenden Lehrkraft vertreten oder als Entfall markiert
+  werden ("Ganzen Tag vertreten" / "Ganzer Tag Entfall"). Die Ganztags-Auswahl
+  zeigt an, welche Lehrkraefte ganztaegig frei bzw. teilweise belegt sind.
+
 ## [1.0.0] - 2026-03-31
 
 Erstes stabiles Release von Open-Classbook — eine schlanke, datenschutzkonforme

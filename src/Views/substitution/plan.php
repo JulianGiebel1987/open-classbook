@@ -49,13 +49,35 @@ $nextDate = date('Y-m-d', strtotime($date . ' +1 day'));
     </div>
     <div class="sub-absent-list">
         <?php foreach ($absentTeachers as $at): ?>
+        <?php $openCount = (int) ($openSlotsByTeacher[(int) $at['id']] ?? 0); ?>
         <div class="sub-absent-item">
-            <strong><?= htmlspecialchars($at['abbreviation'], ENT_QUOTES, 'UTF-8') ?></strong> –
-            <?= htmlspecialchars($at['lastname'] . ', ' . $at['firstname'], ENT_QUOTES, 'UTF-8') ?>
-            <span class="badge badge-warning"><?= htmlspecialchars($typeLabels[$at['absence_type']] ?? $at['absence_type'], ENT_QUOTES, 'UTF-8') ?></span>
-            <small class="text-muted">
-                (<?= htmlspecialchars(date('d.m.', strtotime($at['date_from'])), ENT_QUOTES, 'UTF-8') ?> – <?= htmlspecialchars(date('d.m.Y', strtotime($at['date_to'])), ENT_QUOTES, 'UTF-8') ?>)
-            </small>
+            <div class="sub-absent-info">
+                <strong><?= htmlspecialchars($at['abbreviation'], ENT_QUOTES, 'UTF-8') ?></strong> –
+                <?= htmlspecialchars($at['lastname'] . ', ' . $at['firstname'], ENT_QUOTES, 'UTF-8') ?>
+                <span class="badge badge-warning"><?= htmlspecialchars($typeLabels[$at['absence_type']] ?? $at['absence_type'], ENT_QUOTES, 'UTF-8') ?></span>
+                <small class="text-muted">
+                    (<?= htmlspecialchars(date('d.m.', strtotime($at['date_from'])), ENT_QUOTES, 'UTF-8') ?> – <?= htmlspecialchars(date('d.m.Y', strtotime($at['date_to'])), ENT_QUOTES, 'UTF-8') ?>)
+                </small>
+                <?php if ($openCount > 0): ?>
+                    <span class="badge badge-info"><?= $openCount ?> offen</span>
+                <?php endif; ?>
+            </div>
+            <?php if ($openCount > 0): ?>
+            <div class="sub-absent-actions">
+                <button type="button" class="btn btn-sm btn-primary sub-assign-day-btn"
+                        data-absent-teacher-id="<?= (int) $at['id'] ?>"
+                        data-teacher-name="<?= htmlspecialchars($at['abbreviation'] . ' – ' . $at['lastname'] . ', ' . $at['firstname'], ENT_QUOTES, 'UTF-8') ?>"
+                        data-open-count="<?= $openCount ?>">
+                    Ganzen Tag vertreten
+                </button>
+                <button type="button" class="btn btn-sm btn-warning sub-cancel-day-btn"
+                        data-absent-teacher-id="<?= (int) $at['id'] ?>"
+                        data-teacher-name="<?= htmlspecialchars($at['abbreviation'] . ' – ' . $at['lastname'] . ', ' . $at['firstname'], ENT_QUOTES, 'UTF-8') ?>"
+                        data-open-count="<?= $openCount ?>">
+                    Ganzer Tag Entfall
+                </button>
+            </div>
+            <?php endif; ?>
         </div>
         <?php endforeach; ?>
     </div>
@@ -212,6 +234,39 @@ $nextDate = date('Y-m-d', strtotime($date . ' +1 day'));
             <div class="modal-actions">
                 <button type="button" class="btn btn-secondary" id="subAssignCancel">Abbrechen</button>
                 <button type="submit" class="btn btn-primary">Zuweisen</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal: Ganzen Tag vertreten -->
+<div class="modal-overlay" id="subAssignDayModal" role="dialog" aria-modal="true" aria-labelledby="subAssignDayModalTitle" aria-hidden="true">
+    <div class="modal">
+        <h3 id="subAssignDayModalTitle">Ganzen Tag vertreten</h3>
+        <p class="text-muted" id="subAssignDayInfo"></p>
+        <div id="subDayConflictWarning" class="alert alert-warning" style="display: none;" role="alert"></div>
+
+        <form id="subAssignDayForm">
+            <input type="hidden" name="date" value="<?= htmlspecialchars($date, ENT_QUOTES, 'UTF-8') ?>">
+            <input type="hidden" name="absent_teacher_id" id="assignDayAbsentTeacherId" value="">
+            <?= \OpenClassbook\View::csrfField() ?>
+
+            <div class="form-group">
+                <label for="assignDayTeacher">Vertretungslehrkraft <span class="required">*</span></label>
+                <select id="assignDayTeacher" name="substitute_teacher_id" class="form-control" required>
+                    <option value="">Wird geladen...</option>
+                </select>
+                <small class="form-hint" id="assignDayTeacherHint"></small>
+            </div>
+
+            <div class="form-group">
+                <label for="assignDayNotes">Hinweis (für alle Einheiten)</label>
+                <input type="text" id="assignDayNotes" name="notes" class="form-control" maxlength="255" placeholder="z.B. Aufgaben liegen bereit">
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" id="subAssignDayCancel">Abbrechen</button>
+                <button type="submit" class="btn btn-primary">Für alle Einheiten zuweisen</button>
             </div>
         </form>
     </div>

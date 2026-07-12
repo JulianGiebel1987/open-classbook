@@ -170,6 +170,56 @@ class Substitution
     }
 
     /**
+     * Offene Slots einer bestimmten abwesenden Lehrkraft ermitteln
+     * (fuer die Ganztags-Vertretung mit einem Klick).
+     */
+    public static function getOpenSlotsForTeacher(int $settingId, string $date, int $absentTeacherId): array
+    {
+        $dayOfWeek = (int) date('N', strtotime($date));
+
+        return Database::query(
+            'SELECT ts.id as timetable_slot_id, ts.slot_number, ts.subject, ts.room,
+                    ts.teacher_id as absent_teacher_id,
+                    t.firstname as absent_firstname, t.lastname as absent_lastname, t.abbreviation as absent_abbreviation,
+                    c.id as class_id, c.name as class_name,
+                    ab.id as absence_id, ab.type as absence_type, ab.reason as absence_reason
+             FROM timetable_slots ts
+             JOIN teachers t ON t.id = ts.teacher_id
+             JOIN classes c ON c.id = ts.class_id
+             JOIN absences_teachers ab ON ab.teacher_id = ts.teacher_id
+                  AND ab.date_from <= ? AND ab.date_to >= ?
+             WHERE ts.timetable_setting_id = ?
+               AND ts.day_of_week = ?
+               AND ts.teacher_id = ?
+               AND NOT EXISTS (
+                   SELECT 1 FROM substitutions s
+                   WHERE s.timetable_setting_id = ts.timetable_setting_id
+                     AND s.date = ?
+                     AND s.slot_number = ts.slot_number
+                     AND s.class_id = ts.class_id
+                     AND s.absent_teacher_id = ts.teacher_id
+               )
+             ORDER BY ts.slot_number, c.name',
+            [$date, $date, $settingId, $dayOfWeek, $absentTeacherId, $date]
+        );
+    }
+
+    /**
+     * Anzahl offener Slots je abwesender Lehrkraft an einem Datum.
+     * Rueckgabe: [absent_teacher_id => Anzahl]
+     */
+    public static function countOpenSlotsByTeacher(int $settingId, string $date): array
+    {
+        $rows = self::getOpenSlots($settingId, $date);
+        $counts = [];
+        foreach ($rows as $row) {
+            $tid = (int) $row['absent_teacher_id'];
+            $counts[$tid] = ($counts[$tid] ?? 0) + 1;
+        }
+        return $counts;
+    }
+
+    /**
      * Abwesende Lehrer für ein Datum ermitteln.
      */
     public static function getAbsentTeachersForDate(string $date): array
@@ -301,6 +351,89 @@ class Substitution
         usort($result, function ($a, $b) {
             $order = ['available' => 0, 'busy_regular' => 1, 'busy_substitution' => 2];
             return ($order[$a['status']] ?? 9) - ($order[$b['status']] ?? 9);
+        });
+
+        return $result;
+    }
+
+    /**
+     * Verfügbare Lehrer für einen ganzen Tag (mehrere Einheiten) ermitteln.
+     * Markiert jede Lehrkraft als "frei" (in allen Einheiten verfügbar) oder
+     * "teilweise belegt" (in einzelnen Einheiten Unterricht/Vertretung).
+     *
+     * @param int[] $slotNumbers Einheitsnummern der zu vertretenden Stunden
+     */
+    public static function getAvailableTeachersForDay(int $settingId, string $date, array $slotNumbers): array
+    {
+        $slotNumbers = array_values(array_unique(array_map('intval', $slotNumbers)));
+        if (empty($slotNumbers)) {
+            return [];
+        }
+
+        $dayOfWeek = (int) date('N', strtotime($date));
+        $placeholders = implode(',', array_fill(0, count($slotNumbers), '?'));
+
+        // Alle aktiven Lehrer
+        $allTeachers = Database::query(
+            'SELECT t.id, t.firstname, t.lastname, t.abbreviation, t.subjects
+             FROM teachers t
+             JOIN users u ON u.id = t.user_id
+             WHERE u.active = 1
+             ORDER BY t.lastname, t.firstname'
+        );
+
+        // Abwesende Lehrer an diesem Datum
+        $absentIds = Database::query(
+            'SELECT DISTINCT teacher_id FROM absences_teachers WHERE date_from <= ? AND date_to >= ?',
+            [$date, $date]
+        );
+        $absentSet = array_column($absentIds, 'teacher_id');
+
+        // Belegte Einheiten pro Lehrer aus dem regulaeren Stundenplan
+        $busyMap = [];
+        $regular = Database::query(
+            'SELECT teacher_id, slot_number FROM timetable_slots
+             WHERE timetable_setting_id = ? AND day_of_week = ? AND slot_number IN (' . $placeholders . ')',
+            array_merge([$settingId, $dayOfWeek], $slotNumbers)
+        );
+        foreach ($regular as $r) {
+            $busyMap[(int) $r['teacher_id']][(int) $r['slot_number']] = true;
+        }
+
+        // Belegte Einheiten pro Lehrer aus bestehenden Vertretungen
+        $subs = Database::query(
+            'SELECT substitute_teacher_id, slot_number FROM substitutions
+             WHERE timetable_setting_id = ? AND date = ? AND substitute_teacher_id IS NOT NULL
+               AND slot_number IN (' . $placeholders . ')',
+            array_merge([$settingId, $date], $slotNumbers)
+        );
+        foreach ($subs as $s) {
+            $busyMap[(int) $s['substitute_teacher_id']][(int) $s['slot_number']] = true;
+        }
+
+        $totalSlots = count($slotNumbers);
+        $result = [];
+        foreach ($allTeachers as $t) {
+            if (in_array($t['id'], $absentSet)) {
+                continue;
+            }
+
+            $busyCount = isset($busyMap[(int) $t['id']]) ? count($busyMap[(int) $t['id']]) : 0;
+
+            if ($busyCount === 0) {
+                $t['status'] = 'available';
+                $t['status_info'] = '';
+            } else {
+                $t['status'] = 'busy_partial';
+                $t['status_info'] = 'In ' . $busyCount . ' von ' . $totalSlots . ' Einheiten belegt';
+            }
+            $t['busy_count'] = $busyCount;
+            $result[] = $t;
+        }
+
+        // Vollstaendig freie zuerst, dann nach Anzahl belegter Einheiten
+        usort($result, function ($a, $b) {
+            return $a['busy_count'] - $b['busy_count'];
         });
 
         return $result;

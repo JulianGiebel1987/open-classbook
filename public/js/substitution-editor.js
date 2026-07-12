@@ -12,6 +12,15 @@
     var teacherSelect = document.getElementById('assignTeacher');
     var teacherHint = document.getElementById('assignTeacherHint');
 
+    // Ganztags-Vertretung
+    var dayModal = document.getElementById('subAssignDayModal');
+    var dayForm = document.getElementById('subAssignDayForm');
+    var dayCancelBtn = document.getElementById('subAssignDayCancel');
+    var dayInfo = document.getElementById('subAssignDayInfo');
+    var dayConflictWarning = document.getElementById('subDayConflictWarning');
+    var dayTeacherSelect = document.getElementById('assignDayTeacher');
+    var dayTeacherHint = document.getElementById('assignDayTeacherHint');
+
     if (!planEl) return;
 
     var settingId = planEl.dataset.settingId;
@@ -39,6 +48,19 @@
         var deleteBtn = e.target.closest('.sub-delete-btn');
         if (deleteBtn) {
             deleteSubstitution(deleteBtn.dataset.id);
+            return;
+        }
+
+        var assignDayBtn = e.target.closest('.sub-assign-day-btn');
+        if (assignDayBtn) {
+            openAssignDayModal(assignDayBtn);
+            return;
+        }
+
+        var cancelDayBtn = e.target.closest('.sub-cancel-day-btn');
+        if (cancelDayBtn) {
+            cancelWholeDay(cancelDayBtn);
+            return;
         }
     });
 
@@ -217,6 +239,149 @@
         data.append('csrf_token', csrfToken);
 
         fetch('/substitution/' + subId + '/delete', { method: 'POST', body: data })
+            .then(function (res) { return res.json(); })
+            .then(function (result) {
+                if (!result.success) {
+                    alert(result.error || 'Fehler.');
+                    return;
+                }
+                window.location.reload();
+            })
+            .catch(function () {
+                alert('Netzwerkfehler.');
+            });
+    }
+
+    // === Ganztags-Vertretung: Modal öffnen ===
+
+    function openAssignDayModal(btn) {
+        if (!dayModal) return;
+
+        var absentTeacherId = btn.dataset.absentTeacherId;
+        var teacherName = btn.dataset.teacherName || '';
+        var openCount = btn.dataset.openCount || '0';
+
+        document.getElementById('assignDayAbsentTeacherId').value = absentTeacherId;
+        document.getElementById('assignDayNotes').value = '';
+        dayInfo.textContent = teacherName + ' – ' + openCount + ' offene Einheit(en) werden vertreten.';
+        dayConflictWarning.style.display = 'none';
+
+        loadAvailableTeachersForDay(absentTeacherId);
+
+        dayModal.setAttribute('aria-hidden', 'false');
+        dayModal.style.display = 'flex';
+    }
+
+    function closeDayModal() {
+        if (!dayModal) return;
+        dayModal.setAttribute('aria-hidden', 'true');
+        dayModal.style.display = 'none';
+    }
+
+    if (dayCancelBtn) {
+        dayCancelBtn.addEventListener('click', closeDayModal);
+    }
+    if (dayModal) {
+        dayModal.addEventListener('click', function (e) {
+            if (e.target === dayModal) closeDayModal();
+        });
+    }
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && dayModal && dayModal.getAttribute('aria-hidden') === 'false') {
+            closeDayModal();
+        }
+    });
+
+    function loadAvailableTeachersForDay(absentTeacherId) {
+        dayTeacherSelect.innerHTML = '<option value="">Wird geladen...</option>';
+        dayTeacherHint.textContent = '';
+
+        var data = new FormData();
+        data.append('csrf_token', csrfToken);
+        data.append('date', currentDate);
+        data.append('absent_teacher_id', absentTeacherId);
+
+        fetch('/substitution/available-teachers-day', { method: 'POST', body: data })
+            .then(function (res) { return res.json(); })
+            .then(function (result) {
+                dayTeacherSelect.innerHTML = '<option value="">– Lehrkraft wählen –</option>';
+
+                var available = 0;
+                (result.teachers || []).forEach(function (t) {
+                    var option = document.createElement('option');
+                    option.value = t.id;
+                    var label = t.abbreviation + ' – ' + t.lastname + ', ' + t.firstname;
+
+                    if (t.status === 'available') {
+                        label += ' (ganztägig frei)';
+                        available++;
+                    } else if (t.status === 'busy_partial') {
+                        label += ' (' + (t.status_info || 'teilweise belegt') + ')';
+                    }
+
+                    option.textContent = label;
+                    option.dataset.status = t.status;
+                    dayTeacherSelect.appendChild(option);
+                });
+
+                dayTeacherHint.textContent = available + ' Lehrkräfte ganztägig frei';
+                dayTeacherSelect.focus();
+            })
+            .catch(function () {
+                dayTeacherSelect.innerHTML = '<option value="">Fehler beim Laden</option>';
+            });
+    }
+
+    dayTeacherSelect.addEventListener('change', function () {
+        var selected = this.options[this.selectedIndex];
+        if (selected && selected.dataset.status === 'busy_partial') {
+            dayConflictWarning.textContent = 'Hinweis: ' + selected.textContent
+                + '. Diese Einheiten werden dennoch zugewiesen.';
+            dayConflictWarning.style.display = 'block';
+        } else {
+            dayConflictWarning.style.display = 'none';
+        }
+    });
+
+    dayForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        var data = new FormData(dayForm);
+        data.append('csrf_token', csrfToken);
+
+        fetch('/substitution/assign-day', { method: 'POST', body: data })
+            .then(function (res) { return res.json(); })
+            .then(function (result) {
+                if (!result.success) {
+                    alert(result.error || 'Fehler beim Zuweisen.');
+                    return;
+                }
+                if (result.conflict_warning) {
+                    alert('Hinweis: ' + result.conflict_warning);
+                }
+                window.location.reload();
+            })
+            .catch(function () {
+                alert('Netzwerkfehler.');
+            });
+    });
+
+    // === Ganztags-Entfall ===
+
+    function cancelWholeDay(btn) {
+        var teacherName = btn.dataset.teacherName || '';
+        var openCount = btn.dataset.openCount || '0';
+        if (!confirm('Alle ' + openCount + ' offenen Einheit(en) von ' + teacherName + ' als Entfall markieren?')) {
+            return;
+        }
+
+        var data = new FormData();
+        data.append('csrf_token', csrfToken);
+        data.append('date', currentDate);
+        data.append('absent_teacher_id', btn.dataset.absentTeacherId);
+        data.append('is_cancelled', '1');
+
+        fetch('/substitution/assign-day', { method: 'POST', body: data })
             .then(function (res) { return res.json(); })
             .then(function (result) {
                 if (!result.success) {
