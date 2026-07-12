@@ -2927,6 +2927,20 @@ a.widget:hover {
     min-width: 130px;
 }
 
+/* Leseansicht des festgelegten Plans (Lehrkräfte) */
+.supervision-readonly .supervision-cell {
+    padding-bottom: var(--spacing-xs, 4px);
+}
+
+.supervision-readonly .supervision-cell-own {
+    background: var(--primary-light, #e3f2fd);
+}
+
+.supervision-readonly .slot-entry-own {
+    border-color: var(--primary-color, #1976d2);
+    font-weight: 600;
+}
+
 .supervision-location-delete {
     display: inline;
     margin-left: 4px;

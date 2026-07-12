@@ -9,6 +9,11 @@ und dieses Projekt verwendet [Semantic Versioning](https://semver.org/lang/de/).
 
 ### Geaendert
 
+- Pausenaufsichtsplan: Lehrkraefte sehen in "Meine Pausenaufsichten" jetzt den
+  gesamten festgelegten Plan (alle Aufsichtspunkte, Tage und Pausen) als reine
+  Leseansicht ohne Bearbeitungsmoeglichkeit. Die eigenen Aufsichten sind darin
+  hervorgehoben. Zuvor wurden nur die eigenen Dienste als Liste angezeigt.
+
 - Anmeldung: Alle Accounts koennen sich nun wahlweise mit ihrem Benutzernamen
   oder ihrer E-Mail-Adresse anmelden (bisher war die E-Mail-Anmeldung faktisch
   auf Lehrkraefte ausgerichtet). Die Aufloesung erfolgt deterministisch
