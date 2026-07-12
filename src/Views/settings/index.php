@@ -62,6 +62,7 @@
             'module_lists'       => 'Listen',
             'module_files'       => 'Dateien',
             'module_templates'   => 'Vorlagen',
+            'module_school_aides'=> 'Schulbegleiter:innen',
         ];
         ?>
         <fieldset class="form-group">
@@ -96,6 +97,10 @@
             'Vertretung' => [
                 'module_substitution_schulleitung' => 'Schulleitung',
                 'module_substitution_sekretariat'  => 'Sekretariat',
+            ],
+            'Schulbegleiter:innen' => [
+                'module_school_aides_schulleitung' => 'Schulleitung',
+                'module_school_aides_sekretariat'  => 'Sekretariat',
             ],
         ];
         ?>

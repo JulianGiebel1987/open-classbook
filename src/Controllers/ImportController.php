@@ -6,6 +6,7 @@ use OpenClassbook\App;
 use OpenClassbook\View;
 use OpenClassbook\Middleware\CsrfMiddleware;
 use OpenClassbook\Services\ImportService;
+use OpenClassbook\Services\ModuleSettings;
 
 class ImportController
 {
@@ -25,6 +26,20 @@ class ImportController
         return true;
     }
 
+    /**
+     * Sicherstellen, dass das Schulbegleiter:innen-Modul aktiviert ist,
+     * bevor Import-Funktionen für Schulbegleiter:innen genutzt werden.
+     */
+    private function requireSchoolAidesModule(): bool
+    {
+        if (!ModuleSettings::canAccess('school_aides', App::currentUserRole())) {
+            App::setFlash('error', 'Das Modul Schulbegleiter:innen ist deaktiviert.');
+            App::redirect('/import');
+            return false;
+        }
+        return true;
+    }
+
     public function index(): void
     {
         if (!$this->requireStaff()) return;
@@ -36,6 +51,7 @@ class ImportController
         }
         View::render('import/index', [
             'title' => 'Daten importieren',
+            'schoolAidesEnabled' => ModuleSettings::canAccess('school_aides', App::currentUserRole()),
             'breadcrumbs' => View::breadcrumbs([
                 ['label' => 'Benutzer', 'url' => '/users'],
                 ['label' => 'Daten importieren'],
@@ -212,6 +228,7 @@ class ImportController
     public function uploadSchoolAides(): void
     {
         if (!$this->requireStaff()) return;
+        if (!$this->requireSchoolAidesModule()) return;
 
         if (empty($_FILES['file']) || $_FILES['file']['error'] !== UPLOAD_ERR_OK) {
             App::setFlash('error', 'Bitte wählen Sie eine Datei aus.');
@@ -253,6 +270,7 @@ class ImportController
     public function confirmSchoolAides(): void
     {
         if (!$this->requireStaff()) return;
+        if (!$this->requireSchoolAidesModule()) return;
 
         $storedFile = $_POST['stored_file'] ?? '';
 
@@ -335,6 +353,11 @@ class ImportController
             echo "Vorname;Nachname;Klasse;Geburtsdatum;Erziehungsberechtigten-Email\n";
             echo "Anna;Musterfrau;5a;15.03.2013;musterfrau@example.de\n";
             exit;
+        }
+
+        if (($type === 'schulbegleiter' || $type === 'schulbegleiter-csv')
+            && !$this->requireSchoolAidesModule()) {
+            return;
         }
 
         if ($type === 'schulbegleiter-csv') {

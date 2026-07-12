@@ -32,6 +32,7 @@ class SettingsController
             'module_lists',
             'module_files',
             'module_templates',
+            'module_school_aides',
             // Role-specific modules
             'module_teacher_absences_schulleitung',
             'module_teacher_absences_sekretariat',
@@ -39,6 +40,8 @@ class SettingsController
             'module_timetable_sekretariat',
             'module_substitution_schulleitung',
             'module_substitution_sekretariat',
+            'module_school_aides_schulleitung',
+            'module_school_aides_sekretariat',
         ]);
 
         $enforceRoles = json_decode($settings['two_factor_enforce_roles'] ?? '[]', true) ?: [];
@@ -80,7 +83,7 @@ class SettingsController
         Setting::set('two_factor_max_attempts', (string) $maxAttempts);
 
         // --- Global module toggles ---
-        $globalModules = ['timetable', 'substitution', 'messages', 'lists', 'files', 'templates'];
+        $globalModules = ['timetable', 'substitution', 'messages', 'lists', 'files', 'templates', 'school_aides'];
         foreach ($globalModules as $module) {
             $key   = 'module_' . $module;
             $value = isset($_POST[$key]) ? '1' : '0';
@@ -95,6 +98,8 @@ class SettingsController
             'module_timetable_sekretariat',
             'module_substitution_schulleitung',
             'module_substitution_sekretariat',
+            'module_school_aides_schulleitung',
+            'module_school_aides_sekretariat',
         ];
         foreach ($roleModuleKeys as $key) {
             $value = isset($_POST[$key]) ? '1' : '0';

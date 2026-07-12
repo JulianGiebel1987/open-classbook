@@ -9,12 +9,13 @@ use OpenClassbook\Models\Setting;
  *
  * Global module keys (enabled/disabled for all roles):
  *   module_timetable, module_substitution, module_messages,
- *   module_lists, module_files, module_templates
+ *   module_lists, module_files, module_templates, module_school_aides
  *
  * Role-specific access keys (schulleitung / sekretariat):
  *   module_teacher_absences_schulleitung, module_teacher_absences_sekretariat
  *   module_timetable_schulleitung,        module_timetable_sekretariat
  *   module_substitution_schulleitung,     module_substitution_sekretariat
+ *   module_school_aides_schulleitung,     module_school_aides_sekretariat
  *
  * Default: all enabled (1). Stored as '0' / '1' in settings table.
  */
