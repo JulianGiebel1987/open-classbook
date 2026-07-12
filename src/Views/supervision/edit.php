@@ -85,11 +85,18 @@ $numBreaks = count($breaks);
                                         aria-label="Zuweisung entfernen" title="Entfernen">&times;</button>
                             </div>
                             <?php endforeach; ?>
-                            <button type="button" class="slot-add-btn"
+                            <select class="supervision-select"
                                     data-location="<?= (int) $loc['id'] ?>"
                                     data-day="<?= (int) $day ?>"
                                     data-break="<?= (int) $brk['id'] ?>"
-                                    aria-label="Lehrkraft hinzufügen" title="Lehrkraft hinzufügen">+</button>
+                                    aria-label="Lehrkraft für diesen Aufsichtspunkt auswählen">
+                                <option value="">+ Lehrkraft&hellip;</option>
+                                <?php foreach ($teachers as $t): ?>
+                                <option value="<?= (int) $t['id'] ?>">
+                                    <?= htmlspecialchars($t['abbreviation'] ?: ($t['lastname'] . ', ' . $t['firstname']), ENT_QUOTES, 'UTF-8') ?>
+                                </option>
+                                <?php endforeach; ?>
+                            </select>
                         </td>
                         <?php endforeach; ?>
                     <?php endforeach; ?>
@@ -133,39 +140,6 @@ $numBreaks = count($breaks);
         </div>
         <button type="submit" class="btn btn-primary">Hinzufügen</button>
     </form>
-</div>
-
-<!-- Modal: Lehrkraft zuweisen -->
-<div class="modal-overlay" id="assignModal" role="dialog" aria-modal="true" aria-labelledby="assignModalTitle" aria-hidden="true">
-    <div class="modal">
-        <h3 id="assignModalTitle">Lehrkraft zuweisen</h3>
-        <div id="assignConflictWarning" class="alert alert-warning" style="display: none;" role="alert"></div>
-
-        <form id="assignForm">
-            <input type="hidden" name="plan_id" value="<?= (int) $plan['id'] ?>">
-            <input type="hidden" name="location_id" id="assignLocation" value="">
-            <input type="hidden" name="day_of_week" id="assignDay" value="">
-            <input type="hidden" name="break_id" id="assignBreak" value="">
-            <?= \OpenClassbook\View::csrfField() ?>
-
-            <div class="form-group">
-                <label for="assignTeacher">Lehrkraft <span class="required">*</span></label>
-                <select id="assignTeacher" name="teacher_id" class="form-control" required>
-                    <option value="">– Lehrkraft wählen –</option>
-                    <?php foreach ($teachers as $t): ?>
-                    <option value="<?= (int) $t['id'] ?>">
-                        <?= htmlspecialchars($t['abbreviation'] . ' – ' . $t['lastname'] . ', ' . $t['firstname'], ENT_QUOTES, 'UTF-8') ?>
-                    </option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-
-            <div class="modal-actions">
-                <button type="button" class="btn btn-secondary" id="assignModalCancel">Abbrechen</button>
-                <button type="submit" class="btn btn-primary">Zuweisen</button>
-            </div>
-        </form>
-    </div>
 </div>
 
 <script src="/js/supervision-editor.js"></script>
