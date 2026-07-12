@@ -78,7 +78,7 @@ return [
     ],
     'schulbegleiter' => [
         ['label' => 'Dashboard',        'url' => '/dashboard',                        'icon' => 'dashboard'],
-        ['label' => 'Krankmeldung',     'url' => '/absences/aides/self',              'icon' => 'sick-note'],
+        ['label' => 'Krankmeldung',     'url' => '/absences/aides/self',              'icon' => 'sick-note', 'module' => 'school_aides'],
         ['label' => 'Meine Vertretungen','url' => '/aide-substitution/my-substitutions', 'icon' => 'substitution', 'module' => 'school_aides'],
         ['label' => 'Nachrichten',      'url' => '/messages',                         'icon' => 'messages',  'module' => 'messages'],
     ],

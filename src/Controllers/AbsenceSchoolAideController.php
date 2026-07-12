@@ -33,6 +33,20 @@ class AbsenceSchoolAideController
         }
     }
 
+    /**
+     * Modul-Check für Schulbegleiter:innen-Selbstbedienung (Krankmeldung).
+     * Ist das Modul deaktiviert, ist auch die Selbstmeldung nicht zugänglich.
+     */
+    private function requireSelfModuleEnabled(): bool
+    {
+        if (!ModuleSettings::canAccess('school_aides', App::currentUserRole())) {
+            App::setFlash('error', 'Das Modul Schulbegleiter:innen ist deaktiviert.');
+            App::redirect('/dashboard');
+            return false;
+        }
+        return true;
+    }
+
     public function index(): void
     {
         $this->requireAideAbsenceAccess();
@@ -98,6 +112,9 @@ class AbsenceSchoolAideController
 
     public function selfReportForm(): void
     {
+        if (!$this->requireSelfModuleEnabled()) {
+            return;
+        }
         if (!SchoolAide::getAideIdByUserId((int) $_SESSION['user_id'])) {
             App::setFlash('error', 'Kein Schulbegleiter:innen-Profil gefunden.');
             App::redirect('/dashboard');
@@ -115,6 +132,9 @@ class AbsenceSchoolAideController
 
     public function selfReport(): void
     {
+        if (!$this->requireSelfModuleEnabled()) {
+            return;
+        }
         $aideId = SchoolAide::getAideIdByUserId((int) $_SESSION['user_id']);
         if (!$aideId) {
             App::setFlash('error', 'Kein Schulbegleiter:innen-Profil gefunden.');

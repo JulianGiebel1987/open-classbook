@@ -45,6 +45,7 @@
     </form>
 </div>
 
+<?php if (!empty($schoolAidesEnabled)): ?>
 <div class="card mt-1">
     <div class="card-header">
         <h2>Schulbegleiter:innen importieren</h2>
@@ -63,3 +64,4 @@
         <button type="submit" class="btn">Vorschau anzeigen</button>
     </form>
 </div>
+<?php endif; ?>
