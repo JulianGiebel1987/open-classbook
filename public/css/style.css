@@ -389,6 +389,21 @@ textarea:focus-visible {
     border-radius: 0.375rem;
 }
 
+/* Kompakter, quadratischer Icon-Button (z.B. Aktionsspalte in Tabellen) */
+.btn-icon-only {
+    padding: 0.3rem;
+    width: 32px;
+    min-width: 32px;
+    min-height: 32px;
+    flex: 0 0 auto;
+}
+
+.btn-icon-only svg {
+    width: 16px;
+    height: 16px;
+    display: block;
+}
+
 .btn-secondary {
     background: var(--color-surface);
     color: var(--color-text);
@@ -1226,6 +1241,13 @@ a.widget:hover {
     .btn-sm {
         min-height: 36px;
         padding: var(--spacing-xs) var(--spacing-sm);
+    }
+
+    .btn-icon-only {
+        width: 36px;
+        min-width: 36px;
+        min-height: 36px;
+        padding: var(--spacing-xs);
     }
 
     .breadcrumb {
