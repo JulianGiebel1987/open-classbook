@@ -141,6 +141,85 @@ class AuthServiceTest extends DatabaseTestCase
         $this->assertTrue($result['success']);
     }
 
+    public function testAttemptByEmailIsCaseInsensitive(): void
+    {
+        $this->createTestUser([
+            'username' => 'mixedcase',
+            'email' => 'Mixed.Case@Schule.de',
+            'password_hash' => password_hash('TestPasswort1', PASSWORD_BCRYPT),
+            'role' => 'sekretariat',
+        ]);
+
+        $result = AuthService::attempt('mixed.case@schule.de', 'TestPasswort1');
+
+        $this->assertTrue($result['success']);
+        $this->assertSame('mixedcase', $_SESSION['user']['username']);
+    }
+
+    public function testAttemptByEmailWorksForNonTeacherRoles(): void
+    {
+        $this->createTestUser([
+            'username' => 'a.schueler',
+            'email' => 'schueler@schule.de',
+            'password_hash' => password_hash('TestPasswort1', PASSWORD_BCRYPT),
+            'role' => 'schueler',
+        ]);
+
+        $result = AuthService::attempt('schueler@schule.de', 'TestPasswort1');
+
+        $this->assertTrue($result['success']);
+        $this->assertSame('a.schueler', $_SESSION['user']['username']);
+    }
+
+    public function testAttemptPrefersUsernameOverForeignEmailMatch(): void
+    {
+        // Account A: Der Benutzername gleicht der E-Mail eines anderen Accounts.
+        $this->createTestUser([
+            'username' => 'kollision@schule.de',
+            'email' => 'a@schule.de',
+            'password_hash' => password_hash('PasswortAAA1', PASSWORD_BCRYPT),
+            'role' => 'sekretariat',
+        ]);
+        // Account B: traegt die kollidierende Adresse als E-Mail.
+        $this->createTestUser([
+            'username' => 'kollisions-opfer',
+            'email' => 'kollision@schule.de',
+            'password_hash' => password_hash('PasswortBBB1', PASSWORD_BCRYPT),
+            'role' => 'sekretariat',
+        ]);
+
+        // Der Benutzername-Treffer hat Vorrang und liefert eindeutig Account A.
+        $result = AuthService::attempt('kollision@schule.de', 'PasswortAAA1');
+
+        $this->assertTrue($result['success']);
+        $this->assertSame('kollision@schule.de', $_SESSION['user']['username']);
+    }
+
+    public function testAttemptByEmailIgnoresDeactivatedDuplicate(): void
+    {
+        // Deaktiviertes Konto mit derselben E-Mail darf die Anmeldung des
+        // aktiven Kontos nicht blockieren (aktive Accounts werden bevorzugt).
+        $this->createTestUser([
+            'username' => 'alt.konto',
+            'email' => 'geteilt@schule.de',
+            'password_hash' => password_hash('AltesPasswort1', PASSWORD_BCRYPT),
+            'role' => 'sekretariat',
+            'active' => 0,
+        ]);
+        $this->createTestUser([
+            'username' => 'neu.konto',
+            'email' => 'geteilt@schule.de',
+            'password_hash' => password_hash('NeuesPasswort1', PASSWORD_BCRYPT),
+            'role' => 'sekretariat',
+            'active' => 1,
+        ]);
+
+        $result = AuthService::attempt('geteilt@schule.de', 'NeuesPasswort1');
+
+        $this->assertTrue($result['success']);
+        $this->assertSame('neu.konto', $_SESSION['user']['username']);
+    }
+
     public function testAttemptSetsSessionData(): void
     {
         $this->createTestUser([
