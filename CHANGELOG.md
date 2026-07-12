@@ -9,6 +9,12 @@ und dieses Projekt verwendet [Semantic Versioning](https://semver.org/lang/de/).
 
 ### Geaendert
 
+- Anmeldung: Alle Accounts koennen sich nun wahlweise mit ihrem Benutzernamen
+  oder ihrer E-Mail-Adresse anmelden (bisher war die E-Mail-Anmeldung faktisch
+  auf Lehrkraefte ausgerichtet). Die Aufloesung erfolgt deterministisch
+  (zuerst Benutzername, dann E-Mail) und die E-Mail-Anmeldung ist unabhaengig
+  von der Gross-/Kleinschreibung. Der Hinweis im Login-Formular wurde
+  entsprechend angepasst.
 - Lehrkraft-Vertretung: Neben einzelnen Einheiten kann nun mit einem Klick der
   gesamte Tag einer abwesenden Lehrkraft vertreten oder als Entfall markiert
   werden ("Ganzen Tag vertreten" / "Ganzer Tag Entfall"). Die Ganztags-Auswahl

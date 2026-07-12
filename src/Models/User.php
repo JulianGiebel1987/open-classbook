@@ -43,11 +43,34 @@ class User
         );
     }
 
+    /**
+     * Nutzer anhand des Anmeldenamens ODER der E-Mail-Adresse finden.
+     *
+     * Die Anmeldung ist fuer Accounts jeder Rolle wahlweise mit dem
+     * Benutzernamen oder der E-Mail-Adresse moeglich. Aufloesung erfolgt in
+     * zwei deterministischen Schritten (statt einer mehrdeutigen ODER-Abfrage):
+     *   1. exakter Treffer auf den eindeutigen Benutzernamen,
+     *   2. andernfalls case-insensitiver Treffer auf die E-Mail-Adresse
+     *      (aktive Accounts werden bevorzugt, damit ein deaktiviertes Konto mit
+     *      identischer E-Mail die Anmeldung nicht blockiert).
+     */
     public static function findByUsername(string $username): ?array
     {
+        $user = Database::queryOne(
+            'SELECT * FROM users WHERE username = ?',
+            [$username]
+        );
+
+        if ($user !== null) {
+            return $user;
+        }
+
         return Database::queryOne(
-            'SELECT * FROM users WHERE username = ? OR email = ?',
-            [$username, $username]
+            "SELECT * FROM users
+             WHERE email IS NOT NULL AND email <> '' AND LOWER(email) = LOWER(?)
+             ORDER BY active DESC, id ASC
+             LIMIT 1",
+            [$username]
         );
     }
 
