@@ -7,9 +7,9 @@ use OpenClassbook\Models\SchoolAide;
 
 /**
  * Zentrale Geschaeftslogik fuer das Anlegen von Schulbegleiter:innen inklusive
- * verknuepftem Benutzerkonto (role=schulbegleiter). Wird sowohl vom Massen-Import
- * (ImportService) als auch von der Einzelanlage (UserController / SchoolAideController)
- * verwendet, damit beide Wege identische Konten erzeugen.
+ * verknuepftem Benutzerkonto (role=schulbegleiter). Wird vom Massen-Import
+ * (ImportService) verwendet, damit importierte Konten identisch zu ueber die
+ * Benutzerverwaltung angelegten Konten erzeugt werden.
  */
 class AideService
 {

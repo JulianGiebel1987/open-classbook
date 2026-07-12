@@ -11,7 +11,6 @@ use OpenClassbook\Controllers\StudentController;
 use OpenClassbook\Controllers\ClassbookController;
 use OpenClassbook\Controllers\AbsenceStudentController;
 use OpenClassbook\Controllers\AbsenceTeacherController;
-use OpenClassbook\Controllers\SchoolAideController;
 use OpenClassbook\Controllers\AbsenceSchoolAideController;
 use OpenClassbook\Controllers\AideSubstitutionController;
 use OpenClassbook\Controllers\FileController;
@@ -137,14 +136,6 @@ $router->post('/absences/teachers', [AbsenceTeacherController::class, 'create'],
 $router->get('/absences/teachers/{id}/edit', [AbsenceTeacherController::class, 'editForm'], [AuthMiddleware::class]);
 $router->post('/absences/teachers/{id}', [AbsenceTeacherController::class, 'update'], [AuthMiddleware::class, CsrfMiddleware::class]);
 $router->post('/absences/teachers/{id}/delete', [AbsenceTeacherController::class, 'delete'], [AuthMiddleware::class, CsrfMiddleware::class]);
-
-// === Schulbegleiter:innen (Verwaltung: Admin / Schulleitung / Sekretariat) ===
-$router->get('/aides', [SchoolAideController::class, 'index'], [AuthMiddleware::class, StaffMiddleware::class]);
-$router->get('/aides/create', [SchoolAideController::class, 'createForm'], [AuthMiddleware::class, StaffMiddleware::class]);
-$router->post('/aides', [SchoolAideController::class, 'create'], [AuthMiddleware::class, StaffMiddleware::class, CsrfMiddleware::class]);
-$router->get('/aides/{id}/edit', [SchoolAideController::class, 'editForm'], [AuthMiddleware::class, StaffMiddleware::class]);
-$router->post('/aides/{id}', [SchoolAideController::class, 'update'], [AuthMiddleware::class, StaffMiddleware::class, CsrfMiddleware::class]);
-$router->post('/aides/{id}/delete', [SchoolAideController::class, 'delete'], [AuthMiddleware::class, AdminMiddleware::class, CsrfMiddleware::class]);
 
 // === Schulbegleiter:innen-Abwesenheiten ===
 $router->get('/absences/aides', [AbsenceSchoolAideController::class, 'index'], [AuthMiddleware::class]);
