@@ -1,6 +1,7 @@
 <div class="page-header">
     <h1>Schulbegleiter:innen-Vertretung</h1>
     <div class="page-header-actions">
+        <a href="/aide-substitution/pdf?date_from=<?= urlencode($dateFrom) ?>&date_to=<?= urlencode($dateTo) ?>" class="btn btn-secondary">PDF-Export</a>
         <a href="/aide-substitution/plan?date_from=<?= urlencode($dateFrom) ?>&date_to=<?= urlencode($dateTo) ?>" class="btn">Vertretung planen</a>
     </div>
 </div>
@@ -17,6 +18,51 @@
         </div>
         <button type="submit" class="btn btn-secondary">Filtern</button>
     </form>
+</div>
+
+<?php
+    $total = (int) ($publishStatus['total'] ?? 0);
+    $published = (int) ($publishStatus['published'] ?? 0);
+    $allPublished = $total > 0 && $published >= $total;
+?>
+<div class="card mt-1">
+    <div class="card-header">
+        <h2>Veröffentlichung</h2>
+    </div>
+    <p>
+        <?php if ($total === 0): ?>
+            <span class="text-muted">Keine Vertretungen im gewählten Zeitraum.</span>
+        <?php elseif ($published === 0): ?>
+            <span class="badge badge-warning">Entwurf</span>
+            Noch nicht veröffentlicht – die eingeteilten Begleitungen sehen die Vertretung noch nicht.
+        <?php elseif ($allPublished): ?>
+            <span class="badge badge-success">Veröffentlicht</span>
+            Alle <?= $total ?> Vertretung(en) im Zeitraum sind veröffentlicht.
+        <?php else: ?>
+            <span class="badge badge-info">Teilweise veröffentlicht</span>
+            <?= $published ?> von <?= $total ?> Vertretung(en) im Zeitraum veröffentlicht.
+        <?php endif; ?>
+    </p>
+    <p class="text-muted">
+        Beim Veröffentlichen werden alle Vertretungen im gewählten Zeitraum für die eingeteilten
+        Schulbegleiter:innen unter „Meine Vertretungen“ sichtbar.
+    </p>
+    <div class="btn-group">
+        <form method="post" action="/aide-substitution/publish" class="d-inline">
+            <?= \OpenClassbook\View::csrfField() ?>
+            <input type="hidden" name="date_from" value="<?= htmlspecialchars($dateFrom, ENT_QUOTES, 'UTF-8') ?>">
+            <input type="hidden" name="date_to" value="<?= htmlspecialchars($dateTo, ENT_QUOTES, 'UTF-8') ?>">
+            <button type="submit" class="btn" <?= $total === 0 ? 'disabled' : '' ?>>Veröffentlichen</button>
+        </form>
+        <?php if ($published > 0): ?>
+        <form method="post" action="/aide-substitution/unpublish" class="d-inline">
+            <?= \OpenClassbook\View::csrfField() ?>
+            <input type="hidden" name="date_from" value="<?= htmlspecialchars($dateFrom, ENT_QUOTES, 'UTF-8') ?>">
+            <input type="hidden" name="date_to" value="<?= htmlspecialchars($dateTo, ENT_QUOTES, 'UTF-8') ?>">
+            <button type="submit" class="btn btn-secondary" data-confirm="Veröffentlichung für diesen Zeitraum zurückziehen?">Zurückziehen</button>
+        </form>
+        <?php endif; ?>
+    </div>
 </div>
 
 <div class="card mt-1">

@@ -62,12 +62,14 @@ class AideSubstitution
 
     /**
      * Vertretungen, in denen die Begleitung als Ersatz eingeteilt ist
-     * (Sicht "Meine Vertretungen").
+     * (Sicht "Meine Vertretungen"). Es werden ausschliesslich veroeffentlichte
+     * Vertretungen angezeigt.
      */
     public static function findUpcomingForAide(int $aideId, string $fromDate): array
     {
         return Database::query(
             self::SELECT . ' WHERE sub.substitute_aide_id = ? AND sub.date_to >= ?
+               AND sub.published_at IS NOT NULL
              ORDER BY sub.date_from ASC, sub.priority ASC',
             [$aideId, $fromDate]
         );
@@ -167,5 +169,57 @@ class AideSubstitution
     public static function priorityLabel(int $priority): string
     {
         return self::PRIORITIES[$priority] ?? (string) $priority;
+    }
+
+    /**
+     * Alle Vertretungsbedarfe, die sich mit dem Zeitraum ueberschneiden,
+     * veroeffentlichen (fuer die eingeteilten Ersatz-Begleitungen sichtbar
+     * machen). Gibt die Anzahl betroffener Datensaetze zurueck.
+     */
+    public static function publishRange(string $dateFrom, string $dateTo, int $userId): int
+    {
+        return Database::execute(
+            'UPDATE aide_substitutions
+                SET published_at = NOW(), published_by = ?
+             WHERE date_from <= ? AND date_to >= ?',
+            [$userId, $dateTo, $dateFrom]
+        );
+    }
+
+    /**
+     * Veroeffentlichung fuer alle Vertretungsbedarfe im Zeitraum zuruecknehmen.
+     */
+    public static function unpublishRange(string $dateFrom, string $dateTo): int
+    {
+        return Database::execute(
+            'UPDATE aide_substitutions
+                SET published_at = NULL, published_by = NULL
+             WHERE date_from <= ? AND date_to >= ?',
+            [$dateTo, $dateFrom]
+        );
+    }
+
+    /**
+     * Veroeffentlichungs-Status fuer einen Zeitraum: Gesamtzahl der Bedarfe,
+     * davon veroeffentlicht und mit Ersatz besetzt.
+     *
+     * @return array{total:int, published:int, assigned:int}
+     */
+    public static function getPublishStatusForRange(string $dateFrom, string $dateTo): array
+    {
+        $row = Database::queryOne(
+            'SELECT COUNT(*) AS total,
+                    SUM(CASE WHEN published_at IS NOT NULL THEN 1 ELSE 0 END) AS published,
+                    SUM(CASE WHEN substitute_aide_id IS NOT NULL THEN 1 ELSE 0 END) AS assigned
+             FROM aide_substitutions
+             WHERE date_from <= ? AND date_to >= ?',
+            [$dateTo, $dateFrom]
+        );
+
+        return [
+            'total' => (int) ($row['total'] ?? 0),
+            'published' => (int) ($row['published'] ?? 0),
+            'assigned' => (int) ($row['assigned'] ?? 0),
+        ];
     }
 }

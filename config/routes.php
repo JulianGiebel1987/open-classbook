@@ -151,7 +151,10 @@ $router->post('/absences/aides/{id}/delete', [AbsenceSchoolAideController::class
 $router->get('/aide-substitution', [AideSubstitutionController::class, 'index'], [AuthMiddleware::class]);
 $router->get('/aide-substitution/plan', [AideSubstitutionController::class, 'plan'], [AuthMiddleware::class]);
 $router->get('/aide-substitution/my-substitutions', [AideSubstitutionController::class, 'aideView'], [AuthMiddleware::class]);
+$router->get('/aide-substitution/pdf', [AideSubstitutionController::class, 'exportPdf'], [AuthMiddleware::class]);
 $router->post('/aide-substitution/assign', [AideSubstitutionController::class, 'assign'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/aide-substitution/publish', [AideSubstitutionController::class, 'publish'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/aide-substitution/unpublish', [AideSubstitutionController::class, 'unpublish'], [AuthMiddleware::class, CsrfMiddleware::class]);
 $router->post('/aide-substitution/{id}', [AideSubstitutionController::class, 'update'], [AuthMiddleware::class, CsrfMiddleware::class]);
 $router->post('/aide-substitution/{id}/delete', [AideSubstitutionController::class, 'delete'], [AuthMiddleware::class, CsrfMiddleware::class]);
 

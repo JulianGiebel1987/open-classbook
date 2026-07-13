@@ -1,5 +1,10 @@
 <div class="page-header">
     <h1>Meine Vertretungen</h1>
+    <?php if (!empty($needs)): ?>
+    <div class="page-header-actions">
+        <a href="/aide-substitution/pdf" class="btn btn-secondary">PDF-Export</a>
+    </div>
+    <?php endif; ?>
 </div>
 
 <div class="card mt-1">
