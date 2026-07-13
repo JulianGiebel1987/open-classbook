@@ -272,4 +272,4 @@ $nextDate = date('Y-m-d', strtotime($date . ' +1 day'));
     </div>
 </div>
 
-<script src="/js/substitution-editor.js"></script>
+<script src="<?= \OpenClassbook\View::asset('/js/substitution-editor.js') ?>"></script>

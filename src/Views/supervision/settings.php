@@ -82,4 +82,4 @@
     </form>
 </div>
 
-<script src="/js/supervision-settings.js"></script>
+<script src="<?= \OpenClassbook\View::asset('/js/supervision-settings.js') ?>"></script>

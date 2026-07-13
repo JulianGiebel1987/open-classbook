@@ -70,4 +70,4 @@ $roleLabels = [
     </form>
 </div>
 
-<script src="/js/messages-new-group.js"></script>
+<script src="<?= \OpenClassbook\View::asset('/js/messages-new-group.js') ?>"></script>

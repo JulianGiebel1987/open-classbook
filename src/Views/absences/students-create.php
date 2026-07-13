@@ -62,4 +62,4 @@
     </form>
 </div>
 
-<script src="/js/absence-create.js"></script>
+<script src="<?= \OpenClassbook\View::asset('/js/absence-create.js') ?>"></script>

@@ -48,6 +48,24 @@ class View
     }
 
     /**
+     * Asset-URL mit Cache-Busting-Version.
+     *
+     * Haengt einen Versions-Parameter (Dateiaenderungszeit) an lokale
+     * JS-/CSS-URLs an. Dadurch laden Browser nach einer neuen Auslieferung
+     * garantiert die aktuelle Datei und nicht eine veraltete Cache-Version.
+     */
+    public static function asset(string $path): string
+    {
+        $path = '/' . ltrim($path, '/');
+        $file = __DIR__ . '/../public' . $path;
+        $url = $path;
+        if (is_file($file)) {
+            $url .= '?v=' . filemtime($file);
+        }
+        return htmlspecialchars($url, ENT_QUOTES, 'UTF-8');
+    }
+
+    /**
      * CSRF-Token-Feld für Formulare
      */
     public static function csrfField(): string

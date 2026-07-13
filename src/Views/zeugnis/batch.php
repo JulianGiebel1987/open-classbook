@@ -63,4 +63,4 @@
 </div>
 <?php endif; ?>
 
-<script src="/js/zeugnis-batch.js"></script>
+<script src="<?= \OpenClassbook\View::asset('/js/zeugnis-batch.js') ?>"></script>

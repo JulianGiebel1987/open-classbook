@@ -97,4 +97,4 @@
     'csrfToken'       => $_SESSION['csrf_token'] ?? '',
 ], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP) ?: '{}' ?>
 </script>
-<script src="/js/zeugnis-fill.js"></script>
+<script src="<?= \OpenClassbook\View::asset('/js/zeugnis-fill.js') ?>"></script>

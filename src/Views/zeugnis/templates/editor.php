@@ -188,4 +188,4 @@ echo $_canvasJsonOut;
     'previewMode'     => false,
 ], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP) ?>
 </script>
-<script src="/js/zeugnis-editor.js"></script>
+<script src="<?= \OpenClassbook\View::asset('/js/zeugnis-editor.js') ?>"></script>

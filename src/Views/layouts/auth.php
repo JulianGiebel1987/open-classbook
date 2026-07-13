@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $title ?? 'Anmelden' ?> - Open-Classbook</title>
-    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="<?= \OpenClassbook\View::asset('/css/style.css') ?>">
 </head>
 <body class="auth-page">
     <main class="auth-container" role="main">
@@ -20,6 +20,6 @@
         <p>&copy; <?= date('Y') ?> Open-Classbook</p>
     </footer>
 
-    <script src="/js/app.js"></script>
+    <script src="<?= \OpenClassbook\View::asset('/js/app.js') ?>"></script>
 </body>
 </html>

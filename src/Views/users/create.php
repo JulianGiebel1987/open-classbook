@@ -123,4 +123,4 @@ $roleLabels = [
     </form>
 </div>
 
-<script src="/js/user-form.js"></script>
+<script src="<?= \OpenClassbook\View::asset('/js/user-form.js') ?>"></script>

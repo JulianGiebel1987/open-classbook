@@ -105,4 +105,4 @@
     </form>
 </div>
 
-<script src="/js/timetable-settings.js"></script>
+<script src="<?= \OpenClassbook\View::asset('/js/timetable-settings.js') ?>"></script>
