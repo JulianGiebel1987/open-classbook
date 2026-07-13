@@ -139,4 +139,4 @@ $days = $setting['days_of_week'];
     </div>
 </div>
 
-<script src="/js/timetable-editor.js"></script>
+<script src="<?= \OpenClassbook\View::asset('/js/timetable-editor.js') ?>"></script>

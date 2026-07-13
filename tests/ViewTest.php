@@ -103,4 +103,27 @@ class ViewTest extends TestCase
         $this->assertStringContainsString('alert-dismiss', $html);
         $this->assertStringContainsString('aria-label', $html);
     }
+
+    public function testAssetAppendsVersionForExistingFile(): void
+    {
+        // app.js existiert im Webroot public/js/
+        $url = View::asset('/js/app.js');
+
+        $this->assertStringStartsWith('/js/app.js?v=', $url);
+        $this->assertMatchesRegularExpression('#^/js/app\.js\?v=\d+$#', $url);
+    }
+
+    public function testAssetNormalisesPathWithoutLeadingSlash(): void
+    {
+        $url = View::asset('css/style.css');
+
+        $this->assertStringStartsWith('/css/style.css?v=', $url);
+    }
+
+    public function testAssetReturnsPlainPathForMissingFile(): void
+    {
+        $url = View::asset('/js/does-not-exist.js');
+
+        $this->assertEquals('/js/does-not-exist.js', $url);
+    }
 }

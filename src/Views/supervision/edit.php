@@ -142,4 +142,4 @@ $numBreaks = count($breaks);
     </form>
 </div>
 
-<script src="/js/supervision-editor.js"></script>
+<script src="<?= \OpenClassbook\View::asset('/js/supervision-editor.js') ?>"></script>

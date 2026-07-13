@@ -105,5 +105,5 @@ $statusBadges = ['draft' => 'badge-draft', 'final' => 'badge-final'];
         </div>
     </form>
 </div>
-<script src="/js/zeugnis-index.js"></script>
+<script src="<?= \OpenClassbook\View::asset('/js/zeugnis-index.js') ?>"></script>
 <?php endif; ?>

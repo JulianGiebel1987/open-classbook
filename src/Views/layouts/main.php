@@ -7,7 +7,7 @@
     <?php if (!empty($_SESSION['csrf_token'])): ?>
     <meta name="csrf-token" content="<?= htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8') ?>">
     <?php endif; ?>
-    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="<?= \OpenClassbook\View::asset('/css/style.css') ?>">
 </head>
 <body>
     <a href="#main-content" class="skip-link">Zum Inhalt springen</a>
@@ -130,6 +130,6 @@
         <span class="sr-only">Daten werden verarbeitet...</span>
     </div>
 
-    <script src="/js/app.js"></script>
+    <script src="<?= \OpenClassbook\View::asset('/js/app.js') ?>"></script>
 </body>
 </html>

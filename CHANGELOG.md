@@ -25,6 +25,18 @@ und dieses Projekt verwendet [Semantic Versioning](https://semver.org/lang/de/).
   werden ("Ganzen Tag vertreten" / "Ganzer Tag Entfall"). Die Ganztags-Auswahl
   zeigt an, welche Lehrkraefte ganztaegig frei bzw. teilweise belegt sind.
 
+### Behoben
+
+- Lehrkraft-Vertretung: Die Buttons "Ganzen Tag vertreten" und "Ganzer Tag
+  Entfall" blieben bei wiederkehrenden Nutzer:innen ohne Wirkung, weil der
+  Browser eine veraltete, im Cache liegende Version von
+  `substitution-editor.js` (noch ohne die Ganztags-Klick-Handler) auslieferte,
+  waehrend das neue Seiten-HTML die Buttons bereits enthielt. Statische
+  JS-/CSS-Dateien werden nun mit einem Versions-Parameter (Dateiaenderungszeit)
+  eingebunden (`View::asset()`), sodass Browser nach einer Aktualisierung
+  zwingend die aktuelle Datei laden. Dies behebt die toten Buttons und
+  verhindert die gleiche Cache-Problematik fuer alle uebrigen Skripte/Styles.
+
 ## [1.0.0] - 2026-03-31
 
 Erstes stabiles Release von Open-Classbook — eine schlanke, datenschutzkonforme
