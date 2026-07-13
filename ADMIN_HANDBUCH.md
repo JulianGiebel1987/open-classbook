@@ -294,6 +294,41 @@ Taegliche Backups werden dringend empfohlen:
 - Datenbank: `mysqldump` (siehe INSTALL.md)
 - Dateien: `config/config.php` und `storage/uploads/`
 
+#### Integrierte Datensicherung (Export/Import)
+
+Zusaetzlich zu den serverseitigen Backups steht Administratoren unter
+**Datensicherung** (Menuepunkt in der Navigation) eine vollstaendige
+Instanz-Sicherung ueber die Weboberflaeche zur Verfuegung.
+
+**Export:** Erzeugt eine einzelne ZIP-Datei, die *saemtliche Daten der Instanz*
+enthaelt:
+- alle Datenbanktabellen (Benutzer, Klassen, Klassenbuecher, Fehlzeiten,
+  Nachrichten, Listen, Stunden-, Vertretungs- und Pausenaufsichtsplaene,
+  Zeugnisse, Einstellungen usw.),
+- alle hochgeladenen Dateien (Dateiablage, Nachrichten-Anhaenge,
+  Zeugnis-Bilder),
+- den 2FA-Schluessel (`storage/keys/two_factor.key`), damit verschluesselte
+  2FA-Geheimnisse nach einer Wiederherstellung weiterhin gueltig bleiben.
+
+Bewusst ausgenommen sind rein technische bzw. fluechtige Tabellen
+(Schema-Migrationen, Login-Versuche, Rate-Limits, 2FA-Einmalcodes).
+
+> **Datenschutz (DSGVO):** Die Sicherungsdatei enthaelt personenbezogene Daten
+> inkl. Passwort-Hashes und des 2FA-Schluessels. Sie ist ausschliesslich
+> verschluesselt aufzubewahren und darf nicht an Unbefugte weitergegeben werden.
+
+**Import:** Beim Einspielen einer Sicherung werden **alle vorhandenen Daten der
+Instanz vollstaendig ersetzt**. Vor dem eigentlichen Import wird eine Vorschau
+mit Inhaltsuebersicht und Warnhinweisen angezeigt; der Vorgang muss ausdruecklich
+bestaetigt werden. Der Import laeuft transaktional – schlaegt er fehl, bleibt der
+bisherige Datenbestand unveraendert. Nach erfolgreichem Import wird der
+Administrator abgemeldet und muss sich neu anmelden (das eigene Konto kann durch
+die Wiederherstellung ersetzt worden sein).
+
+> **Hinweis:** Die Datenbankstruktur der Zielinstanz muss zur Sicherung passen.
+> Vor dem Import einer Sicherung aus einer anderen Programmversion zunaechst die
+> Migrationen ausfuehren (`php database/migrate.php`).
+
 ### 8.4 Updates
 
 Siehe [UPDATE.md](UPDATE.md) fuer die Update-Anleitung.
