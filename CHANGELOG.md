@@ -7,6 +7,20 @@ und dieses Projekt verwendet [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+### Hinzugefuegt
+
+- Datensicherung (nur Admin): Unter "Datensicherung" koennen Administratoren
+  saemtliche Daten einer Instanz in einer einzigen ZIP-Datei exportieren und
+  wieder importieren. Die Sicherung umfasst alle Datenbanktabellen (Benutzer,
+  Klassen, Klassenbuecher, Fehlzeiten, Nachrichten, Listen, Stunden-,
+  Vertretungs- und Pausenaufsichtsplaene, Zeugnisse, Einstellungen usw.) sowie
+  alle hochgeladenen Dateien (Dateiablage, Nachrichten-Anhaenge, Zeugnis-Bilder)
+  und den 2FA-Schluessel. Rein technische/fluechtige Tabellen (Migrationen,
+  Login-Versuche, Rate-Limits, 2FA-Einmalcodes) sind bewusst ausgenommen. Der
+  Import zeigt vor dem Einspielen eine Vorschau samt Warnhinweisen, laeuft
+  transaktional (bei Fehlern bleibt der bisherige Datenbestand erhalten) und
+  meldet den Administrator anschliessend zur Neuanmeldung ab.
+
 ### Geaendert
 
 - Pausenaufsichtsplan: Lehrkraefte sehen in "Meine Pausenaufsichten" jetzt den

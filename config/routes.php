@@ -6,6 +6,7 @@ use OpenClassbook\Controllers\DashboardController;
 use OpenClassbook\Controllers\UserController;
 use OpenClassbook\Controllers\TwoFactorController;
 use OpenClassbook\Controllers\SettingsController;
+use OpenClassbook\Controllers\BackupController;
 use OpenClassbook\Controllers\ClassController;
 use OpenClassbook\Controllers\StudentController;
 use OpenClassbook\Controllers\ClassbookController;
@@ -296,3 +297,9 @@ $router->get('/zeugnis/{id}/export-pdf', [ZeugnisController::class, 'exportPdf']
 // === Einstellungen (nur Admin) ===
 $router->get('/settings', [SettingsController::class, 'index'], [AuthMiddleware::class]);
 $router->post('/settings', [SettingsController::class, 'save'], [AuthMiddleware::class, CsrfMiddleware::class]);
+
+// === Datensicherung: vollstaendiger Instanz-Export/-Import (nur Admin) ===
+$router->get('/backup', [BackupController::class, 'index'], [AuthMiddleware::class, AdminMiddleware::class]);
+$router->post('/backup/export', [BackupController::class, 'export'], [AuthMiddleware::class, AdminMiddleware::class, CsrfMiddleware::class]);
+$router->post('/backup/import', [BackupController::class, 'uploadImport'], [AuthMiddleware::class, AdminMiddleware::class, CsrfMiddleware::class]);
+$router->post('/backup/import/confirm', [BackupController::class, 'confirmImport'], [AuthMiddleware::class, AdminMiddleware::class, CsrfMiddleware::class]);

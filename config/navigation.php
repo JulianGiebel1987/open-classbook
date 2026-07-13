@@ -25,6 +25,7 @@ return [
         ['label' => 'Listen',           'url' => '/lists',                'icon' => 'lists',       'module' => 'lists'],
         ['label' => 'Dateien',          'url' => '/files',                'icon' => 'files',       'module' => 'files'],
         ['label' => 'Vorlagen',         'url' => '/zeugnis/templates',    'icon' => 'templates',   'module' => 'templates'],
+        ['label' => 'Datensicherung',   'url' => '/backup',               'icon' => 'backup'],
         ['label' => 'Einstellungen',    'url' => '/settings',             'icon' => 'settings'],
     ],
     'schulleitung' => [
