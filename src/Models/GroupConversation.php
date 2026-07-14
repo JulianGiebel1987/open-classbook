@@ -3,6 +3,7 @@
 namespace OpenClassbook\Models;
 
 use OpenClassbook\Database;
+use OpenClassbook\Services\EncryptionService;
 
 class GroupConversation
 {
@@ -35,7 +36,7 @@ class GroupConversation
      */
     public static function findByUserId(int $userId): array
     {
-        return Database::query(
+        $rows = Database::query(
             'SELECT gc.*,
                     (SELECT COUNT(*) FROM group_conversation_members gcm2 WHERE gcm2.group_id = gc.id) as member_count,
                     gm.body as last_message_body,
@@ -59,6 +60,15 @@ class GroupConversation
              ORDER BY COALESCE(gc.last_message_at, gc.created_at) DESC',
             [$userId, $userId, $userId]
         );
+
+        foreach ($rows as &$row) {
+            if (isset($row['last_message_body'])) {
+                $row['last_message_body'] = EncryptionService::decrypt($row['last_message_body']);
+            }
+        }
+        unset($row);
+
+        return $rows;
     }
 
     public static function findById(int $id): ?array

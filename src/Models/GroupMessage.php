@@ -3,6 +3,7 @@
 namespace OpenClassbook\Models;
 
 use OpenClassbook\Database;
+use OpenClassbook\Services\EncryptionService;
 
 class GroupMessage
 {
@@ -10,7 +11,7 @@ class GroupMessage
     {
         Database::execute(
             'INSERT INTO group_messages (group_id, sender_id, body) VALUES (?, ?, ?)',
-            [$groupId, $senderId, $body]
+            [$groupId, $senderId, EncryptionService::encrypt($body)]
         );
         return (int) Database::lastInsertId();
     }
@@ -20,7 +21,7 @@ class GroupMessage
      */
     public static function findByGroup(int $groupId, int $limit = 50, int $offset = 0): array
     {
-        return Database::query(
+        $rows = Database::query(
             'SELECT gm.*, u.username as sender_username
              FROM group_messages gm
              JOIN users u ON u.id = gm.sender_id
@@ -29,6 +30,15 @@ class GroupMessage
              LIMIT ? OFFSET ?',
             [$groupId, $limit, $offset]
         );
+
+        foreach ($rows as &$row) {
+            if (isset($row['body'])) {
+                $row['body'] = EncryptionService::decrypt($row['body']);
+            }
+        }
+        unset($row);
+
+        return $rows;
     }
 
     /**

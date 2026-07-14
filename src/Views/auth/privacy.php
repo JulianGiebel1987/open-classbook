@@ -92,12 +92,17 @@
     <!-- 5. Speicherdauer -->
     <div style="margin-top: var(--spacing-xl);">
         <h2 style="font-size: var(--font-size-lg); margin-bottom: var(--spacing-md); padding-bottom: var(--spacing-xs); border-bottom: 1px solid var(--color-border);">5. Speicherdauer</h2>
-        <p>
+        <p style="margin-bottom: var(--spacing-md);">
             Personenbezogene Daten werden nur so lange gespeichert, wie es für die Erfuellung des Verarbeitungszwecks
             erforderlich ist oder gesetzliche Aufbewahrungsfristen dies vorschreiben. Klassenbucheintraege werden
             entsprechend der landesrechtlichen Vorgaben aufbewahrt. Nach Ablauf der Aufbewahrungsfrist werden die Daten
-            gelöscht.
+            automatisch gelöscht.
         </p>
+        <ul style="margin-left: var(--spacing-lg); color: var(--color-text-light);">
+            <li style="margin-bottom: var(--spacing-xs);">Nachrichten: standardmaessig 2 Jahre (durch die Schule konfigurierbar)</li>
+            <li style="margin-bottom: var(--spacing-xs);">Sicherheits-Protokoll (Audit-Log): standardmaessig 90 Tage</li>
+            <li>Pseudonymisierte Anmeldeprotokolle: standardmaessig 30 Tage</li>
+        </ul>
     </div>
 
     <!-- 6. Datensicherheit -->
@@ -110,6 +115,9 @@
             </div>
             <div style="padding: var(--spacing-md); background: var(--color-success-light); border-radius: var(--radius); font-size: var(--font-size-sm);">
                 Passwoerter werden ausschliesslich als bcrypt-Hash gespeichert
+            </div>
+            <div style="padding: var(--spacing-md); background: var(--color-success-light); border-radius: var(--radius); font-size: var(--font-size-sm);">
+                Nachrichteninhalte werden verschlüsselt gespeichert (Verschlüsselung ruhender Daten, AES-256)
             </div>
             <div style="padding: var(--spacing-md); background: var(--color-success-light); border-radius: var(--radius); font-size: var(--font-size-sm);">
                 Rollenbasierte Zugriffskontrolle (RBAC)
@@ -146,7 +154,7 @@
         <div style="display: grid; gap: var(--spacing-sm);">
             <div style="padding: var(--spacing-md); background: var(--color-info-light); border-radius: var(--radius); border-left: 3px solid var(--color-info);">
                 <strong>Auskunft</strong> <span class="text-muted">(Art. 15 DSGVO)</span><br>
-                <span style="color: var(--color-text-light);">Sie können Auskunft über Ihre gespeicherten Daten verlangen.</span>
+                <span style="color: var(--color-text-light);">Sie können Auskunft über Ihre gespeicherten Daten verlangen. Angemeldete Nutzer können ihre Daten über den Menuepunkt &bdquo;Meine Daten&ldquo; jederzeit selbst als Datei exportieren.</span>
             </div>
             <div style="padding: var(--spacing-md); background: var(--color-info-light); border-radius: var(--radius); border-left: 3px solid var(--color-info);">
                 <strong>Berichtigung</strong> <span class="text-muted">(Art. 16 DSGVO)</span><br>

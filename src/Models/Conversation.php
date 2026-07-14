@@ -3,6 +3,7 @@
 namespace OpenClassbook\Models;
 
 use OpenClassbook\Database;
+use OpenClassbook\Services\EncryptionService;
 
 class Conversation
 {
@@ -40,7 +41,7 @@ class Conversation
      */
     public static function findByUserId(int $userId): array
     {
-        return Database::query(
+        $rows = Database::query(
             'SELECT c.*,
                     CASE WHEN c.user_one_id = ? THEN u2.username ELSE u1.username END as partner_username,
                     CASE WHEN c.user_one_id = ? THEN u2.id ELSE u1.id END as partner_id,
@@ -64,6 +65,15 @@ class Conversation
              ORDER BY COALESCE(c.last_message_at, c.created_at) DESC',
             [$userId, $userId, $userId, $userId, $userId, $userId]
         );
+
+        foreach ($rows as &$row) {
+            if (isset($row['last_message_body'])) {
+                $row['last_message_body'] = EncryptionService::decrypt($row['last_message_body']);
+            }
+        }
+        unset($row);
+
+        return $rows;
     }
 
     public static function findById(int $id): ?array

@@ -137,4 +137,14 @@ $roleLabels = [
 </div>
 <?php endif; ?>
 
+<div class="card" style="margin-top: var(--spacing-lg);">
+    <h2>Datenauskunft (DSGVO)</h2>
+    <p class="form-help">
+        Export aller zu diesem Konto gespeicherten personenbezogenen Daten als JSON-Datei
+        (Auskunftsrecht Art. 15, Datenportabilität Art. 20). Passwort-Hash und 2FA-Geheimnisse
+        sind aus Sicherheitsgründen nicht enthalten.
+    </p>
+    <a href="/users/<?= (int) $user['id'] ?>/export" class="btn btn-secondary">Datenauskunft herunterladen</a>
+</div>
+
 <script src="<?= \OpenClassbook\View::asset('/js/user-form.js') ?>"></script>

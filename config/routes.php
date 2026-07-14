@@ -6,6 +6,7 @@ use OpenClassbook\Controllers\DashboardController;
 use OpenClassbook\Controllers\UserController;
 use OpenClassbook\Controllers\TwoFactorController;
 use OpenClassbook\Controllers\SettingsController;
+use OpenClassbook\Controllers\DataExportController;
 use OpenClassbook\Controllers\BackupController;
 use OpenClassbook\Controllers\ClassController;
 use OpenClassbook\Controllers\StudentController;
@@ -66,6 +67,7 @@ $router->get('/users', [UserController::class, 'index'], [AuthMiddleware::class,
 $router->get('/users/create', [UserController::class, 'createForm'], [AuthMiddleware::class, AdminMiddleware::class]);
 $router->post('/users', [UserController::class, 'create'], [AuthMiddleware::class, AdminMiddleware::class, CsrfMiddleware::class]);
 $router->get('/users/{id}/edit', [UserController::class, 'editForm'], [AuthMiddleware::class, AdminMiddleware::class]);
+$router->get('/users/{id}/export', [DataExportController::class, 'exportUser'], [AuthMiddleware::class, AdminMiddleware::class]);
 $router->post('/users/{id}', [UserController::class, 'update'], [AuthMiddleware::class, AdminMiddleware::class, CsrfMiddleware::class]);
 $router->post('/users/{id}/toggle', [UserController::class, 'toggleActive'], [AuthMiddleware::class, AdminMiddleware::class, CsrfMiddleware::class]);
 $router->post('/users/{id}/reset-password', [UserController::class, 'resetPassword'], [AuthMiddleware::class, AdminMiddleware::class, CsrfMiddleware::class]);
@@ -297,6 +299,10 @@ $router->get('/zeugnis/{id}/export-pdf', [ZeugnisController::class, 'exportPdf']
 // === Einstellungen (nur Admin) ===
 $router->get('/settings', [SettingsController::class, 'index'], [AuthMiddleware::class]);
 $router->post('/settings', [SettingsController::class, 'save'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/settings/retention/run', [SettingsController::class, 'runRetention'], [AuthMiddleware::class, CsrfMiddleware::class]);
+
+// === DSGVO-Datenauskunft (Art. 15 / 20) ===
+$router->get('/account/my-data', [DataExportController::class, 'myData'], [AuthMiddleware::class]);
 
 // === Datensicherung: vollstaendiger Instanz-Export/-Import (nur Admin) ===
 $router->get('/backup', [BackupController::class, 'index'], [AuthMiddleware::class, AdminMiddleware::class]);
