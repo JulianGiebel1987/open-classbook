@@ -3,6 +3,7 @@
 namespace OpenClassbook\Models;
 
 use OpenClassbook\Database;
+use OpenClassbook\Services\EncryptionService;
 
 class Message
 {
@@ -10,7 +11,7 @@ class Message
     {
         Database::execute(
             'INSERT INTO messages (conversation_id, sender_id, body) VALUES (?, ?, ?)',
-            [$conversationId, $senderId, $body]
+            [$conversationId, $senderId, EncryptionService::encrypt($body)]
         );
         return (int) Database::lastInsertId();
     }
@@ -20,7 +21,7 @@ class Message
      */
     public static function findByConversation(int $conversationId, int $limit = 50, int $offset = 0): array
     {
-        return Database::query(
+        $rows = Database::query(
             'SELECT m.*, u.username as sender_username
              FROM messages m
              JOIN users u ON u.id = m.sender_id
@@ -29,6 +30,15 @@ class Message
              LIMIT ? OFFSET ?',
             [$conversationId, $limit, $offset]
         );
+
+        foreach ($rows as &$row) {
+            if (isset($row['body'])) {
+                $row['body'] = EncryptionService::decrypt($row['body']);
+            }
+        }
+        unset($row);
+
+        return $rows;
     }
 
     /**

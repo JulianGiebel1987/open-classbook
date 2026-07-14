@@ -1,46 +1,40 @@
 <?php
 
 /**
- * Datenbank-Cleanup-Skript
+ * Datenbank-Cleanup-Skript (Löschkonzept / Aufbewahrungsfristen).
  *
- * Entfernt abgelaufene Passwort-Reset-Token und alte Rate-Limit-Eintraege.
+ * Führt alle Löschroutinen des RetentionService aus:
+ *   - Nachrichten (1:1 und Gruppen) nach Ablauf der Aufbewahrungsfrist
+ *   - Audit-Log-Einträge
+ *   - Login-Versuche
+ *   - abgelaufene Passwort-Reset-Token
+ *   - alte Rate-Limit-Einträge
+ *
+ * Die Fristen sind in den Admin-Einstellungen bzw. in config('security.*')
+ * konfigurierbar (Wert 0 = deaktiviert). Funktioniert unabhängig vom
+ * MariaDB-Event-Scheduler.
  *
  * Verwendung:
  *   php database/cleanup.php
  *
- * Empfohlener Cronjob (stuendlich):
+ * Empfohlener Cronjob (stündlich):
  *   0 * * * * php /pfad/zu/open-classbook/database/cleanup.php >/dev/null 2>&1
  */
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use OpenClassbook\Database;
+use OpenClassbook\Services\RetentionService;
 
 try {
-    $db = Database::getConnection();
-
-    // 1) Abgelaufene Passwort-Reset-Token nullen
-    $stmt = $db->prepare(
-        'UPDATE users
-            SET password_reset_token = NULL,
-                password_reset_expires = NULL
-          WHERE password_reset_expires IS NOT NULL
-            AND password_reset_expires < NOW()'
-    );
-    $stmt->execute();
-    $resetCleared = $stmt->rowCount();
-
-    // 2) Alte Rate-Limit-Eintraege (>24h) entfernen
-    $rateStmt = $db->prepare(
-        'DELETE FROM rate_limits
-          WHERE requested_at < DATE_SUB(NOW(), INTERVAL 24 HOUR)'
-    );
-    $rateStmt->execute();
-    $rateRemoved = $rateStmt->rowCount();
+    $result = RetentionService::purge();
 
     echo "Cleanup abgeschlossen.\n";
-    echo "  - Abgelaufene Reset-Token entfernt: {$resetCleared}\n";
-    echo "  - Alte Rate-Limit-Eintraege entfernt: {$rateRemoved}\n";
+    echo "  - Nachrichten (1:1) gelöscht:        {$result['messages']}\n";
+    echo "  - Nachrichten (Gruppen) gelöscht:    {$result['group_messages']}\n";
+    echo "  - Audit-Log-Einträge gelöscht:       {$result['audit_log']}\n";
+    echo "  - Login-Versuche gelöscht:           {$result['login_attempts']}\n";
+    echo "  - Abgelaufene Reset-Token entfernt:  {$result['reset_tokens']}\n";
+    echo "  - Alte Rate-Limit-Einträge entfernt: {$result['rate_limits']}\n";
     exit(0);
 } catch (\Throwable $e) {
     fwrite(STDERR, "Cleanup fehlgeschlagen: " . $e->getMessage() . "\n");

@@ -333,9 +333,9 @@ die Wiederherstellung ersetzt worden sein).
 
 Siehe [UPDATE.md](UPDATE.md) fuer die Update-Anleitung.
 
-### 8.5 Cleanup-Cronjob
+### 8.5 Cleanup-Cronjob (Loeschkonzept / Aufbewahrungsfristen)
 
-Abgelaufene Passwort-Reset-Token und alte Rate-Limit-Eintraege sollten regelmaessig entfernt werden. Dafuer liegt das Skript `database/cleanup.php` bei.
+Personenbezogene Daten werden nach Ablauf konfigurierbarer Fristen automatisch geloescht (DSGVO Art. 5 Abs. 1 lit. e / Art. 17). Dafuer liegt das Skript `database/cleanup.php` bei.
 
 Empfohlene Crontab-Zeile (stuendliche Ausfuehrung):
 
@@ -343,13 +343,38 @@ Empfohlene Crontab-Zeile (stuendliche Ausfuehrung):
 0 * * * * php /pfad/zu/open-classbook/database/cleanup.php >/dev/null 2>&1
 ```
 
-Was das Skript tut:
-- Setzt `password_reset_token` und `password_reset_expires` aller User zurueck, deren Token abgelaufen ist
-- Loescht Rate-Limit-Eintraege, die aelter als 24 Stunden sind
+Was das Skript tut (ueber den `RetentionService`):
+- Loescht 1:1- und Gruppen-Nachrichten (inkl. Anhaenge) aelter als die Nachrichten-Frist
+- Loescht Audit-Log-Eintraege aelter als die Audit-Frist
+- Loescht pseudonymisierte Login-Versuche aelter als die Login-Frist
+- Setzt abgelaufene Passwort-Reset-Token zurueck
+- Loescht Rate-Limit-Eintraege aelter als 24 Stunden
 
-Das Skript ist idempotent und kann jederzeit manuell ausgefuehrt werden.
+Die Fristen werden unter **Einstellungen → Aufbewahrungsfristen** gepflegt (Wert `0` = deaktiviert) und koennen ueber `config('security.retention_*')` vorbelegt werden. Standardwerte: Nachrichten 730 Tage, Audit-Log 90 Tage, Login-Versuche 30 Tage. Ueber die Schaltflaeche **Jetzt aufraeumen** laesst sich die Bereinigung sofort ausloesen. Das Skript ist idempotent und funktioniert unabhaengig vom MariaDB-Event-Scheduler.
 
-### 8.6 Schuljahreswechsel
+### 8.6 Verschluesselung ruhender Nachrichten (Encryption at Rest)
+
+Nachrichteninhalte werden verschluesselt in der Datenbank gespeichert (AES-256-CBC). Der Schluessel wird aus `config('security.app_encryption_key')` gelesen; ist dort kein Wert gesetzt, wird einmalig eine Schluesseldatei `storage/keys/app.key` (Rechte 0600) erzeugt.
+
+**Wichtig:** Den Schluessel (bzw. die Schluesseldatei) unbedingt sichern und in Backups einbeziehen — ohne ihn sind verschluesselte Nachrichten nicht mehr lesbar. Schluessel generieren:
+
+```
+php -r "echo bin2hex(random_bytes(32));"
+```
+
+Bestehende Klartext-Nachrichten aus aelteren Installationen koennen einmalig nachtraeglich verschluesselt werden:
+
+```
+php database/encrypt_messages.php
+```
+
+Das Skript ist idempotent (bereits verschluesselte Nachrichten werden uebersprungen).
+
+### 8.7 DSGVO-Datenauskunft (Art. 15 / 20)
+
+Ueber **Benutzer → Benutzer bearbeiten → Datenauskunft herunterladen** kann eine strukturierte JSON-Auskunft aller zu einem Konto gespeicherten personenbezogenen Daten exportiert werden. Angemeldete Nutzer koennen ihre eigenen Daten ueber den Menuepunkt **Meine Daten** selbst exportieren. Passwort-Hash und 2FA-Geheimnisse sind aus Sicherheitsgruenden nicht enthalten; jeder Export wird im Audit-Log protokolliert.
+
+### 8.8 Schuljahreswechsel
 
 Am Anfang eines neuen Schuljahres:
 1. Neue Klassen fuer das neue Schuljahr anlegen

@@ -82,6 +82,7 @@
             <?php endforeach; ?>
             <li class="navbar-user" role="none">
                 <span aria-label="Angemeldet als"><?= htmlspecialchars($_SESSION['user']['username'] ?? '', ENT_QUOTES, 'UTF-8') ?></span>
+                <a href="/account/my-data" class="btn btn-sm" role="menuitem" title="Auskunft über meine gespeicherten Daten (DSGVO Art. 15)">Meine Daten</a>
                 <a href="/logout" class="btn btn-sm" role="menuitem">Abmelden</a>
             </li>
         </ul>

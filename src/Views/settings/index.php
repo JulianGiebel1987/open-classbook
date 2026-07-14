@@ -119,7 +119,56 @@
         <?php endforeach; ?>
     </div>
 
+    <!-- ====================================================== -->
+    <!-- Aufbewahrungsfristen / Löschkonzept                    -->
+    <!-- ====================================================== -->
+    <div class="card">
+        <h2>Aufbewahrungsfristen (Löschkonzept)</h2>
+        <p class="form-help">
+            Personenbezogene Daten werden nach Ablauf der hier festgelegten Fristen automatisch gelöscht
+            (DSGVO Art. 5 Abs. 1 lit. e / Art. 17). Die Löschung erfolgt über den Cronjob
+            <code>database/cleanup.php</code> oder manuell über die Schaltfläche unten. Der Wert <strong>0</strong>
+            deaktiviert die automatische Löschung der jeweiligen Kategorie.
+        </p>
+
+        <div class="form-group">
+            <label for="retention_messages_days">Nachrichten aufbewahren (Tage)</label>
+            <input type="number" id="retention_messages_days" name="retention_messages_days" class="form-control" min="0" max="3650"
+                   value="<?= htmlspecialchars($settings['retention_messages_days'] ?? '730', ENT_QUOTES, 'UTF-8') ?>"
+                   aria-describedby="retention_messages_help">
+            <span class="form-help" id="retention_messages_help">Ältere 1:1- und Gruppen-Nachrichten (inkl. Anhänge) werden gelöscht (Standard: 730 Tage = 2 Jahre).</span>
+        </div>
+
+        <div class="form-group">
+            <label for="retention_audit_days">Audit-Log aufbewahren (Tage)</label>
+            <input type="number" id="retention_audit_days" name="retention_audit_days" class="form-control" min="0" max="3650"
+                   value="<?= htmlspecialchars($settings['retention_audit_days'] ?? '90', ENT_QUOTES, 'UTF-8') ?>"
+                   aria-describedby="retention_audit_help">
+            <span class="form-help" id="retention_audit_help">Protokoll sicherheitsrelevanter Aktionen (Standard: 90 Tage).</span>
+        </div>
+
+        <div class="form-group">
+            <label for="retention_login_attempts_days">Login-Versuche aufbewahren (Tage)</label>
+            <input type="number" id="retention_login_attempts_days" name="retention_login_attempts_days" class="form-control" min="0" max="3650"
+                   value="<?= htmlspecialchars($settings['retention_login_attempts_days'] ?? '30', ENT_QUOTES, 'UTF-8') ?>"
+                   aria-describedby="retention_login_help">
+            <span class="form-help" id="retention_login_help">Pseudonymisierte Anmeldeprotokolle (Standard: 30 Tage).</span>
+        </div>
+    </div>
+
     <div class="btn-group">
         <button type="submit" class="btn">Einstellungen speichern</button>
     </div>
 </form>
+
+<div class="card">
+    <h2>Daten jetzt bereinigen</h2>
+    <p class="form-help">
+        Führt die oben konfigurierten Löschroutinen sofort aus. Bereits gelöschte Daten können nicht
+        wiederhergestellt werden.
+    </p>
+    <form method="post" action="/settings/retention/run" onsubmit="return confirm('Löschroutinen jetzt ausführen? Betroffene Daten werden unwiderruflich gelöscht.');">
+        <?= \OpenClassbook\View::csrfField() ?>
+        <button type="submit" class="btn btn-secondary">Jetzt aufräumen</button>
+    </form>
+</div>

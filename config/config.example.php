@@ -42,6 +42,21 @@ return [
         // 2FA: 32-Byte Hex-Key für Verschlüsselung der TOTP-Secrets
         // Generieren mit: php -r "echo bin2hex(random_bytes(32));"
         'two_factor_encryption_key' => '',
+        // Verschlüsselung ruhender Daten (Nachrichteninhalte, "Encryption at Rest").
+        // 32-Byte Hex-Key. Leer lassen für automatische Schlüsseldatei
+        // (storage/keys/app.key). Generieren mit:
+        //   php -r "echo bin2hex(random_bytes(32));"
+        // WICHTIG: Diesen Schlüssel sichern – ohne ihn sind verschlüsselte
+        // Nachrichten nicht mehr lesbar.
+        'app_encryption_key' => '',
+
+        // Aufbewahrungsfristen (Löschkonzept, DSGVO Art. 5 Abs. 1 lit. e / Art. 17).
+        // Werte in Tagen; 0 = deaktiviert (keine automatische Löschung).
+        // Werden von database/cleanup.php (Cronjob) ausgewertet und können in
+        // den Admin-Einstellungen überschrieben werden.
+        'retention_messages_days'        => 730, // Nachrichten: 2 Jahre
+        'retention_audit_days'           => 90,  // Audit-Log: 90 Tage
+        'retention_login_attempts_days'  => 30,  // Login-Versuche: 30 Tage
     ],
 
     // E-Mail-Konfiguration für Passwort-Zurücksetzung und Benachrichtigungen
