@@ -41,6 +41,17 @@ und dieses Projekt verwendet [Semantic Versioning](https://semver.org/lang/de/).
 
 ### Behoben
 
+- DSGVO-Datenauskunft ("Meine Daten"): Der JSON-Download wird gegen
+  Streu-Ausgaben abgesichert. Auf dem dokumentierten Entwicklungsserver
+  (`php -S`, `display_errors` aktiv) konnte eine versehentliche PHP-Notice oder
+  -Warning aus der Vorbereitungsphase (Auskunft erzeugen, Audit-Eintrag) in den
+  Download-Stream geschrieben werden und die erzeugte `.json`-Datei
+  beschaedigen, sodass der Button "funktioniert nicht" schien (analog zum
+  CSV-Export-Fehler). Die Vorbereitungsphase wird nun gepuffert und jegliche
+  Streu-Ausgabe verworfen, bevor die Download-Header gesendet werden. Zusaetzlich
+  erzeugt die JSON-Kodierung dank `JSON_INVALID_UTF8_SUBSTITUTE` /
+  `JSON_PARTIAL_OUTPUT_ON_ERROR` auch bei ungueltigen UTF-8-Bytes stets ein
+  gueltiges, nicht-leeres Dokument statt eines leeren Downloads.
 - Lehrkraft-Vertretung: Die Buttons "Ganzen Tag vertreten" und "Ganzer Tag
   Entfall" blieben bei wiederkehrenden Nutzer:innen ohne Wirkung, weil der
   Browser eine veraltete, im Cache liegende Version von
