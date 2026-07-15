@@ -301,7 +301,7 @@ class ClassbookController
         $output = fopen('php://output', 'w');
         // BOM für Excel UTF-8
         fprintf($output, chr(0xEF) . chr(0xBB) . chr(0xBF));
-        fputcsv($output, CsvEscaper::escapeRow(['Datum', 'Stunde', 'Lehrkraft', 'Thema', 'Notizen']), ';');
+        fputcsv($output, CsvEscaper::escapeRow(['Datum', 'Stunde', 'Lehrkraft', 'Thema', 'Notizen']), ';', '"', '');
 
         foreach ($entries as $e) {
             fputcsv($output, CsvEscaper::escapeRow([
@@ -310,7 +310,7 @@ class ClassbookController
                 $e['teacher_lastname'] . ', ' . $e['teacher_firstname'],
                 $e['topic'],
                 $e['notes'] ?? '',
-            ]), ';');
+            ]), ';', '"', '');
         }
 
         fclose($output);
