@@ -60,4 +60,29 @@ class EncryptionServiceTest extends TestCase
         $encrypted = EncryptionService::encrypt('');
         $this->assertSame('', EncryptionService::decrypt($encrypted));
     }
+
+    public function testUndecryptableCiphertextYieldsPlaceholderNotRawBlob(): void
+    {
+        // Mit einem anderen Schluessel verschluesseln, dann Schluessel wechseln:
+        // die Nachricht ist danach nicht mehr entschluesselbar.
+        $encrypted = EncryptionService::encrypt('Streng geheim');
+
+        $config = App::config();
+        $config['security']['app_encryption_key'] = bin2hex(random_bytes(32));
+        App::setConfig($config);
+
+        $result = EncryptionService::decrypt($encrypted);
+
+        $this->assertStringStartsWith('enc:v1:', $encrypted);
+        $this->assertStringNotContainsString('enc:v1:', $result, 'Roher Chiffretext darf niemals ausgegeben werden.');
+        $this->assertStringContainsString('nicht entschlüsselt', $result);
+    }
+
+    public function testMalformedCiphertextYieldsPlaceholder(): void
+    {
+        $result = EncryptionService::decrypt('enc:v1:not-valid-base64-@@@');
+
+        $this->assertStringNotContainsString('enc:v1:', $result);
+        $this->assertStringContainsString('nicht entschlüsselt', $result);
+    }
 }
