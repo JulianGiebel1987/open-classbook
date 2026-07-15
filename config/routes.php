@@ -11,6 +11,7 @@ use OpenClassbook\Controllers\BackupController;
 use OpenClassbook\Controllers\ClassController;
 use OpenClassbook\Controllers\StudentController;
 use OpenClassbook\Controllers\ClassbookController;
+use OpenClassbook\Controllers\ContentTemplateController;
 use OpenClassbook\Controllers\AbsenceStudentController;
 use OpenClassbook\Controllers\AbsenceTeacherController;
 use OpenClassbook\Controllers\AbsenceSchoolAideController;
@@ -117,6 +118,14 @@ $router->get('/classbook/{classId}/remarks', [ClassbookController::class, 'remar
 $router->get('/classbook/{classId}/remarks/create', [ClassbookController::class, 'remarkCreateForm'], [AuthMiddleware::class]);
 $router->post('/classbook/{classId}/remarks', [ClassbookController::class, 'remarkCreate'], [AuthMiddleware::class, CsrfMiddleware::class]);
 $router->post('/classbook/{classId}/remarks/{id}/delete', [ClassbookController::class, 'remarkDelete'], [AuthMiddleware::class, CsrfMiddleware::class]);
+
+// === Unterrichtsinhalt-Vorlagen (wiederverwendbare Klassenbuch-Inhalte) ===
+$router->get('/content-templates', [ContentTemplateController::class, 'index'], [AuthMiddleware::class]);
+$router->get('/content-templates/create', [ContentTemplateController::class, 'createForm'], [AuthMiddleware::class]);
+$router->post('/content-templates', [ContentTemplateController::class, 'create'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->get('/content-templates/{id}/edit', [ContentTemplateController::class, 'editForm'], [AuthMiddleware::class]);
+$router->post('/content-templates/{id}', [ContentTemplateController::class, 'update'], [AuthMiddleware::class, CsrfMiddleware::class]);
+$router->post('/content-templates/{id}/delete', [ContentTemplateController::class, 'delete'], [AuthMiddleware::class, CsrfMiddleware::class]);
 
 // === Schüler:innen-Fehlzeiten ===
 $router->get('/absences/students', [AbsenceStudentController::class, 'index'], [AuthMiddleware::class]);

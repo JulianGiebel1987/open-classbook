@@ -160,6 +160,19 @@ abstract class DatabaseTestCase extends TestCase
         ');
 
         self::$pdo->exec('
+            CREATE TABLE content_templates (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                owner_user_id INTEGER DEFAULT NULL,
+                category VARCHAR(100) DEFAULT NULL,
+                topic VARCHAR(500) NOT NULL,
+                notes TEXT DEFAULT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (owner_user_id) REFERENCES users(id)
+            )
+        ');
+
+        self::$pdo->exec('
             CREATE TABLE absences_students (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 student_id INTEGER NOT NULL,
