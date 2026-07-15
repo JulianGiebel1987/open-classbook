@@ -7,6 +7,7 @@ use OpenClassbook\View;
 use OpenClassbook\Middleware\CsrfMiddleware;
 use OpenClassbook\Models\AbsenceStudent;
 use OpenClassbook\Models\ClassbookEntry;
+use OpenClassbook\Models\ContentTemplate;
 use OpenClassbook\Models\SchoolClass;
 use OpenClassbook\Models\Student;
 use OpenClassbook\Models\StudentRemark;
@@ -73,6 +74,7 @@ class ClassbookController
         View::render('classbook/create', [
             'title' => 'Neuer Klassenbucheintrag',
             'class' => $class,
+            'templates' => ContentTemplate::findForUser((int) $_SESSION['user_id'], App::currentUserRole()),
             'breadcrumbs' => View::breadcrumbs([
                 ['label' => $this->classbookRootLabel(), 'url' => '/classbook'],
                 ['label' => $class['name'], 'url' => '/classbook/' . $class['id']],
