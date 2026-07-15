@@ -9,16 +9,23 @@ Open-Classbook ist eine Open-Source-Loesung fuer digitale Klassenbuchfuehrung, F
 - **Digitales Klassenbuch** - Tageseintraege mit Thema, Stunde und Notizen; Filter nach Datum und Lehrer; CSV- und PDF-Export
 - **Fehlzeiten-Management** - Schueler:innen-Fehlzeiten und Lehrkraft-Abwesenheiten erfassen, entschuldigt/unentschuldigt/offen verwalten
 - **Stundenplanung** - Wochenstundenplan je Klasse und Lehrkraft erstellen; Zeitslots konfigurieren; Konfliktpruefung bei Doppelbelegung; Plan fuer Lehrkraefte veroffentlichen
-- **Vertretungsplan** - Vertretungen bei Lehrerausfall erfassen und veroffentlichen; automatische Konfliktpruefung; Vertretungsplan als PDF exportieren; Lehrkraefte sehen ihre eigenen Vertretungen
+- **Vertretungsplan** - Vertretungen bei Lehrerausfall erfassen und veroffentlichen; automatische Konfliktpruefung; ganze Tage per Klick vertreten oder als Entfall markieren; Vertretungsplan als PDF exportieren; Lehrkraefte sehen ihre eigenen Vertretungen
+- **Pausenaufsichtsplan** - Aufsichtspunkte, Pausenzeiten und Wochentage konfigurieren und Lehrkraefte den Aufsichten zuweisen; Lehrkraefte sehen den kompletten Plan schreibgeschuetzt mit hervorgehobenen eigenen Diensten
 - **Zeugniserstellung** - WYSIWYG-Canvas-Editor fuer Zeugnisvorlagen (A4/A3, Hoch-/Querformat, Raster-Overlay, beliebig viele Seiten); 10 Elementtypen: statischer Text, Freitextfeld, Platzhalter (z.B. `{{student_name}}`), Bild/Logo, Notenfeld, Checkbox, Datumsfeld, Unterschriftsfeld, Trennlinie, Tabelle; Schriftart/Groesse/Farbe pro Element; Vorlagen veroffentlichen fuer Lehrkraefte; Lehrkraefte koennen Zeugnisse fuer einzelne Schueler oder ganze Klassen erstellen, ausfuellen, miteinander teilen und als PDF exportieren (Einzel oder ZIP-Batch)
 - **Listen** - Flexible, tabellarische Listen (Anwesenheit, Noten, etc.) mit Inline-Bearbeitung, 6 Feldtypen (Text, Checkbox, Zahl, Datum, Auswahl, Bewertung), Freigabe an einzelne Nutzer oder global
-- **Nachrichten** - Internes Nachrichtensystem mit Konversationen, Mehrfachempfaenger und Lesebestaetigung
+- **Nachrichten** - Internes Nachrichtensystem mit Konversationen, Mehrfachempfaenger, Dateianhaengen und Lesebestaetigung; Nachrichteninhalte verschluesselt gespeichert
 - **Dateiverwaltung** - Ordnerstruktur mit Upload/Download, Dateityp-Validierung und Groessenbegrenzung
-- **Benutzerverwaltung** - Rollenbasierte Zugriffskontrolle (Admin, Schulleitung, Sekretariat, Lehrer)
+- **Benutzerverwaltung** - Rollenbasierte Zugriffskontrolle (Admin, Schulleitung, Sekretariat, Lehrer, Schulbegleiter:in)
 - **Klassenverwaltung** - Klassen mit Klassenlehrern und Fachlehrern organisieren
-- **Import** - Lehrer- und Schuelerdaten per Excel (.xlsx) oder CSV-Datei importieren; Delimiter (Semikolon/Komma) wird automatisch erkannt
+- **Schulbegleiter:innen** - Integrationshilfen als eigener Account-Typ verwalten, Schuelern zuordnen, Abwesenheiten und Vertretungen erfassen und als PDF veroffentlichen; als Modul aktivierbar/deaktivierbar
+- **Import** - Lehrer-, Schueler- und Schulbegleiterdaten per Excel (.xlsx) oder CSV-Datei importieren; Delimiter (Semikolon/Komma) wird automatisch erkannt
 - **Schuelerbemerkungen** - Lehrkraefte koennen individuelle Bemerkungen zu Schuelern mit Datumsangabe im Klassenbuch erfassen; filterbar nach Schueler und Zeitraum
+- **Zwei-Faktor-Authentifizierung (2FA)** - optional per E-Mail-Code oder Authenticator-App (TOTP), inkl. Wiederherstellungscodes; Admin kann 2FA global aktivieren und fuer einzelne Rollen erzwingen
+- **Datensicherung** - Admin kann eine komplette Instanz (alle Datenbanktabellen und hochgeladenen Dateien) als einzelne ZIP-Datei exportieren und wieder importieren
+- **DSGVO-Datenauskunft** - strukturierter JSON-Export aller zu einem Konto gespeicherten Daten (Art. 15/20); Nutzer koennen ihre eigenen Daten ueber "Meine Daten" selbst exportieren
+- **Modulverwaltung** - Admin kann einzelne Module (Stundenplan, Vertretung, Nachrichten, Listen, Dateien, Vorlagen, Schulbegleiter:innen) sowie den Modulzugriff fuer Schulleitung und Sekretariat in den Einstellungen aktivieren oder deaktivieren
 - **Dashboards** - Rollenspezifische Uebersichten mit Widgets und Schnellzugriff
+- **Anmeldung** - alle Accounts koennen sich wahlweise mit Benutzername oder E-Mail-Adresse anmelden
 - **Responsive Design** - Optimiert fuer Desktop, Tablet und Smartphone
 - **Barrierefreiheit** - WCAG 2.1 AA konform (Tastaturnavigation, ARIA-Labels, Kontraste)
 - **DSGVO-konform** - On-Premises-Betrieb, keine Cloud-Abhaengigkeit
@@ -83,12 +90,13 @@ Demo-Login: `admin` / `Admin2026!x`
 
 ## Nutzerrollen
 
-| Rolle        | Rechte |
-|-------------|--------|
-| Admin       | Vollzugriff, Benutzerverwaltung, Systemkonfiguration, Zeugnisvorlagen verwalten |
-| Schulleitung| Klassenbuecher einsehen, Berichte, Uebersichten, Zeugnisvorlagen verwalten |
-| Sekretariat | Schueler/Lehrer verwalten, Fehlzeiten, Import, Zeugnisvorlagen verwalten |
-| Lehrer/in   | Eigene Klassen: Klassenbuch, Fehlzeiten, Abwesenheitsmeldung, Stundenplan, Zeugnisse erstellen und exportieren |
+| Rolle           | Rechte |
+|-----------------|--------|
+| Admin           | Vollzugriff, Benutzerverwaltung, Systemkonfiguration, Modul- und 2FA-Einstellungen, Datensicherung, Zeugnisvorlagen verwalten |
+| Schulleitung    | Klassenbuecher einsehen, Berichte, Uebersichten, Zeugnisvorlagen verwalten |
+| Sekretariat     | Schueler/Lehrer/Schulbegleiter verwalten, Fehlzeiten, Import, Zeugnisvorlagen verwalten |
+| Lehrer/in       | Eigene Klassen: Klassenbuch, Fehlzeiten, Abwesenheitsmeldung, Stundenplan, Pausenaufsichten, Zeugnisse erstellen und exportieren |
+| Schulbegleiter:in | Integrationshilfe mit eigenem Account und Schuelerzuordnung (Modul aktivierbar) |
 
 ## Projektstruktur
 
@@ -99,11 +107,11 @@ open-classbook/
 │   ├── css/             # Stylesheets
 │   └── js/              # JavaScript
 ├── src/
-│   ├── Controllers/     # Request-Handler (15 Controller)
-│   ├── Models/          # Datenbank-Modelle (23 Models)
-│   ├── Views/           # PHP-Templates (15 Bereiche)
-│   ├── Middleware/       # Auth, CSRF, RBAC, Security Headers, Rate Limiting
-│   └── Services/        # Business-Logik (Import, Auth, Logger, Zeugnis-Export)
+│   ├── Controllers/     # Request-Handler (23 Controller)
+│   ├── Models/          # Datenbank-Modelle (37 Models)
+│   ├── Views/           # PHP-Templates (20 Bereiche)
+│   ├── Middleware/       # Auth, CSRF, RBAC, Security Headers, Rate Limiting, 2FA
+│   └── Services/        # Business-Logik (Import, Auth, 2FA, Verschluesselung, Backup, DSGVO-Export, Zeugnis-Export, Logger)
 ├── config/              # Konfiguration
 ├── database/            # Migrationen und Seed-Skript
 ├── storage/             # Logs, Uploads, Cache
@@ -121,6 +129,8 @@ open-classbook/
 | Ausgabe | Konsequentes `htmlspecialchars()` gegen XSS |
 | Formulare | CSRF-Token in allen Formularen + AJAX-Endpunkten |
 | Passwörter | bcrypt-Hashing via `password_hash()`, Mindestlänge 10 Zeichen mit Komplexitätsprüfung |
+| Zwei-Faktor-Authentifizierung | Optional per E-Mail-Code oder Authenticator-App (TOTP) mit Wiederherstellungscodes; global aktivierbar und pro Rolle erzwingbar; 2FA-Geheimnisse verschlüsselt gespeichert |
+| Nachrichten | Nachrichteninhalte verschlüsselt in der Datenbank abgelegt (Verschlüsselung ruhender Daten) |
 | Brute-Force | Max. 5 Login-Versuche, danach 15 Minuten Sperre |
 | Sessions | Session-Regenerierung vor Login-Daten (Session-Fixation-Schutz), HttpOnly, Secure, SameSite=Strict, Timeout 60 Min. |
 | Datei-Upload | MIME-Typ-Whitelist (15 erlaubte Typen), kryptografische Dateinamen (`random_bytes`), Größenlimit 15 MB |
@@ -167,7 +177,8 @@ Open-Classbook verarbeitet personenbezogene Daten von Schülerinnen und Schüler
 - **IP-Pseudonymisierung:** IP-Adressen werden in allen Logs pseudonymisiert gespeichert (letztes IPv4-Oktett = `xxx`, z.B. `192.168.1.xxx`). Keine personenscharfe IP-Speicherung.
 - **Datensparsamkeit:** Fehlzeitengründe (können Gesundheitsdaten enthalten) sind rollenbasiert geschützt – Lehrkräfte sehen nur den Entschuldigungsstatus.
 - **Keine Drittanbieter:** Keine externen CDNs, keine Analytics, keine Cloud-Dienste. Alle Daten verbleiben auf dem Server des Schulträgers.
-- **Exportauditierung:** Jeder PDF- und CSV-Export wird im Audit-Log festgehalten (wer hat wann welche Klasse exportiert).
+- **Verschlüsselung ruhender Daten:** Nachrichteninhalte und 2FA-Geheimnisse werden verschlüsselt in der Datenbank gespeichert (Schlüssel unter `storage/keys/`).
+- **Exportauditierung:** Jeder PDF-, CSV- und Datenauskunfts-Export wird im Audit-Log festgehalten (wer hat wann welche Daten exportiert).
 - **Browser-Schutz:** Seiten mit temporären Passwörtern werden mit `Cache-Control: no-store` ausgeliefert.
 - **On-Premises:** Keine Abhängigkeit von externen Diensten oder Cloud-Infrastruktur.
 
@@ -203,10 +214,10 @@ Diese Fristen müssen vom Schulträger gemäß geltendem Schulrecht umgesetzt we
 
 Betroffene können folgende Rechte beim Schulträger geltend machen:
 
-- **Auskunft (Art. 15):** Admin kann alle Daten einer Person über die Benutzerverwaltung einsehen.
+- **Auskunft (Art. 15):** Admin kann über **Benutzer → Benutzer bearbeiten → Datenauskunft herunterladen** eine strukturierte JSON-Auskunft aller zu einem Konto gespeicherten personenbezogenen Daten exportieren (ohne Passwort-Hash und 2FA-Geheimnisse). Jeder Nutzer kann seine eigenen Daten über den Menüpunkt **Meine Daten** selbst exportieren. Jeder Export wird im Audit-Log protokolliert.
 - **Berichtigung (Art. 16):** Über die jeweiligen Verwaltungsoberflächen möglich.
 - **Löschung (Art. 17):** Accounts können deaktiviert werden. Vollständige Datenlöschung muss der Schulträger manuell durchführen (ggf. Pseudonymisierung statt Löschung für archivpflichtige Daten).
-- **Datenportabilität (Art. 20):** CSV-Export im Klassenbuch-Bereich vorhanden.
+- **Datenportabilität (Art. 20):** Strukturierter JSON-Export je Konto (siehe oben) sowie CSV-Export im Klassenbuch-Bereich.
 
 ### Pflichten des Schulträgers vor Produktiveinsatz
 
