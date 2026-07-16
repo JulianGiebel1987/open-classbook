@@ -2171,6 +2171,30 @@ a.widget:hover {
     }
 }
 
+/* Schuljahr-Untertitel in der Klassenbuch-Kopfzeile */
+.page-subtitle {
+    margin-top: 0.15rem;
+    color: var(--color-text-light);
+    font-size: var(--font-size-sm);
+}
+
+/* Schülerübersicht (Roster) im Klassenbuch */
+.classbook-roster td,
+.classbook-roster th {
+    vertical-align: middle;
+}
+
+.classbook-roster .roster-unexcused {
+    display: inline-block;
+    min-width: 1.5rem;
+    padding: 0.05rem 0.4rem;
+    border-radius: var(--border-radius, 4px);
+    background: var(--color-danger-light);
+    color: #991b1b;
+    font-weight: 600;
+    text-align: center;
+}
+
 /* === Stundenplan === */
 
 .timetable-layout {

@@ -158,4 +158,37 @@ class StudentModelTest extends DatabaseTestCase
         $student = Student::findById($studentId);
         $this->assertEquals($userId, $student['user_id']);
     }
+
+    public function testCreatePersistsGuardianPhone(): void
+    {
+        $classId = $this->createTestClass();
+        $studentId = Student::create([
+            'firstname' => 'Lea',
+            'lastname' => 'Kontakt',
+            'class_id' => $classId,
+            'guardian_email' => 'eltern@example.com',
+            'guardian_phone' => '0151 1234567',
+        ]);
+
+        $student = Student::findById($studentId);
+        $this->assertEquals('0151 1234567', $student['guardian_phone']);
+    }
+
+    public function testUpdatePersistsGuardianPhone(): void
+    {
+        $classId = $this->createTestClass();
+        $studentId = $this->createTestStudent($classId, ['guardian_phone' => '0151 0000000']);
+
+        Student::update($studentId, [
+            'firstname' => 'Lea',
+            'lastname' => 'Kontakt',
+            'class_id' => $classId,
+            'birthday' => null,
+            'guardian_email' => 'neu@example.com',
+            'guardian_phone' => '030 9999999',
+        ]);
+
+        $student = Student::findById($studentId);
+        $this->assertEquals('030 9999999', $student['guardian_phone']);
+    }
 }

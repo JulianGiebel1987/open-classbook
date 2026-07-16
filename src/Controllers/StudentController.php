@@ -208,6 +208,7 @@ class StudentController
             'class_id' => $newClassId,
             'birthday' => $data['birthday'],
             'guardian_email' => $data['guardian_email'],
+            'guardian_phone' => $data['guardian_phone'],
         ]);
 
         // Klassenwechsel ueber das Bearbeiten-Formular ebenfalls protokollieren.
@@ -302,7 +303,7 @@ class StudentController
     /**
      * Gemeinsame Validierung/Sanitierung fuer create und update.
      *
-     * @return array{0:array{firstname:string,lastname:string,birthday:?string,guardian_email:?string},1:string[]}
+     * @return array{0:array{firstname:string,lastname:string,birthday:?string,guardian_email:?string,guardian_phone:?string},1:string[]}
      */
     private function validateInput(): array
     {
@@ -312,6 +313,7 @@ class StudentController
         $lastname = trim($_POST['lastname'] ?? '');
         $birthdayRaw = trim($_POST['birthday'] ?? '');
         $guardianEmailRaw = trim($_POST['guardian_email'] ?? '');
+        $guardianPhoneRaw = trim($_POST['guardian_phone'] ?? '');
 
         if ($firstname === '') {
             $errors[] = 'Vorname ist erforderlich.';
@@ -342,12 +344,22 @@ class StudentController
             }
         }
 
+        $guardianPhone = null;
+        if ($guardianPhoneRaw !== '') {
+            if (mb_strlen($guardianPhoneRaw) > 30) {
+                $errors[] = 'Telefonnummer darf höchstens 30 Zeichen lang sein.';
+            } else {
+                $guardianPhone = $guardianPhoneRaw;
+            }
+        }
+
         return [
             [
                 'firstname' => $firstname,
                 'lastname' => $lastname,
                 'birthday' => $birthday,
                 'guardian_email' => $guardianEmail,
+                'guardian_phone' => $guardianPhone,
             ],
             $errors,
         ];

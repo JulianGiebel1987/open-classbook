@@ -17,12 +17,13 @@ class StudentService
      * Legt einen Schueler-Datensatz zusammen mit einem verknuepften
      * Benutzer-Account an und gibt die einmalig anzeigbaren Zugangsdaten zurueck.
      *
-     * @param array $data Erwartet: firstname, lastname, class_id; optional: birthday, guardian_email
+     * @param array $data Erwartet: firstname, lastname, class_id; optional: birthday, guardian_email, guardian_phone
      * @return array{student_id:int, user_id:int, credentials:array{name:string,username:string,password:string}}
      */
     public static function createStudentWithAccount(array $data): array
     {
         $guardianEmail = !empty($data['guardian_email']) ? $data['guardian_email'] : null;
+        $guardianPhone = !empty($data['guardian_phone']) ? $data['guardian_phone'] : null;
 
         [$userId, $credentials] = self::createAccount($data['firstname'], $data['lastname'], $guardianEmail);
 
@@ -33,6 +34,7 @@ class StudentService
             'class_id' => $data['class_id'],
             'birthday' => $data['birthday'] ?? null,
             'guardian_email' => $guardianEmail,
+            'guardian_phone' => $guardianPhone,
         ]);
 
         return [

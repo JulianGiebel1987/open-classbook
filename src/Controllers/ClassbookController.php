@@ -48,17 +48,74 @@ class ClassbookController
         $entries = ClassbookEntry::findByClass($class['id'], $filters);
         $teachers = SchoolClass::getTeachers($class['id']);
 
+        // Schülerübersicht: alle Schüler:innen der Klasse mit Fehltage-Summen des
+        // Schuljahres und Bemerkungsanzahl.
+        $students = Student::findByClassId((int) $class['id']);
+        $yearRange = SchoolClass::schoolYearRange($class['school_year'] ?? '');
+        $absenceMap = $this->buildAbsenceMap(
+            AbsenceStudent::getClassSummary((int) $class['id'], $yearRange['start'], $yearRange['end'])
+        );
+        $remarkCounts = StudentRemark::countByClass((int) $class['id']);
+
+        $headTeacher = null;
+        if (!empty($class['head_teacher_id'])) {
+            $headTeacher = Teacher::findById((int) $class['head_teacher_id']);
+        }
+
+        // Kennzahlen für die Übersichts-Kacheln.
+        $totalAbsenceDays = 0;
+        $openAbsenceDays = 0;
+        foreach ($absenceMap as $stats) {
+            $totalAbsenceDays += $stats['total'];
+            $openAbsenceDays += $stats['offen'];
+        }
+
         View::render('classbook/show', [
             'title' => 'Klassenbuch ' . $class['name'],
             'class' => $class,
             'entries' => $entries,
             'teachers' => $teachers,
             'filters' => $filters,
+            'students' => $students,
+            'absenceMap' => $absenceMap,
+            'remarkCounts' => $remarkCounts,
+            'headTeacher' => $headTeacher,
+            'stats' => [
+                'students' => count($students),
+                'entries' => count($entries),
+                'absence_days' => $totalAbsenceDays,
+                'open_days' => $openAbsenceDays,
+            ],
             'breadcrumbs' => View::breadcrumbs([
                 ['label' => $this->classbookRootLabel(), 'url' => '/classbook'],
                 ['label' => $class['name']],
             ]),
         ]);
+    }
+
+    /**
+     * Wandelt die rohen Fehltage-Zeilen aus AbsenceStudent::getClassSummary() in eine
+     * Map student_id => ['ja','nein','offen','total'] mit Tagessummen um.
+     *
+     * @param array<int, array{student_id:int, excused:string, total_days:int, cnt:int}> $rows
+     * @return array<int, array{ja:int, nein:int, offen:int, total:int}>
+     */
+    private function buildAbsenceMap(array $rows): array
+    {
+        $map = [];
+        foreach ($rows as $row) {
+            $sid = (int) $row['student_id'];
+            if (!isset($map[$sid])) {
+                $map[$sid] = ['ja' => 0, 'nein' => 0, 'offen' => 0, 'total' => 0];
+            }
+            $days = (int) $row['total_days'];
+            $status = $row['excused'] ?? 'offen';
+            if (isset($map[$sid][$status])) {
+                $map[$sid][$status] += $days;
+            }
+            $map[$sid]['total'] += $days;
+        }
+        return $map;
     }
 
     public function createForm(string $classId): void

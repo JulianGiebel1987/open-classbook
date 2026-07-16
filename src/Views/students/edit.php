@@ -43,6 +43,14 @@
             <span class="form-help" id="guardian_email_help">Änderungen werden auch am verknüpften Benutzerkonto übernommen.</span>
         </div>
 
+        <div class="form-group">
+            <label for="guardian_phone">Erziehungsberechtigten-Telefon</label>
+            <input type="tel" id="guardian_phone" name="guardian_phone" class="form-control" maxlength="30"
+                   value="<?= htmlspecialchars($student['guardian_phone'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
+                   aria-describedby="guardian_phone_help">
+            <span class="form-help" id="guardian_phone_help">Optionaler Telefonkontakt, wird im Klassenbuch als Kontaktmöglichkeit angezeigt.</span>
+        </div>
+
         <div class="btn-group">
             <button type="submit" class="btn">Speichern</button>
             <a href="/classes/<?= (int) $student['class_id'] ?>" class="btn btn-secondary">Abbrechen</a>

@@ -130,4 +130,27 @@ class SchoolClassModelTest extends DatabaseTestCase
         $class = SchoolClass::findById($classId);
         $this->assertEquals($teacherId, $class['head_teacher_id']);
     }
+
+    public function testSchoolYearRangeParsesValidYear(): void
+    {
+        $range = SchoolClass::schoolYearRange('2024/2025');
+        $this->assertSame('2024-08-01', $range['start']);
+        $this->assertSame('2025-07-31', $range['end']);
+    }
+
+    public function testSchoolYearRangeTrimsWhitespace(): void
+    {
+        $range = SchoolClass::schoolYearRange('  2025/2026  ');
+        $this->assertSame('2025-08-01', $range['start']);
+        $this->assertSame('2026-07-31', $range['end']);
+    }
+
+    public function testSchoolYearRangeInvalidFormatReturnsNulls(): void
+    {
+        foreach (['', '2025', '25/26', '2025-2026', 'abc'] as $invalid) {
+            $range = SchoolClass::schoolYearRange($invalid);
+            $this->assertNull($range['start'], "start für '$invalid'");
+            $this->assertNull($range['end'], "end für '$invalid'");
+        }
+    }
 }
