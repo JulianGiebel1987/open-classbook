@@ -120,6 +120,21 @@ abstract class DatabaseTestCase extends TestCase
         ');
 
         self::$pdo->exec('
+            CREATE TABLE student_class_history (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                student_id INTEGER NOT NULL,
+                from_class_id INTEGER DEFAULT NULL,
+                to_class_id INTEGER NOT NULL,
+                changed_by INTEGER DEFAULT NULL,
+                changed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (student_id) REFERENCES students(id),
+                FOREIGN KEY (from_class_id) REFERENCES classes(id),
+                FOREIGN KEY (to_class_id) REFERENCES classes(id),
+                FOREIGN KEY (changed_by) REFERENCES users(id)
+            )
+        ');
+
+        self::$pdo->exec('
             CREATE TABLE login_attempts (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 username VARCHAR(100) NOT NULL,
