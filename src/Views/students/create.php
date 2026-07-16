@@ -41,6 +41,14 @@
             <span class="form-help" id="guardian_email_help">Wird als Kontakt-Adresse des Kontos verwendet (z.&nbsp;B. für die Zustellung der Zugangsdaten).</span>
         </div>
 
+        <div class="form-group">
+            <label for="guardian_phone">Erziehungsberechtigten-Telefon</label>
+            <input type="tel" id="guardian_phone" name="guardian_phone" class="form-control" maxlength="30"
+                   value="<?= htmlspecialchars($old['guardian_phone'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
+                   aria-describedby="guardian_phone_help">
+            <span class="form-help" id="guardian_phone_help">Optionaler Telefonkontakt, wird im Klassenbuch als Kontaktmöglichkeit angezeigt.</span>
+        </div>
+
         <div class="btn-group">
             <button type="submit" class="btn">Anlegen</button>
             <a href="/classes/<?= (int) $class['id'] ?>" class="btn btn-secondary">Abbrechen</a>

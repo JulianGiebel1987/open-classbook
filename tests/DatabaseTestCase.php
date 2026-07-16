@@ -20,6 +20,16 @@ abstract class DatabaseTestCase extends TestCase
         // MySQL-Kompatibilität: NOW() ist in SQLite kein eingebautes Keyword
         self::$pdo->sqliteCreateFunction('NOW', fn (): string => date('Y-m-d H:i:s'), 0);
 
+        // MySQL-Kompatibilität: DATEDIFF(d1, d2) liefert die Tagesdifferenz d1 - d2.
+        // Dates werden als UTC interpretiert, damit Sommer-/Winterzeit die
+        // ganzzahlige Tagesdifferenz nicht verfälscht.
+        self::$pdo->sqliteCreateFunction('DATEDIFF', function ($d1, $d2): ?int {
+            if ($d1 === null || $d2 === null) {
+                return null;
+            }
+            return intdiv(strtotime($d1 . ' UTC') - strtotime($d2 . ' UTC'), 86400);
+        }, 2);
+
         self::createSchema();
         Database::setConnection(self::$pdo);
     }
@@ -101,6 +111,7 @@ abstract class DatabaseTestCase extends TestCase
                 class_id INTEGER NOT NULL,
                 birthday DATE DEFAULT NULL,
                 guardian_email VARCHAR(255) DEFAULT NULL,
+                guardian_phone VARCHAR(30) DEFAULT NULL,
                 archived_at DATETIME DEFAULT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -169,6 +180,22 @@ abstract class DatabaseTestCase extends TestCase
                 notes TEXT DEFAULT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (class_id) REFERENCES classes(id),
+                FOREIGN KEY (teacher_id) REFERENCES teachers(id)
+            )
+        ');
+
+        self::$pdo->exec('
+            CREATE TABLE student_remarks (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                student_id INTEGER NOT NULL,
+                class_id INTEGER NOT NULL,
+                teacher_id INTEGER NOT NULL,
+                remark TEXT NOT NULL,
+                remark_date DATE NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (student_id) REFERENCES students(id),
                 FOREIGN KEY (class_id) REFERENCES classes(id),
                 FOREIGN KEY (teacher_id) REFERENCES teachers(id)
             )
@@ -457,12 +484,13 @@ abstract class DatabaseTestCase extends TestCase
             'lastname' => 'Testschüler',
             'birthday' => '2010-05-15',
             'guardian_email' => 'eltern@example.com',
+            'guardian_phone' => null,
         ];
 
         $data = array_merge($defaults, $overrides);
 
         self::$pdo->prepare(
-            'INSERT INTO students (user_id, firstname, lastname, class_id, birthday, guardian_email) VALUES (?, ?, ?, ?, ?, ?)'
+            'INSERT INTO students (user_id, firstname, lastname, class_id, birthday, guardian_email, guardian_phone) VALUES (?, ?, ?, ?, ?, ?, ?)'
         )->execute([
             $data['user_id'],
             $data['firstname'],
@@ -470,6 +498,7 @@ abstract class DatabaseTestCase extends TestCase
             $classId,
             $data['birthday'],
             $data['guardian_email'],
+            $data['guardian_phone'],
         ]);
 
         return (int) self::$pdo->lastInsertId();

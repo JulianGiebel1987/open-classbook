@@ -91,6 +91,28 @@ class StudentRemark
         return Database::query($sql, $params);
     }
 
+    /**
+     * Anzahl der Bemerkungen je Schueler:in innerhalb einer Klasse.
+     *
+     * @return array<int, int> Map student_id => Anzahl Bemerkungen
+     */
+    public static function countByClass(int $classId): array
+    {
+        $rows = Database::query(
+            'SELECT student_id, COUNT(*) AS cnt
+             FROM student_remarks
+             WHERE class_id = ?
+             GROUP BY student_id',
+            [$classId]
+        );
+
+        $counts = [];
+        foreach ($rows as $row) {
+            $counts[(int) $row['student_id']] = (int) $row['cnt'];
+        }
+        return $counts;
+    }
+
     public static function create(array $data): int
     {
         Database::execute(

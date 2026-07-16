@@ -120,8 +120,8 @@ class ImportService
         $errors = [];
 
         foreach ($csvRows as $csvRow) {
-            $data = array_pad($csvRow['data'], 5, '');
-            [$firstname, $lastname, $className, $birthday, $guardianEmail] = $data;
+            $data = array_pad($csvRow['data'], 6, '');
+            [$firstname, $lastname, $className, $birthday, $guardianEmail, $guardianPhone] = $data;
 
             $rowErrors = [];
             if (empty($firstname)) $rowErrors[] = 'Vorname fehlt';
@@ -152,6 +152,7 @@ class ImportService
                 'class_name' => $className,
                 'birthday' => $parsedBirthday,
                 'guardian_email' => $guardianEmail,
+                'guardian_phone' => $guardianPhone,
                 'errors' => $rowErrors,
             ];
 
@@ -292,11 +293,11 @@ class ImportService
         foreach ($sheet->getRowIterator(2) as $row) {
             $rowIndex = $row->getRowIndex();
             $cells = [];
-            foreach ($row->getCellIterator('A', 'E') as $cell) {
+            foreach ($row->getCellIterator('A', 'F') as $cell) {
                 $cells[] = trim((string) $cell->getValue());
             }
 
-            [$firstname, $lastname, $className, $birthday, $guardianEmail] = $cells;
+            [$firstname, $lastname, $className, $birthday, $guardianEmail, $guardianPhone] = array_pad($cells, 6, '');
 
             if (empty($firstname) && empty($lastname)) {
                 continue;
@@ -332,6 +333,7 @@ class ImportService
                 'class_name' => $className,
                 'birthday' => $parsedBirthday,
                 'guardian_email' => $guardianEmail,
+                'guardian_phone' => $guardianPhone,
                 'errors' => $rowErrors,
             ];
 
@@ -370,6 +372,7 @@ class ImportService
                 'class_id' => $class['id'],
                 'birthday' => $row['birthday'],
                 'guardian_email' => $row['guardian_email'] ?: null,
+                'guardian_phone' => ($row['guardian_phone'] ?? '') ?: null,
             ]);
 
             $credentials[] = $created['credentials'];

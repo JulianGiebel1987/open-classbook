@@ -67,7 +67,7 @@ class Student
     public static function create(array $data): int
     {
         Database::execute(
-            'INSERT INTO students (user_id, firstname, lastname, class_id, birthday, guardian_email) VALUES (?, ?, ?, ?, ?, ?)',
+            'INSERT INTO students (user_id, firstname, lastname, class_id, birthday, guardian_email, guardian_phone) VALUES (?, ?, ?, ?, ?, ?, ?)',
             [
                 $data['user_id'] ?? null,
                 $data['firstname'],
@@ -75,6 +75,7 @@ class Student
                 $data['class_id'],
                 $data['birthday'] ?? null,
                 $data['guardian_email'] ?? null,
+                $data['guardian_phone'] ?? null,
             ]
         );
         return (int) Database::lastInsertId();
@@ -83,8 +84,8 @@ class Student
     public static function update(int $id, array $data): void
     {
         Database::execute(
-            'UPDATE students SET firstname = ?, lastname = ?, class_id = ?, birthday = ?, guardian_email = ? WHERE id = ?',
-            [$data['firstname'], $data['lastname'], $data['class_id'], $data['birthday'] ?? null, $data['guardian_email'] ?? null, $id]
+            'UPDATE students SET firstname = ?, lastname = ?, class_id = ?, birthday = ?, guardian_email = ?, guardian_phone = ? WHERE id = ?',
+            [$data['firstname'], $data['lastname'], $data['class_id'], $data['birthday'] ?? null, $data['guardian_email'] ?? null, $data['guardian_phone'] ?? null, $id]
         );
     }
 

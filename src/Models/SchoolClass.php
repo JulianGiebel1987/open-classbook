@@ -80,6 +80,25 @@ class SchoolClass
         return Database::query('SELECT DISTINCT school_year FROM classes ORDER BY school_year DESC');
     }
 
+    /**
+     * Leitet aus einer Schuljahresangabe im Format "YYYY/YYYY" den Datumsbereich
+     * des deutschen Schuljahres ab (1. August bis 31. Juli).
+     *
+     * @return array{start:?string, end:?string} ISO-Datumsgrenzen oder [null, null] bei
+     *                                            ungueltigem Format (kein Datumsfilter).
+     */
+    public static function schoolYearRange(string $schoolYear): array
+    {
+        if (preg_match('#^(\d{4})/(\d{4})$#', trim($schoolYear), $m)) {
+            return [
+                'start' => $m[1] . '-08-01',
+                'end'   => $m[2] . '-07-31',
+            ];
+        }
+
+        return ['start' => null, 'end' => null];
+    }
+
     public static function delete(int $id): void
     {
         // Lehrer-Zuordnungen (class_teacher) werden per ON DELETE CASCADE entfernt.

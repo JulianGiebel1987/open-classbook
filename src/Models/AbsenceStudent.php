@@ -143,4 +143,33 @@ class AbsenceStudent
             [$studentId]
         );
     }
+
+    /**
+     * Fehltage-Summen aller Schueler:innen einer Klasse, gruppiert nach
+     * Entschuldigungsstatus. Optional auf einen Datumsbereich (z. B. Schuljahr)
+     * eingeschraenkt. Nutzt dieselbe Tage-Summenlogik wie getStudentSummary()
+     * und die Overlap-Logik aus findAll().
+     *
+     * @return array<int, array{excused:string, cnt:int, total_days:int}> Rohzeilen
+     *         (student_id + excused). Aggregation je Schueler:in erfolgt im Aufrufer.
+     */
+    public static function getClassSummary(int $classId, ?string $from = null, ?string $to = null): array
+    {
+        $sql = 'SELECT a.student_id, a.excused, COUNT(*) as cnt,
+                       SUM(DATEDIFF(a.date_to, a.date_from) + 1) as total_days
+                FROM absences_students a
+                JOIN students s ON s.id = a.student_id
+                WHERE s.class_id = ?';
+        $params = [$classId];
+
+        if ($from !== null && $to !== null) {
+            $sql .= ' AND a.date_to >= ? AND a.date_from <= ?';
+            $params[] = $from;
+            $params[] = $to;
+        }
+
+        $sql .= ' GROUP BY a.student_id, a.excused';
+
+        return Database::query($sql, $params);
+    }
 }
