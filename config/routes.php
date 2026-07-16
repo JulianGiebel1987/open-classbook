@@ -86,6 +86,10 @@ $router->get('/classes/{id}', [ClassController::class, 'show'], [AuthMiddleware:
 $router->get('/classes/{id}/edit', [ClassController::class, 'editForm'], [AuthMiddleware::class, StaffMiddleware::class]);
 $router->post('/classes/{id}', [ClassController::class, 'update'], [AuthMiddleware::class, StaffMiddleware::class, CsrfMiddleware::class]);
 $router->post('/classes/{id}/transfer', [ClassController::class, 'transferStudent'], [AuthMiddleware::class, StaffMiddleware::class, CsrfMiddleware::class]);
+$router->post('/classes/{id}/transfer-bulk', [ClassController::class, 'transferStudentsBulk'], [AuthMiddleware::class, StaffMiddleware::class, CsrfMiddleware::class]);
+$router->get('/classes/{id}/export.pdf', [ClassController::class, 'exportPdf'], [AuthMiddleware::class, StaffMiddleware::class]);
+$router->get('/classes/{id}/export.csv', [ClassController::class, 'exportCsv'], [AuthMiddleware::class, StaffMiddleware::class]);
+$router->post('/classes/{id}/delete', [ClassController::class, 'delete'], [AuthMiddleware::class, AdminMiddleware::class, CsrfMiddleware::class]);
 
 // === Schuelerverwaltung (Admin / Schulleitung / Sekretariat) ===
 // Anlegen im Kontext einer Klasse (legt automatisch ein Benutzerkonto an)

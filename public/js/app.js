@@ -91,6 +91,19 @@ function initInlineActions() {
             window.print();
         });
     });
+
+    // [data-select-all]: Master-Checkbox schaltet alle Ziel-Checkboxen mit
+    // passendem [data-select-target] um.
+    document.querySelectorAll('[data-select-all]').forEach(function (master) {
+        var targetName = master.dataset.selectAll;
+        master.addEventListener('change', function () {
+            document
+                .querySelectorAll('input[type="checkbox"][data-select-target="' + targetName + '"]')
+                .forEach(function (cb) {
+                    cb.checked = master.checked;
+                });
+        });
+    });
 }
 
 /**

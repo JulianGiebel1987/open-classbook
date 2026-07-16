@@ -79,4 +79,10 @@ class SchoolClass
     {
         return Database::query('SELECT DISTINCT school_year FROM classes ORDER BY school_year DESC');
     }
+
+    public static function delete(int $id): void
+    {
+        // Lehrer-Zuordnungen (class_teacher) werden per ON DELETE CASCADE entfernt.
+        Database::execute('DELETE FROM classes WHERE id = ?', [$id]);
+    }
 }

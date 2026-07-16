@@ -3,11 +3,24 @@
     <div class="btn-group">
         <a href="/classbook/<?= $class['id'] ?>" class="btn">Klassenbuch</a>
         <a href="/absences/students?class_id=<?= $class['id'] ?>" class="btn">Schüler:innen-Fehlzeiten</a>
+        <a href="/classes/<?= $class['id'] ?>/export.pdf" class="btn btn-secondary">Als PDF</a>
+        <a href="/classes/<?= $class['id'] ?>/export.csv" class="btn btn-secondary">Als CSV</a>
         <a href="/classes/<?= $class['id'] ?>/edit" class="btn btn-secondary">Bearbeiten</a>
+        <?php if (!empty($canDelete)): ?>
+            <form method="post" action="/classes/<?= $class['id'] ?>/delete" class="form-inline">
+                <?= \OpenClassbook\View::csrfField() ?>
+                <button type="submit" class="btn btn-danger" data-confirm="Klasse <?= htmlspecialchars($class['name'], ENT_QUOTES, 'UTF-8') ?> wirklich löschen? Dies kann nicht rückgängig gemacht werden.">Klasse löschen</button>
+            </form>
+        <?php endif; ?>
     </div>
 </div>
 
-<p class="text-muted mb-1">Schuljahr: <?= htmlspecialchars($class['school_year'], ENT_QUOTES, 'UTF-8') ?></p>
+<p class="text-muted mb-1">
+    Schuljahr: <?= htmlspecialchars($class['school_year'], ENT_QUOTES, 'UTF-8') ?>
+    &middot; Aktiv: <?= count($students) ?>
+    &middot; Archiviert: <?= count($archivedStudents) ?>
+    &middot; Gesamt: <?= count($students) + count($archivedStudents) ?>
+</p>
 
 <div class="card">
     <div class="card-header">
@@ -34,10 +47,29 @@
     <?php if (empty($students)): ?>
         <p class="text-muted">Keine Schüler in dieser Klasse.</p>
     <?php else: ?>
+        <?php if ($canTransfer): ?>
+            <!-- Sammelversetzung: separates Formular, Checkboxen via form-Attribut zugeordnet -->
+            <form method="post" action="/classes/<?= $class['id'] ?>/transfer-bulk" id="bulkTransfer" class="bulk-actions">
+                <?= \OpenClassbook\View::csrfField() ?>
+                <label for="bulk_new_class_id">Ausgewählte versetzen nach:</label>
+                <select name="new_class_id" id="bulk_new_class_id" class="form-control form-control-sm" required>
+                    <option value="">Klasse wählen...</option>
+                    <?php foreach ($otherClasses as $c): ?>
+                        <option value="<?= $c['id'] ?>"><?= htmlspecialchars($c['name'] . ' (' . $c['school_year'] . ')', ENT_QUOTES, 'UTF-8') ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <button type="submit" class="btn btn-sm" data-confirm="Ausgewählte Schüler:innen wirklich in die gewählte Klasse versetzen?">Sammelversetzung durchführen</button>
+            </form>
+        <?php endif; ?>
         <div class="table-responsive">
             <table aria-label="Schülerliste">
                 <thead>
                     <tr>
+                        <?php if ($canTransfer): ?>
+                            <th scope="col">
+                                <input type="checkbox" data-select-all="students" aria-label="Alle auswählen">
+                            </th>
+                        <?php endif; ?>
                         <th scope="col">Nachname</th>
                         <th scope="col">Vorname</th>
                         <th scope="col">Geburtsdatum</th>
@@ -49,6 +81,11 @@
                 <tbody>
                     <?php foreach ($students as $s): ?>
                     <tr>
+                        <?php if ($canTransfer): ?>
+                            <td>
+                                <input type="checkbox" name="student_ids[]" value="<?= $s['id'] ?>" form="bulkTransfer" data-select-target="students" aria-label="<?= htmlspecialchars($s['firstname'] . ' ' . $s['lastname'], ENT_QUOTES, 'UTF-8') ?> auswählen">
+                            </td>
+                        <?php endif; ?>
                         <td><?= htmlspecialchars($s['lastname'], ENT_QUOTES, 'UTF-8') ?></td>
                         <td><?= htmlspecialchars($s['firstname'], ENT_QUOTES, 'UTF-8') ?></td>
                         <td><?= $s['birthday'] ? date('d.m.Y', strtotime($s['birthday'])) : '-' ?></td>
@@ -121,6 +158,38 @@
                             <?php endif; ?>
                         </div>
                     </td>
+                </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+</div>
+<?php endif; ?>
+
+<?php if ($canTransfer && !empty($history)): ?>
+<div class="card mt-1">
+    <div class="card-header">
+        <h2>Versetzungshistorie</h2>
+    </div>
+    <div class="table-responsive">
+        <table aria-label="Versetzungshistorie">
+            <thead>
+                <tr>
+                    <th scope="col">Datum</th>
+                    <th scope="col">Schüler:in</th>
+                    <th scope="col">Von</th>
+                    <th scope="col">Nach</th>
+                    <th scope="col">Durch</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($history as $h): ?>
+                <tr>
+                    <td><?= $h['changed_at'] ? date('d.m.Y H:i', strtotime($h['changed_at'])) : '-' ?></td>
+                    <td><?= htmlspecialchars($h['student_lastname'] . ', ' . $h['student_firstname'], ENT_QUOTES, 'UTF-8') ?></td>
+                    <td><?= $h['from_class_name'] ? htmlspecialchars($h['from_class_name'], ENT_QUOTES, 'UTF-8') : '—' ?></td>
+                    <td><?= $h['to_class_name'] ? htmlspecialchars($h['to_class_name'], ENT_QUOTES, 'UTF-8') : '—' ?></td>
+                    <td><?= $h['changed_by_username'] ? htmlspecialchars($h['changed_by_username'], ENT_QUOTES, 'UTF-8') : '—' ?></td>
                 </tr>
                 <?php endforeach; ?>
             </tbody>

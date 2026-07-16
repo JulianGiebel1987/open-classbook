@@ -106,6 +106,16 @@ class SchoolClassModelTest extends DatabaseTestCase
         $this->assertCount(1, $teachers);
     }
 
+    public function testDelete(): void
+    {
+        $id = SchoolClass::create(['name' => '9a', 'school_year' => '2025/2026']);
+        $this->assertNotNull(SchoolClass::findById($id));
+
+        SchoolClass::delete($id);
+
+        $this->assertNull(SchoolClass::findById($id));
+    }
+
     public function testCreateWithHeadTeacher(): void
     {
         $userId = $this->createTestUser();

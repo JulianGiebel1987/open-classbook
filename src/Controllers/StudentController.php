@@ -8,6 +8,7 @@ use OpenClassbook\Database;
 use OpenClassbook\Middleware\CsrfMiddleware;
 use OpenClassbook\Models\Student;
 use OpenClassbook\Models\SchoolClass;
+use OpenClassbook\Models\StudentClassHistory;
 use OpenClassbook\Models\User;
 use OpenClassbook\Services\StudentService;
 
@@ -208,6 +209,11 @@ class StudentController
             'birthday' => $data['birthday'],
             'guardian_email' => $data['guardian_email'],
         ]);
+
+        // Klassenwechsel ueber das Bearbeiten-Formular ebenfalls protokollieren.
+        if ((int) $student['class_id'] !== $newClassId) {
+            StudentClassHistory::record((int) $id, (int) $student['class_id'], $newClassId, $_SESSION['user_id'] ?? null);
+        }
 
         // Guardian-Mail mit dem verknuepften Benutzerkonto synchron halten.
         if (!empty($student['user_id'])) {
