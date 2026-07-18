@@ -36,6 +36,11 @@ return [
         'lockout_duration' => 900,      // 15 Minuten in Sekunden
         'password_min_length' => 10,
         'password_reset_token_lifetime' => 3600, // 1 Stunde
+        // Einladungs-/Onboarding-Link ("Passwort festlegen") fuer neu angelegte
+        // oder importierte Konten. Deutlich laenger als der Reset-Link.
+        'invitation_token_lifetime' => 604800, // 7 Tage in Sekunden
+        // Bestaetigungslink bei Self-Service-E-Mail-Aenderung (Double-Opt-in).
+        'email_verification_token_lifetime' => 86400, // 24 Stunden in Sekunden
         // Route-spezifischer Rate-Limit fuer /forgot-password (Brute-Force-Schutz)
         'password_reset_rate_limit'  => 3,    // max. Anfragen pro IP
         'password_reset_rate_window' => 3600, // pro Zeitfenster in Sekunden (1 Stunde)
@@ -59,11 +64,13 @@ return [
         'retention_login_attempts_days'  => 30,  // Login-Versuche: 30 Tage
     ],
 
-    // E-Mail-Konfiguration für Passwort-Zurücksetzung und Benachrichtigungen
-    // Erfordert einen erreichbaren SMTP-Server
+    // E-Mail-Konfiguration für Passwort-Zurücksetzung, Einladungen und
+    // Benachrichtigungen. Ist 'host' gesetzt, wird via PHPMailer über SMTP
+    // versendet (host/port/username/password/encryption werden dann genutzt);
+    // andernfalls fällt der Versand auf die native PHP-Funktion mail() zurück.
     'mail' => [
         'enabled' => false,                         // Auf true setzen, wenn SMTP verfügbar
-        'host' => 'mail.ihre-schule.de',            // SMTP-Server
+        'host' => 'mail.ihre-schule.de',            // SMTP-Server (leer = mail()-Fallback)
         'port' => 587,                              // SMTP-Port (587 für TLS, 465 für SSL)
         'username' => 'classbook@ihre-schule.de',   // SMTP-Benutzername
         'password' => '',                           // SMTP-Passwort

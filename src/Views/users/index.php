@@ -5,7 +5,9 @@ $roleLabels = [
     'sekretariat'  => 'Sekretariat',
     'lehrer'       => 'Lehrkraft',
     'schueler'     => 'Schüler:in',
+    'schulbegleiter' => 'Schulbegleiter:in',
 ];
+$emailLoginRoles = ['admin', 'schulleitung', 'sekretariat', 'lehrer', 'schulbegleiter'];
 ?>
 <div class="page-header">
     <h1>Benutzerverwaltung</h1>
@@ -98,6 +100,14 @@ $roleLabels = [
                                 <?= \OpenClassbook\View::csrfField() ?>
                                 <button type="submit" class="btn btn-sm btn-icon-only btn-secondary" data-confirm="Neues Zufallspasswort erzeugen und an <?= htmlspecialchars($u['email'], ENT_QUOTES, 'UTF-8') ?> senden?" title="Passwort per E-Mail senden" aria-label="Neues Passwort per E-Mail senden">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 7 10-7"/></svg>
+                                </button>
+                            </form>
+                            <?php endif; ?>
+                            <?php if (!empty($u['email']) && in_array($u['role'], $emailLoginRoles, true)): ?>
+                            <form method="post" action="/users/<?= $u['id'] ?>/invite" class="d-inline">
+                                <?= \OpenClassbook\View::csrfField() ?>
+                                <button type="submit" class="btn btn-sm btn-icon-only btn-secondary" data-confirm="Einladung zum Festlegen des Passworts erneut an <?= htmlspecialchars($u['email'], ENT_QUOTES, 'UTF-8') ?> senden?" title="Einladung erneut senden" aria-label="Einladung erneut senden">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4Z"/></svg>
                                 </button>
                             </form>
                             <?php endif; ?>

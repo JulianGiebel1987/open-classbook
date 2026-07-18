@@ -80,7 +80,7 @@ class ImportServiceTest extends DatabaseTestCase
     {
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
-        $sheet->fromArray(['Vorname', 'Nachname', 'Kommentar'], null, 'A1');
+        $sheet->fromArray(['Vorname', 'Nachname', 'E-Mail', 'Kommentar'], null, 'A1');
 
         $rowNum = 2;
         foreach ($rows as $row) {
@@ -100,7 +100,7 @@ class ImportServiceTest extends DatabaseTestCase
     public function testPreviewSchoolAidesWithValidData(): void
     {
         $path = $this->createAideExcel([
-            ['Erika', 'Beispiel', 'Vormittags'],
+            ['Erika', 'Beispiel', 'erika@schule.de', 'Vormittags'],
         ]);
 
         $result = ImportService::previewSchoolAides($path);
@@ -108,25 +108,59 @@ class ImportServiceTest extends DatabaseTestCase
         $this->assertCount(1, $result['rows']);
         $this->assertEmpty($result['errors']);
         $this->assertEquals('Erika', $result['rows'][0]['firstname']);
+        $this->assertEquals('erika@schule.de', $result['rows'][0]['email']);
         $this->assertEquals('Vormittags', $result['rows'][0]['comment']);
     }
 
     public function testPreviewSchoolAidesDetectsMissingNames(): void
     {
         $path = $this->createAideExcel([
-            ['', 'Beispiel', ''],
+            ['', 'Beispiel', 'b@schule.de', ''],
         ]);
 
         $result = ImportService::previewSchoolAides($path);
         $this->assertContains('Vorname fehlt', $result['rows'][0]['errors']);
     }
 
+    public function testPreviewSchoolAidesDetectsMissingEmail(): void
+    {
+        $path = $this->createAideExcel([
+            ['Erika', 'Beispiel', '', 'Vormittags'],
+        ]);
+
+        $result = ImportService::previewSchoolAides($path);
+        $this->assertContains('E-Mail fehlt', $result['rows'][0]['errors']);
+    }
+
+    public function testPreviewSchoolAidesDetectsInvalidEmail(): void
+    {
+        $path = $this->createAideExcel([
+            ['Erika', 'Beispiel', 'keine-mail', 'Vormittags'],
+        ]);
+
+        $result = ImportService::previewSchoolAides($path);
+        $errorStr = implode(', ', $result['rows'][0]['errors']);
+        $this->assertStringContainsString('ungültig', $errorStr);
+    }
+
+    public function testPreviewSchoolAidesDetectsDuplicateEmailInFile(): void
+    {
+        $path = $this->createAideExcel([
+            ['Erika', 'Beispiel', 'dup@schule.de', ''],
+            ['Max', 'Muster', 'dup@schule.de', ''],
+        ]);
+
+        $result = ImportService::previewSchoolAides($path);
+        $errorStr = implode(', ', $result['rows'][1]['errors']);
+        $this->assertStringContainsString('mehrfach', $errorStr);
+    }
+
     public function testPreviewSchoolAidesSkipsEmptyRows(): void
     {
         $path = $this->createAideExcel([
-            ['Erika', 'Beispiel', ''],
-            ['', '', ''],
-            ['Max', 'Muster', ''],
+            ['Erika', 'Beispiel', 'erika@schule.de', ''],
+            ['', '', '', ''],
+            ['Max', 'Muster', 'max@schule.de', ''],
         ]);
 
         $result = ImportService::previewSchoolAides($path);
@@ -136,22 +170,25 @@ class ImportServiceTest extends DatabaseTestCase
     public function testImportSchoolAidesCreatesUsersAndAides(): void
     {
         $path = $this->createAideExcel([
-            ['Erika', 'Beispiel', 'Vormittags'],
+            ['Erika', 'Beispiel', 'erika@schule.de', 'Vormittags'],
         ]);
 
         $result = ImportService::importSchoolAides($path);
 
         $this->assertEquals(1, $result['imported']);
         $this->assertEquals(0, $result['skipped']);
-        $this->assertNotEmpty($result['credentials']);
+        $this->assertNotEmpty($result['invitations']);
+        $this->assertEquals('erika@schule.de', $result['invitations'][0]['email']);
 
         $aide = self::$pdo->query("SELECT * FROM school_aides WHERE lastname = 'Beispiel'")->fetch();
         $this->assertNotFalse($aide);
         $this->assertEquals('Vormittags', $aide['comment']);
 
-        $user = self::$pdo->query("SELECT * FROM users WHERE username = 'e.beispiel'")->fetch();
+        // Anmeldename = E-Mail
+        $user = self::$pdo->query("SELECT * FROM users WHERE username = 'erika@schule.de'")->fetch();
         $this->assertNotFalse($user);
         $this->assertEquals('schulbegleiter', $user['role']);
+        $this->assertEquals('erika@schule.de', $user['email']);
     }
 
     // --- Teacher preview tests ---
@@ -412,6 +449,20 @@ class ImportServiceTest extends DatabaseTestCase
 
         $this->assertEmpty($result['rows'][0]['errors']);
         $this->assertNull($result['rows'][0]['birthday']);
+    }
+
+    public function testPreviewStudentsDetectsInvalidGuardianEmail(): void
+    {
+        $this->createTestClass(['name' => '5x', 'school_year' => '2025/2026']);
+
+        $path = $this->createStudentExcel([
+            ['Lisa', 'Weber', '5x', '', 'keine-mail'],
+        ]);
+
+        $result = ImportService::previewStudents($path, '2025/2026');
+
+        $errorStr = implode(', ', $result['rows'][0]['errors']);
+        $this->assertStringContainsString('Erziehungsberechtigten-E-Mail', $errorStr);
     }
 
     public function testPreviewStudentsSkipsEmptyRows(): void

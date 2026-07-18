@@ -47,6 +47,29 @@ class UserModelTest extends DatabaseTestCase
         $this->assertNull(User::findByUsername('nonexistent'));
     }
 
+    public function testFindByEmailReturnsUser(): void
+    {
+        $this->createTestUser(['email' => 'central@example.com']);
+
+        $user = User::findByEmail('central@example.com');
+        $this->assertNotNull($user);
+        $this->assertEquals('testuser', $user['username']);
+    }
+
+    public function testFindByEmailIsCaseInsensitive(): void
+    {
+        $this->createTestUser(['email' => 'central@example.com']);
+
+        $user = User::findByEmail('CENTRAL@EXAMPLE.COM');
+        $this->assertNotNull($user);
+        $this->assertEquals('testuser', $user['username']);
+    }
+
+    public function testFindByEmailReturnsNull(): void
+    {
+        $this->assertNull(User::findByEmail('nobody@example.com'));
+    }
+
     public function testCreateUser(): void
     {
         $id = User::create([
@@ -124,6 +147,23 @@ class UserModelTest extends DatabaseTestCase
         $this->assertTrue(User::usernameExists('testuser'));
     }
 
+    public function testEmailExists(): void
+    {
+        $this->createTestUser(['email' => 'taken@example.com']);
+
+        $this->assertTrue(User::emailExists('taken@example.com'));
+        $this->assertTrue(User::emailExists('TAKEN@example.com')); // case-insensitiv
+        $this->assertFalse(User::emailExists('free@example.com'));
+    }
+
+    public function testEmailExistsWithExclude(): void
+    {
+        $id = $this->createTestUser(['email' => 'taken@example.com']);
+
+        $this->assertFalse(User::emailExists('taken@example.com', $id));
+        $this->assertTrue(User::emailExists('taken@example.com'));
+    }
+
     public function testFindAllNoFilters(): void
     {
         $this->createTestUser(['username' => 'user1']);
@@ -189,6 +229,56 @@ class UserModelTest extends DatabaseTestCase
         $user = User::findById($id);
         $this->assertNull($user['password_reset_token']);
         $this->assertNull($user['password_reset_expires']);
+    }
+
+    public function testMarkEmailVerifiedSetsTimestamp(): void
+    {
+        $id = $this->createTestUser();
+        $this->assertNull(User::findById($id)['email_verified_at']);
+
+        User::markEmailVerified($id);
+
+        $this->assertNotNull(User::findById($id)['email_verified_at']);
+    }
+
+    public function testSetAndFindEmailVerificationToken(): void
+    {
+        $id = $this->createTestUser();
+        $token = hash('sha256', 'verifytoken');
+        $expires = new \DateTime('+1 day');
+
+        User::setEmailVerificationToken($id, $token, $expires, 'neu@example.com');
+
+        $found = User::findByEmailVerificationToken($token);
+        $this->assertNotNull($found);
+        $this->assertEquals($id, (int) $found['id']);
+        $this->assertEquals('neu@example.com', $found['pending_email']);
+    }
+
+    public function testApplyPendingEmailUpdatesEmailAndUsername(): void
+    {
+        $id = $this->createTestUser(['username' => 'old@example.com', 'email' => 'old@example.com']);
+        $token = hash('sha256', 'verifytoken');
+        User::setEmailVerificationToken($id, $token, new \DateTime('+1 day'), 'Neu@Example.com');
+
+        User::applyPendingEmail($id);
+
+        $user = User::findById($id);
+        $this->assertEquals('Neu@Example.com', $user['email']);
+        $this->assertEquals('neu@example.com', $user['username']); // normalisiert
+        $this->assertNotNull($user['email_verified_at']);
+        $this->assertNull($user['pending_email']);
+        $this->assertNull($user['email_verification_token']);
+    }
+
+    public function testApplyPendingEmailWithoutPendingDoesNothing(): void
+    {
+        $id = $this->createTestUser(['username' => 'stay@example.com', 'email' => 'stay@example.com']);
+
+        User::applyPendingEmail($id);
+
+        $user = User::findById($id);
+        $this->assertEquals('stay@example.com', $user['username']);
     }
 
     public function testSessionVersionDefaultsToZero(): void

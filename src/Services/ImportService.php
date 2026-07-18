@@ -42,23 +42,27 @@ class ImportService
     }
 
     /**
-     * Prueft, ob eine Lehrkraft-E-Mail als Anmeldename verwendbar ist.
-     * Gibt einen Fehlertext zurueck, falls die E-Mail bereits als Anmeldename
-     * vergeben ist oder innerhalb derselben Datei mehrfach vorkommt; sonst null.
-     * $seenEmails wird dabei fortgeschrieben (Referenz).
+     * Prueft, ob eine E-Mail als Anmeldename verwendbar ist (Lehrkraefte und
+     * Schulbegleiter:innen). Gibt einen Fehlertext zurueck, falls die E-Mail ein
+     * ungueltiges Format hat, innerhalb derselben Datei mehrfach vorkommt oder
+     * bereits vergeben ist; sonst null. $seenEmails wird fortgeschrieben (Referenz).
+     * Der reine Pflichtfeld-Check (leer) erfolgt separat im Aufrufer.
      */
-    private static function teacherEmailLoginError(string $email, array &$seenEmails): ?string
+    private static function emailLoginError(string $email, array &$seenEmails): ?string
     {
         $normalized = strtolower(trim($email));
         if ($normalized === '') {
             return null;
         }
+        if (!filter_var($normalized, FILTER_VALIDATE_EMAIL) || mb_strlen($normalized) > 255) {
+            return 'E-Mail "' . $email . '" ist ungültig';
+        }
         if (isset($seenEmails[$normalized])) {
             return 'E-Mail "' . $email . '" kommt in der Datei mehrfach vor';
         }
         $seenEmails[$normalized] = true;
-        if (User::usernameExists($normalized)) {
-            return 'E-Mail "' . $email . '" ist bereits als Anmeldename vergeben';
+        if (User::emailExists($normalized) || User::usernameExists($normalized)) {
+            return 'E-Mail "' . $email . '" ist bereits vergeben';
         }
         return null;
     }
@@ -87,7 +91,7 @@ class ImportService
                 $rowErrors[] = 'Kürzel "' . $abbreviation . '" existiert bereits';
             }
 
-            if (!empty($email) && ($emailError = self::teacherEmailLoginError($email, $seenEmails)) !== null) {
+            if (!empty($email) && ($emailError = self::emailLoginError($email, $seenEmails)) !== null) {
                 $rowErrors[] = $emailError;
             }
 
@@ -143,6 +147,10 @@ class ImportService
                 } else {
                     $rowErrors[] = 'Ungueltiges Datumsformat (erwartet: TT.MM.JJJJ)';
                 }
+            }
+
+            if ($guardianEmail !== '' && (!filter_var($guardianEmail, FILTER_VALIDATE_EMAIL) || mb_strlen($guardianEmail) > 255)) {
+                $rowErrors[] = 'Ungültige Erziehungsberechtigten-E-Mail';
             }
 
             $rows[] = [
@@ -203,7 +211,7 @@ class ImportService
                 $rowErrors[] = 'Kürzel "' . $abbreviation . '" existiert bereits';
             }
 
-            if (!empty($email) && ($emailError = self::teacherEmailLoginError($email, $seenEmails)) !== null) {
+            if (!empty($email) && ($emailError = self::emailLoginError($email, $seenEmails)) !== null) {
                 $rowErrors[] = $emailError;
             }
 
@@ -235,6 +243,7 @@ class ImportService
         $preview = self::previewTeachers($filePath, $format);
         $imported = 0;
         $skipped = 0;
+        $invitations = [];
 
         foreach ($preview['rows'] as $row) {
             if (!empty($row['errors'])) {
@@ -242,21 +251,21 @@ class ImportService
                 continue;
             }
 
-            // User-Account erstellen: Anmeldename ist die E-Mail-Adresse
-            $password = bin2hex(random_bytes(5));
-            $username = strtolower(trim($row['email']));
+            // Anmeldename = E-Mail-Adresse. Aktivierung erfolgt per Einladungslink;
+            // es wird nur ein unbrauchbares Zufallspasswort gesetzt.
+            $email = strtolower(trim($row['email']));
 
-            // E-Mail bereits als Anmeldename vergeben -> Zeile ueberspringen
+            // E-Mail bereits vergeben -> Zeile ueberspringen
             // (Duplikate werden bereits in der Vorschau als Fehler markiert)
-            if ($username === '' || User::usernameExists($username)) {
+            if ($email === '' || User::emailExists($email) || User::usernameExists($email)) {
                 $skipped++;
                 continue;
             }
 
             $userId = User::create([
-                'username' => $username,
-                'email' => $row['email'],
-                'password' => $password,
+                'username' => $email,
+                'email' => $email,
+                'password' => AuthService::generateRandomPassword(),
                 'role' => 'lehrer',
                 'must_change_password' => 1,
             ]);
@@ -269,10 +278,15 @@ class ImportService
                 'subjects' => $row['subjects'] ?: null,
             ]);
 
+            $invitations[] = [
+                'user_id' => $userId,
+                'email' => $email,
+                'name' => trim($row['firstname'] . ' ' . $row['lastname']),
+            ];
             $imported++;
         }
 
-        return ['imported' => $imported, 'skipped' => $skipped, 'errors' => $preview['errors']];
+        return ['imported' => $imported, 'skipped' => $skipped, 'errors' => $preview['errors'], 'invitations' => $invitations];
     }
 
     /**
@@ -324,6 +338,10 @@ class ImportService
                 } else {
                     $rowErrors[] = 'Ungueltiges Datumsformat (erwartet: TT.MM.JJJJ)';
                 }
+            }
+
+            if ($guardianEmail !== '' && (!filter_var($guardianEmail, FILTER_VALIDATE_EMAIL) || mb_strlen($guardianEmail) > 255)) {
+                $rowErrors[] = 'Ungültige Erziehungsberechtigten-E-Mail';
             }
 
             $rows[] = [
@@ -390,18 +408,20 @@ class ImportService
 
     /**
      * Schulbegleiter:innen-Vorschau aus Excel- oder CSV-Datei.
-     * Spalten: Vorname, Nachname, Kommentar
+     * Spalten: Vorname, Nachname, E-Mail, Kommentar
      */
     public static function previewSchoolAides(string $filePath, string $format = 'xlsx'): array
     {
+        $seenEmails = [];
+
         if ($format === 'csv') {
             $csvRows = self::parseCsv($filePath);
             $rows = [];
             $errors = [];
             foreach ($csvRows as $csvRow) {
-                $data = array_pad($csvRow['data'], 3, '');
-                [$firstname, $lastname, $comment] = $data;
-                $rows[] = self::buildAideRow($csvRow['lineNum'], $firstname, $lastname, $comment, $errors);
+                $data = array_pad($csvRow['data'], 4, '');
+                [$firstname, $lastname, $email, $comment] = $data;
+                $rows[] = self::buildAideRow($csvRow['lineNum'], $firstname, $lastname, $email, $comment, $errors, $seenEmails);
             }
             return ['rows' => $rows, 'errors' => $errors];
         }
@@ -414,16 +434,16 @@ class ImportService
         foreach ($sheet->getRowIterator(2) as $row) { // Ab Zeile 2 (Zeile 1 = Header)
             $rowIndex = $row->getRowIndex();
             $cells = [];
-            foreach ($row->getCellIterator('A', 'C') as $cell) {
+            foreach ($row->getCellIterator('A', 'D') as $cell) {
                 $cells[] = trim((string) $cell->getValue());
             }
-            [$firstname, $lastname, $comment] = array_pad($cells, 3, '');
+            [$firstname, $lastname, $email, $comment] = array_pad($cells, 4, '');
 
             if (empty($firstname) && empty($lastname)) {
                 continue; // Leere Zeile
             }
 
-            $rows[] = self::buildAideRow($rowIndex, $firstname, $lastname, $comment, $errors);
+            $rows[] = self::buildAideRow($rowIndex, $firstname, $lastname, $email, $comment, $errors, $seenEmails);
         }
 
         return ['rows' => $rows, 'errors' => $errors];
@@ -431,12 +451,18 @@ class ImportService
 
     /**
      * Eine einzelne Schulbegleiter-Zeile validieren und aufbereiten.
+     * Die E-Mail ist der Anmeldename (Pflicht, eindeutig, formatgeprueft).
      */
-    private static function buildAideRow(int $rowIndex, string $firstname, string $lastname, string $comment, array &$errors): array
+    private static function buildAideRow(int $rowIndex, string $firstname, string $lastname, string $email, string $comment, array &$errors, array &$seenEmails): array
     {
         $rowErrors = [];
         if (empty($firstname)) $rowErrors[] = 'Vorname fehlt';
         if (empty($lastname)) $rowErrors[] = 'Nachname fehlt';
+        if (empty($email)) $rowErrors[] = 'E-Mail fehlt';
+
+        if (!empty($email) && ($emailError = self::emailLoginError($email, $seenEmails)) !== null) {
+            $rowErrors[] = $emailError;
+        }
 
         if (!empty($rowErrors)) {
             $errors[] = "Zeile {$rowIndex}: " . implode(', ', $rowErrors);
@@ -446,6 +472,7 @@ class ImportService
             'row' => $rowIndex,
             'firstname' => $firstname,
             'lastname' => $lastname,
+            'email' => $email,
             'comment' => $comment,
             'errors' => $rowErrors,
         ];
@@ -453,6 +480,7 @@ class ImportService
 
     /**
      * Schulbegleiter:innen tatsächlich importieren (inkl. Benutzerkonto).
+     * Aktivierung erfolgt per Einladungslink (Anmeldename = E-Mail).
      */
     public static function importSchoolAides(string $filePath): array
     {
@@ -460,7 +488,7 @@ class ImportService
         $preview = self::previewSchoolAides($filePath, $format);
         $imported = 0;
         $skipped = 0;
-        $credentials = [];
+        $invitations = [];
 
         foreach ($preview['rows'] as $row) {
             if (!empty($row['errors'])) {
@@ -468,13 +496,24 @@ class ImportService
                 continue;
             }
 
+            $email = strtolower(trim($row['email']));
+            if ($email === '' || User::emailExists($email) || User::usernameExists($email)) {
+                $skipped++;
+                continue;
+            }
+
             $created = AideService::createAideWithAccount([
                 'firstname' => $row['firstname'],
                 'lastname' => $row['lastname'],
+                'email' => $email,
                 'comment' => $row['comment'] ?: null,
             ]);
 
-            $credentials[] = $created['credentials'];
+            $invitations[] = [
+                'user_id' => $created['user_id'],
+                'email' => $created['email'],
+                'name' => $created['name'],
+            ];
             $imported++;
         }
 
@@ -482,7 +521,7 @@ class ImportService
             'imported' => $imported,
             'skipped' => $skipped,
             'errors' => $preview['errors'],
-            'credentials' => $credentials,
+            'invitations' => $invitations,
         ];
     }
 

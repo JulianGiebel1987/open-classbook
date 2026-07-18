@@ -4,9 +4,9 @@
         <?= \OpenClassbook\View::csrfField() ?>
 
         <div class="form-group">
-            <label for="username">Benutzername oder E-Mail</label>
+            <label for="username">E-Mail-Adresse</label>
             <input type="text" id="username" name="username" class="form-control" required autofocus autocomplete="username" aria-describedby="username_help">
-            <span class="form-help" id="username_help">Sie können sich mit Ihrem Benutzernamen oder Ihrer E-Mail-Adresse anmelden.</span>
+            <span class="form-help" id="username_help">Melden Sie sich mit Ihrer E-Mail-Adresse an. Schüler:innen verwenden ihren zugeteilten Anmeldenamen.</span>
         </div>
 
         <div class="form-group">

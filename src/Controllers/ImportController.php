@@ -7,10 +7,45 @@ use OpenClassbook\View;
 use OpenClassbook\Middleware\CsrfMiddleware;
 use OpenClassbook\Services\ImportService;
 use OpenClassbook\Services\ModuleSettings;
+use OpenClassbook\Services\AuthService;
+use OpenClassbook\Services\NotificationService;
 
 class ImportController
 {
     private const STAFF_ROLES = ['admin', 'schulleitung', 'sekretariat'];
+
+    /**
+     * Fuer eine Liste importierter E-Mail-Login-Konten Einladungen versenden bzw.
+     * (bei deaktiviertem/fehlgeschlagenem Mailversand) die Einladungslinks zum
+     * einmaligen Anzeigen sammeln.
+     *
+     * @param array<int,array{user_id:int,email:string,name:string}> $invitations
+     * @return array{sent:int, links:array<int,array{name:string,email:string,link:string}>}
+     */
+    private function processInvitations(array $invitations): array
+    {
+        $sent = 0;
+        $links = [];
+
+        foreach ($invitations as $inv) {
+            $link = AuthService::createOnboardingLink((int) $inv['user_id']);
+            $email = (string) ($inv['email'] ?? '');
+            $name = (string) ($inv['name'] ?? '');
+
+            if (App::config('mail.enabled') && $email !== ''
+                && NotificationService::sendInvitationMail($email, $name, $link)) {
+                $sent++;
+            } else {
+                $links[] = [
+                    'name' => $name !== '' ? $name : $email,
+                    'email' => $email,
+                    'link' => $link,
+                ];
+            }
+        }
+
+        return ['sent' => $sent, 'links' => $links];
+    }
 
     /**
      * Defense-in-depth: sicherstellen, dass der aktuelle Nutzer berechtigt ist.
@@ -130,6 +165,32 @@ class ImportController
         $msg = "{$result['imported']} Lehrkraft/Lehrkräfte erfolgreich importiert.";
         if ($result['skipped'] > 0) {
             $msg .= " {$result['skipped']} Zeile(n) übersprungen.";
+        }
+
+        $this->finishWithInvitations($result['invitations'] ?? [], $msg);
+    }
+
+    /**
+     * Import mit anschliessendem Einladungsversand abschliessen: Meldung setzen
+     * und je nach Ergebnis zur Benutzerliste oder zur Einladungslink-Anzeige
+     * weiterleiten.
+     *
+     * @param array<int,array{user_id:int,email:string,name:string}> $invitations
+     */
+    private function finishWithInvitations(array $invitations, string $msg): void
+    {
+        $result = $this->processInvitations($invitations);
+
+        if ($result['sent'] > 0) {
+            $msg .= " {$result['sent']} Einladung(en) per E-Mail versendet.";
+        }
+
+        if (!empty($result['links'])) {
+            $_SESSION['invite_links'] = $result['links'];
+            $_SESSION['invite_back_url'] = '/users';
+            App::setFlash('success', $msg . ' Einladungslinks werden einmalig angezeigt.');
+            App::redirect('/users/invite-info');
+            return;
         }
 
         App::setFlash('success', $msg);
@@ -296,13 +357,7 @@ class ImportController
             $msg .= " {$result['skipped']} Zeile(n) übersprungen.";
         }
 
-        if (!empty($result['credentials'])) {
-            $_SESSION['import_credentials'] = $result['credentials'];
-            $msg .= ' Zugangsdaten werden unten angezeigt - bitte notieren!';
-        }
-
-        App::setFlash('success', $msg);
-        App::redirect('/import/students/credentials');
+        $this->finishWithInvitations($result['invitations'] ?? [], $msg);
     }
 
     public function studentCredentials(): void
@@ -364,8 +419,8 @@ class ImportController
             header('Content-Type: text/csv; charset=UTF-8');
             header('Content-Disposition: attachment; filename="Schulbegleiter-Import.csv"');
             echo "\xEF\xBB\xBF"; // UTF-8 BOM für Excel-Kompatibilität
-            echo "Vorname;Nachname;Kommentar\n";
-            echo "Erika;Beispiel;Begleitet vormittags\n";
+            echo "Vorname;Nachname;E-Mail;Kommentar\n";
+            echo "Erika;Beispiel;e.beispiel@schule.de;Begleitet vormittags\n";
             exit;
         }
 

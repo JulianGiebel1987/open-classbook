@@ -7,30 +7,29 @@ use OpenClassbook\Models\SchoolAide;
 
 /**
  * Zentrale Geschaeftslogik fuer das Anlegen von Schulbegleiter:innen inklusive
- * verknuepftem Benutzerkonto (role=schulbegleiter). Wird vom Massen-Import
- * (ImportService) verwendet, damit importierte Konten identisch zu ueber die
- * Benutzerverwaltung angelegten Konten erzeugt werden.
+ * verknuepftem Benutzerkonto (role=schulbegleiter). Schulbegleiter:innen melden
+ * sich – wie Lehrkraefte und die Verwaltungsrollen – mit ihrer E-Mail-Adresse an
+ * (Anmeldename = E-Mail). Die Aktivierung erfolgt ueber einen Einladungslink,
+ * den der Aufrufer versendet bzw. anzeigt.
  */
 class AideService
 {
     /**
      * Legt einen Schulbegleiter-Datensatz zusammen mit einem verknuepften
-     * Benutzer-Account an und gibt die einmalig anzeigbaren Zugangsdaten zurueck.
+     * Benutzer-Account (Anmeldename = E-Mail) an. Es wird ein unbrauchbares
+     * Zufallspasswort gesetzt; die Aktivierung erfolgt per Einladungslink.
      *
-     * @param array $data Erwartet: firstname, lastname; optional: comment, email
-     * @return array{aide_id:int, user_id:int, credentials:array{name:string,username:string,password:string}}
+     * @param array $data Erwartet: firstname, lastname, email; optional: comment
+     * @return array{aide_id:int, user_id:int, email:string, name:string}
      */
     public static function createAideWithAccount(array $data): array
     {
-        $email = !empty($data['email']) ? $data['email'] : null;
-
-        $username = self::generateUniqueUsername($data['firstname'], $data['lastname']);
-        $password = AuthService::generateRandomPassword();
+        $email = strtolower(trim($data['email'] ?? ''));
 
         $userId = User::create([
-            'username' => $username,
+            'username' => $email,
             'email' => $email,
-            'password' => $password,
+            'password' => AuthService::generateRandomPassword(),
             'role' => 'schulbegleiter',
             'must_change_password' => 1,
         ]);
@@ -45,35 +44,8 @@ class AideService
         return [
             'aide_id' => $aideId,
             'user_id' => $userId,
-            'credentials' => [
-                'name' => trim($data['firstname'] . ' ' . $data['lastname']),
-                'username' => $username,
-                'password' => $password,
-            ],
+            'email' => $email,
+            'name' => trim($data['firstname'] . ' ' . $data['lastname']),
         ];
-    }
-
-    /**
-     * Eindeutigen Usernamen aus Vor- und Nachname erzeugen
-     * (erster Buchstabe + '.' + Nachname), Kollisionen mit numerischem Suffix.
-     */
-    public static function generateUniqueUsername(string $firstname, string $lastname): string
-    {
-        $first = StudentService::sanitizeUsername(mb_substr($firstname, 0, 1));
-        $last = StudentService::sanitizeUsername($lastname);
-
-        $base = $first . '.' . $last;
-        if (trim($base, '.') === '') {
-            $base = 'begleitung';
-        }
-
-        $username = $base;
-        $counter = 1;
-        while (User::usernameExists($username)) {
-            $username = $base . $counter;
-            $counter++;
-        }
-
-        return $username;
     }
 }

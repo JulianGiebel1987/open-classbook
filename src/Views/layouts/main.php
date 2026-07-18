@@ -82,6 +82,9 @@
             <?php endforeach; ?>
             <li class="navbar-user" role="none">
                 <span aria-label="Angemeldet als"><?= htmlspecialchars($_SESSION['user']['username'] ?? '', ENT_QUOTES, 'UTF-8') ?></span>
+                <?php if (in_array($_SESSION['user']['role'] ?? '', ['admin', 'schulleitung', 'sekretariat', 'lehrer', 'schulbegleiter'], true)): ?>
+                <a href="/account/email" class="btn btn-sm" role="menuitem" title="E-Mail-Adresse (Anmeldename) ändern">E-Mail ändern</a>
+                <?php endif; ?>
                 <a href="/account/my-data" class="btn btn-sm" role="menuitem" title="Auskunft über meine gespeicherten Daten (DSGVO Art. 15)">Meine Daten</a>
                 <a href="/logout" class="btn btn-sm" role="menuitem">Abmelden</a>
             </li>

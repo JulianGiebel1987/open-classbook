@@ -75,6 +75,22 @@ class User
     }
 
     /**
+     * Nutzer anhand der E-Mail-Adresse finden (case-insensitiv).
+     * Aktive Accounts werden bevorzugt, damit ein deaktiviertes Konto mit
+     * identischer E-Mail nicht das aktive verdeckt.
+     */
+    public static function findByEmail(string $email): ?array
+    {
+        return Database::queryOne(
+            "SELECT * FROM users
+             WHERE email IS NOT NULL AND email <> '' AND LOWER(email) = LOWER(?)
+             ORDER BY active DESC, id ASC
+             LIMIT 1",
+            [$email]
+        );
+    }
+
+    /**
      * Zaehlt aktive Administratoren. Wird genutzt, um zu verhindern,
      * dass der letzte Admin degradiert oder deaktiviert wird.
      */
@@ -107,7 +123,7 @@ class User
             $params[] = '%' . $filters['search'] . '%';
         }
 
-        $sql .= ' ORDER BY username ASC';
+        $sql .= ' ORDER BY email IS NULL, email ASC, username ASC';
 
         return Database::query($sql, $params);
     }
@@ -134,7 +150,17 @@ class User
         $fields = [];
         $params = [];
 
-        foreach (['username', 'email', 'role', 'active', 'must_change_password'] as $field) {
+        foreach ([
+            'username',
+            'email',
+            'role',
+            'active',
+            'must_change_password',
+            'email_verified_at',
+            'email_verification_token',
+            'email_verification_expires',
+            'pending_email',
+        ] as $field) {
             if (array_key_exists($field, $data)) {
                 $fields[] = "{$field} = ?";
                 $params[] = $data[$field];
@@ -248,5 +274,88 @@ class User
 
         $result = Database::queryOne($sql, $params);
         return ($result['cnt'] ?? 0) > 0;
+    }
+
+    /**
+     * Prueft, ob eine E-Mail-Adresse bereits vergeben ist (case-insensitiv).
+     * Gegenstueck zu usernameExists(); wird genutzt, um die E-Mail als
+     * eindeutigen Login-Identifikator auf Anwendungsebene zu erzwingen
+     * (es gibt bewusst keine DB-UNIQUE-Constraint, siehe Migration 053).
+     */
+    public static function emailExists(string $email, ?int $excludeId = null): bool
+    {
+        $sql = 'SELECT COUNT(*) as cnt FROM users WHERE LOWER(email) = LOWER(?)';
+        $params = [$email];
+
+        if ($excludeId !== null) {
+            $sql .= ' AND id != ?';
+            $params[] = $excludeId;
+        }
+
+        $result = Database::queryOne($sql, $params);
+        return ($result['cnt'] ?? 0) > 0;
+    }
+
+    /**
+     * E-Mail-Verifizierungs-Token setzen (gespeichert wird der SHA-256-Hash,
+     * analog zum Passwort-Reset-Token). $pendingEmail wird fuer die
+     * Self-Service-E-Mail-Aenderung mitgespeichert (neue, noch nicht bestaetigte
+     * Adresse); bei Erst-Verifizierung der bestehenden Adresse ist er null.
+     */
+    public static function setEmailVerificationToken(int $id, string $tokenHash, \DateTime $expires, ?string $pendingEmail = null): void
+    {
+        Database::execute(
+            'UPDATE users SET email_verification_token = ?, email_verification_expires = ?, pending_email = ? WHERE id = ?',
+            [$tokenHash, $expires->format('Y-m-d H:i:s'), $pendingEmail, $id]
+        );
+    }
+
+    /**
+     * Nutzer anhand eines gueltigen (nicht abgelaufenen) E-Mail-Verifizierungs-
+     * Tokens finden.
+     */
+    public static function findByEmailVerificationToken(string $tokenHash): ?array
+    {
+        return Database::queryOne(
+            'SELECT * FROM users WHERE email_verification_token = ? AND email_verification_expires > NOW()',
+            [$tokenHash]
+        );
+    }
+
+    /**
+     * Aktuelle E-Mail des Nutzers als verifiziert markieren (z. B. nachdem der
+     * Einladungs-/Reset-Link geoeffnet wurde). Eine eventuell ausstehende
+     * E-Mail-Aenderung (pending_email) wird dabei NICHT uebernommen.
+     */
+    public static function markEmailVerified(int $id): void
+    {
+        Database::execute(
+            'UPDATE users SET email_verified_at = NOW() WHERE id = ?',
+            [$id]
+        );
+    }
+
+    /**
+     * Eine ausstehende E-Mail-Aenderung (Self-Service, Double-Opt-in) uebernehmen:
+     * pending_email wird zur neuen E-Mail UND zum neuen Anmeldenamen
+     * (username = E-Mail), als verifiziert markiert und die Verifizierungsdaten
+     * werden geleert.
+     */
+    public static function applyPendingEmail(int $id): void
+    {
+        $user = self::findById($id);
+        if ($user === null || empty($user['pending_email'])) {
+            return;
+        }
+
+        $pending = $user['pending_email'];
+        $normalized = strtolower(trim($pending));
+
+        Database::execute(
+            'UPDATE users SET email = ?, username = ?, email_verified_at = NOW(),
+             email_verification_token = NULL, email_verification_expires = NULL, pending_email = NULL
+             WHERE id = ?',
+            [$pending, $normalized, $id]
+        );
     }
 }

@@ -59,7 +59,7 @@
         <div class="form-group">
             <label for="file_aides">Import-Datei (.xlsx oder .csv)</label>
             <input type="file" id="file_aides" name="file" class="form-control" accept=".xlsx,.csv" required aria-describedby="file_aides_help">
-            <span class="form-help" id="file_aides_help">Spalten: Vorname, Nachname, Kommentar. Excel (.xlsx) oder CSV (.csv).</span>
+            <span class="form-help" id="file_aides_help">Spalten: Vorname, Nachname, E-Mail, Kommentar. Die E-Mail ist der Anmeldename; Schulbegleiter:innen erhalten eine Einladung per E-Mail. Excel (.xlsx) oder CSV (.csv).</span>
         </div>
         <button type="submit" class="btn">Vorschau anzeigen</button>
     </form>
