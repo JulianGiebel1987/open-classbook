@@ -403,7 +403,7 @@ class ImportController
 
         if ($type === 'schueler-csv') {
             header('Content-Type: text/csv; charset=UTF-8');
-            header('Content-Disposition: attachment; filename="Schüler-Import.csv"');
+            header('Content-Disposition: attachment; filename="Schueler-Import.csv"');
             echo "\xEF\xBB\xBF"; // UTF-8 BOM für Excel-Kompatibilität
             echo "Vorname;Nachname;Klasse;Geburtsdatum;Erziehungsberechtigten-Email\n";
             echo "Anna;Musterfrau;5a;15.03.2013;musterfrau@example.de\n";
@@ -426,7 +426,7 @@ class ImportController
 
         $templates = [
             'lehrer' => 'Lehrer-Import.xlsx',
-            'schueler' => 'Schüler-Import.xlsx',
+            'schueler' => 'Schueler-Import.xlsx',
             'schulbegleiter' => 'Schulbegleiter-Import.xlsx',
         ];
 

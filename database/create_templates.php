@@ -56,8 +56,8 @@ $sheet->setCellValue('D2', '15.03.2014');
 $sheet->setCellValue('E2', 'eltern@beispiel.de');
 
 $writer = new Xlsx($spreadsheet);
-$writer->save(__DIR__ . '/../templates/Schüler-Import.xlsx');
-echo "Schüler-Import.xlsx erstellt.\n";
+$writer->save(__DIR__ . '/../templates/Schueler-Import.xlsx');
+echo "Schueler-Import.xlsx erstellt.\n";
 
 // Schulbegleiter-Import-Vorlage
 $spreadsheet = new Spreadsheet();
