@@ -27,25 +27,25 @@ class AideServiceTest extends DatabaseTestCase
         $user = User::findById($result['user_id']);
         $this->assertEquals('schulbegleiter', $user['role']);
         $this->assertEquals(1, (int) $user['must_change_password']);
+        // Anmeldename = E-Mail
         $this->assertEquals('erika@mail.de', $user['email']);
-        $this->assertEquals('e.beispiel', $user['username']);
+        $this->assertEquals('erika@mail.de', $user['username']);
 
-        $this->assertEquals('Erika Beispiel', $result['credentials']['name']);
-        $this->assertNotEmpty($result['credentials']['password']);
+        // Rueckgabe liefert Einladungs-Info (kein Klartext-Passwort mehr).
+        $this->assertEquals('Erika Beispiel', $result['name']);
+        $this->assertEquals('erika@mail.de', $result['email']);
     }
 
-    public function testUsernameCollisionGetsNumericSuffix(): void
+    public function testEmailIsNormalisedToLowercase(): void
     {
-        $first = AideService::createAideWithAccount(['firstname' => 'Tom', 'lastname' => 'Schmidt']);
-        $second = AideService::createAideWithAccount(['firstname' => 'Tim', 'lastname' => 'Schmidt']);
+        $result = AideService::createAideWithAccount([
+            'firstname' => 'Tom',
+            'lastname' => 'Schmidt',
+            'email' => 'Tom.Schmidt@Mail.DE',
+        ]);
 
-        $this->assertEquals('t.schmidt', $first['credentials']['username']);
-        $this->assertEquals('t.schmidt1', $second['credentials']['username']);
-    }
-
-    public function testEmptyEmailStoredAsNull(): void
-    {
-        $result = AideService::createAideWithAccount(['firstname' => 'Nina', 'lastname' => 'Klein']);
-        $this->assertNull(User::findById($result['user_id'])['email']);
+        $user = User::findById($result['user_id']);
+        $this->assertEquals('tom.schmidt@mail.de', $user['username']);
+        $this->assertEquals('tom.schmidt@mail.de', $user['email']);
     }
 }

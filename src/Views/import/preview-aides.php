@@ -23,6 +23,7 @@
                     <th scope="col">Zeile</th>
                     <th scope="col">Vorname</th>
                     <th scope="col">Nachname</th>
+                    <th scope="col">E-Mail</th>
                     <th scope="col">Kommentar</th>
                     <th scope="col">Status</th>
                 </tr>
@@ -33,6 +34,7 @@
                     <td><?= $row['row'] ?></td>
                     <td><?= htmlspecialchars($row['firstname'], ENT_QUOTES, 'UTF-8') ?></td>
                     <td><?= htmlspecialchars($row['lastname'], ENT_QUOTES, 'UTF-8') ?></td>
+                    <td><?= htmlspecialchars($row['email'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
                     <td><?= htmlspecialchars($row['comment'], ENT_QUOTES, 'UTF-8') ?></td>
                     <td>
                         <?php if (empty($row['errors'])): ?>

@@ -18,16 +18,18 @@ $roleLabels = [
 
         <?php $old = $old ?? []; ?>
 
-        <div class="form-group" id="username-field">
-            <label for="username">Benutzername <span aria-hidden="true">*</span><span class="sr-only">(Pflichtfeld)</span></label>
-            <input type="text" id="username" name="username" class="form-control" required value="<?= htmlspecialchars($old['username'] ?? $user['username'], ENT_QUOTES, 'UTF-8') ?>" autocomplete="username">
+        <div class="form-group" id="email-field">
+            <label for="email">E-Mail-Adresse <span aria-hidden="true">*</span><span class="sr-only">(Pflichtfeld)</span></label>
+            <input type="email" id="email" name="email" class="form-control" value="<?= htmlspecialchars($old['email'] ?? $user['email'] ?? '', ENT_QUOTES, 'UTF-8') ?>" autocomplete="email" aria-describedby="email_help">
+            <span class="form-help" id="email_help">Die E-Mail-Adresse ist zugleich der Anmeldename. Wird sie geändert, ändert sich der Login und aktive Sitzungen werden beendet.</span>
         </div>
 
+        <?php if ($user['role'] === 'schueler'): ?>
         <div class="form-group">
-            <label for="email">E-Mail</label>
-            <input type="email" id="email" name="email" class="form-control" value="<?= htmlspecialchars($old['email'] ?? $user['email'] ?? '', ENT_QUOTES, 'UTF-8') ?>" autocomplete="email" aria-describedby="email_help">
-            <span class="form-help" id="email_help">Bei Lehrkräften wird die E-Mail als Anmeldename verwendet.</span>
+            <label>Anmeldename (generiert)</label>
+            <input type="text" class="form-control" value="<?= htmlspecialchars($user['username'], ENT_QUOTES, 'UTF-8') ?>" readonly>
         </div>
+        <?php endif; ?>
 
         <div class="form-group">
             <label for="role">Rolle <span aria-hidden="true">*</span><span class="sr-only">(Pflichtfeld)</span></label>

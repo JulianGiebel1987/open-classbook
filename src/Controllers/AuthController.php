@@ -268,6 +268,11 @@ class AuthController
 
         User::updatePassword($user['id'], $newPassword);
         User::clearResetToken($user['id']);
+        // Wer den per E-Mail zugestellten Link öffnet, hat den Zugriff auf die
+        // E-Mail-Adresse nachgewiesen -> als verifiziert markieren (verifiziert
+        // zugleich neu eingeladene Konten). Eine evtl. ausstehende E-Mail-
+        // Änderung bleibt davon unberührt.
+        User::markEmailVerified((int) $user['id']);
         // Aktive Sessions invalidieren (z.B. bei kompromittierten Konten)
         User::incrementSessionVersion((int) $user['id']);
         Logger::audit('password_reset_completed', (int) $user['id']);
@@ -280,5 +285,115 @@ class AuthController
     {
         $layout = App::isLoggedIn() ? 'main' : 'auth';
         View::render('auth/privacy', ['title' => 'Datenschutzhinweise'], $layout);
+    }
+
+    /** Rollen, die sich per E-Mail anmelden (alle ausser Schueler:innen). */
+    private const EMAIL_LOGIN_ROLES = ['admin', 'schulleitung', 'sekretariat', 'lehrer', 'schulbegleiter'];
+
+    /**
+     * Formular zur Self-Service-Aenderung der eigenen E-Mail-Adresse.
+     */
+    public function emailChangeForm(): void
+    {
+        $user = User::findById((int) ($_SESSION['user_id'] ?? 0));
+        if (!$user) {
+            App::redirect('/login');
+            return;
+        }
+
+        CsrfMiddleware::generateToken();
+        View::render('account/email', [
+            'title' => 'E-Mail-Adresse ändern',
+            'user' => $user,
+            'canChange' => in_array($user['role'], self::EMAIL_LOGIN_ROLES, true),
+            'breadcrumbs' => View::breadcrumbs([
+                ['label' => 'E-Mail-Adresse ändern'],
+            ]),
+        ]);
+    }
+
+    /**
+     * Aenderung anfordern: neue Adresse validieren, Bestaetigungslink (Double-
+     * Opt-in) an die NEUE Adresse senden. Erst nach Bestaetigung wird sie aktiv.
+     */
+    public function requestEmailChange(): void
+    {
+        $userId = (int) ($_SESSION['user_id'] ?? 0);
+        $user = User::findById($userId);
+        if (!$user) {
+            App::redirect('/login');
+            return;
+        }
+
+        if (!in_array($user['role'], self::EMAIL_LOGIN_ROLES, true)) {
+            App::setFlash('error', 'Für Ihr Konto steht die E-Mail-Änderung nicht zur Verfügung.');
+            App::redirect('/dashboard');
+            return;
+        }
+
+        $newEmail = strtolower(trim($_POST['new_email'] ?? ''));
+
+        if ($newEmail === '' || !filter_var($newEmail, FILTER_VALIDATE_EMAIL) || mb_strlen($newEmail) > 255) {
+            App::setFlash('error', 'Bitte geben Sie eine gültige E-Mail-Adresse ein.');
+            App::redirect('/account/email');
+            return;
+        }
+
+        if ($newEmail === strtolower((string) ($user['email'] ?? ''))) {
+            App::setFlash('error', 'Das ist bereits Ihre aktuelle E-Mail-Adresse.');
+            App::redirect('/account/email');
+            return;
+        }
+
+        if (User::emailExists($newEmail, $userId) || User::usernameExists($newEmail, $userId)) {
+            App::setFlash('error', 'Diese E-Mail-Adresse ist bereits vergeben.');
+            App::redirect('/account/email');
+            return;
+        }
+
+        if (!App::config('mail.enabled')) {
+            App::setFlash('error', 'Der E-Mail-Versand ist nicht konfiguriert. Bitte wenden Sie sich an die Administration.');
+            App::redirect('/account/email');
+            return;
+        }
+
+        $token = bin2hex(random_bytes(32));
+        $lifetime = App::config('security.email_verification_token_lifetime') ?? 86400;
+        $expires = new \DateTime('+' . $lifetime . ' seconds');
+        User::setEmailVerificationToken($userId, hash('sha256', $token), $expires, $newEmail);
+
+        $confirmUrl = rtrim(self::baseUrl(), '/') . '/account/email/confirm/' . $token;
+        NotificationService::sendEmailChangeConfirmationMail($newEmail, (string) $user['username'], $confirmUrl);
+        if (!empty($user['email'])) {
+            NotificationService::sendEmailChangeNoticeMail((string) $user['email'], (string) $user['username'], $newEmail);
+        }
+
+        Logger::audit('email_change_requested', $userId, 'User', $userId, 'Neue Adresse angefordert: ' . $newEmail);
+
+        App::setFlash('success', 'Wir haben einen Bestätigungslink an die neue Adresse gesendet. Bitte bestätigen Sie die Änderung dort. Bis dahin gilt Ihre bisherige Adresse.');
+        App::redirect('/account/email');
+    }
+
+    /**
+     * Bestaetigung der E-Mail-Aenderung ueber den zugesandten Link (oeffentlich,
+     * da der Token selbst den Zugriff auf die neue Adresse nachweist).
+     */
+    public function confirmEmailChange(string $token): void
+    {
+        $user = User::findByEmailVerificationToken(hash('sha256', $token));
+
+        if (!$user || empty($user['pending_email'])) {
+            App::setFlash('error', 'Ungültiger oder abgelaufener Bestätigungslink.');
+            App::redirect('/login');
+            return;
+        }
+
+        User::applyPendingEmail((int) $user['id']);
+        // Anmeldename hat sich geändert -> alle aktiven Sitzungen invalidieren.
+        User::incrementSessionVersion((int) $user['id']);
+        Logger::audit('email_change_confirmed', (int) $user['id'], 'User', (int) $user['id']);
+
+        App::setFlash('success', 'Ihre E-Mail-Adresse wurde geändert. Bitte melden Sie sich mit der neuen Adresse an.');
+        App::redirect('/login');
     }
 }

@@ -56,15 +56,15 @@ $sheet->setCellValue('D2', '15.03.2014');
 $sheet->setCellValue('E2', 'eltern@beispiel.de');
 
 $writer = new Xlsx($spreadsheet);
-$writer->save(__DIR__ . '/../templates/Schüler-Import.xlsx');
-echo "Schüler-Import.xlsx erstellt.\n";
+$writer->save(__DIR__ . '/../templates/Schueler-Import.xlsx');
+echo "Schueler-Import.xlsx erstellt.\n";
 
 // Schulbegleiter-Import-Vorlage
 $spreadsheet = new Spreadsheet();
 $sheet = $spreadsheet->getActiveSheet();
 $sheet->setTitle('Schulbegleiter-Import');
 
-$headers = ['Vorname', 'Nachname', 'Kommentar'];
+$headers = ['Vorname', 'Nachname', 'E-Mail', 'Kommentar'];
 foreach ($headers as $i => $header) {
     $col = chr(65 + $i);
     $sheet->setCellValue($col . '1', $header);
@@ -75,7 +75,8 @@ foreach ($headers as $i => $header) {
 // Beispielzeile
 $sheet->setCellValue('A2', 'Erika');
 $sheet->setCellValue('B2', 'Beispiel');
-$sheet->setCellValue('C2', 'Begleitet vormittags');
+$sheet->setCellValue('C2', 'e.beispiel@schule.de');
+$sheet->setCellValue('D2', 'Begleitet vormittags');
 
 $writer = new Xlsx($spreadsheet);
 $writer->save(__DIR__ . '/../templates/Schulbegleiter-Import.xlsx');

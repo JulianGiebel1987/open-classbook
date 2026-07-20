@@ -18,15 +18,10 @@ $roleLabels = [
 
         <?php $old = $old ?? []; ?>
 
-        <div class="form-group" id="username-field">
-            <label for="username">Benutzername <span aria-hidden="true">*</span><span class="sr-only">(Pflichtfeld)</span></label>
-            <input type="text" id="username" name="username" class="form-control" required autocomplete="username" value="<?= htmlspecialchars($old['username'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
-        </div>
-
-        <div class="form-group">
-            <label for="email">E-Mail</label>
+        <div class="form-group" id="email-field">
+            <label for="email">E-Mail-Adresse <span aria-hidden="true">*</span><span class="sr-only">(Pflichtfeld)</span></label>
             <input type="email" id="email" name="email" class="form-control" autocomplete="email" aria-describedby="email_help" value="<?= htmlspecialchars($old['email'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
-            <span class="form-help" id="email_help">Bei Lehrkräften wird die E-Mail als Anmeldename verwendet.</span>
+            <span class="form-help" id="email_help">Die E-Mail-Adresse ist zugleich der Anmeldename. Schüler:innen erhalten stattdessen einen generierten Login (Eltern-E-Mail im Schüler-Bereich).</span>
         </div>
 
         <div class="form-group">
@@ -110,11 +105,15 @@ $roleLabels = [
             </fieldset>
         </div>
 
-        <div class="form-group">
-            <label for="password">Passwort <span aria-hidden="true">*</span><span class="sr-only">(Pflichtfeld)</span></label>
-            <input type="password" id="password" name="password" class="form-control" required minlength="10" autocomplete="new-password" aria-describedby="password_help">
-            <span class="form-help" id="password_help">Min. 10 Zeichen, Groß- und Kleinbuchstaben, mindestens eine Ziffer.</span>
-        </div>
+        <p class="form-help" id="invite-note">
+            Es wird kein Passwort vergeben: Die Person erhält eine Einladungs-E-Mail mit einem
+            Link zum Festlegen des eigenen Passworts. Ist der Mailversand deaktiviert, wird der
+            Einladungslink im Anschluss einmalig angezeigt.
+        </p>
+        <p class="form-help" id="student-note" style="display: none;">
+            Für Schüler:innen wird ein Login mit temporärem Passwort erzeugt und anschließend
+            einmalig angezeigt.
+        </p>
 
         <div class="btn-group">
             <button type="submit" class="btn">Anlegen</button>

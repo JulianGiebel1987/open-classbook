@@ -266,4 +266,34 @@ class AuthService
 
         return $token;
     }
+
+    /**
+     * Onboarding-Token fuer neu angelegte/importierte Konten erzeugen.
+     * Technisch identisch zum Passwort-Reset-Token (derselbe /reset-password/-Flow
+     * "Passwort festlegen"), aber mit deutlich laengerer Laufzeit
+     * (security.invitation_token_lifetime, Default 7 Tage), damit Eingeladene
+     * genug Zeit haben, ihr Passwort zu setzen. Nur der SHA-256-Hash wird
+     * gespeichert, der Klartext-Token zurueckgegeben.
+     */
+    public static function createOnboardingToken(int $userId): string
+    {
+        $token = bin2hex(random_bytes(32));
+        $lifetime = App::config('security.invitation_token_lifetime') ?? 604800; // 7 Tage
+        $expires = new \DateTime('+' . $lifetime . ' seconds');
+
+        User::setResetToken($userId, hash('sha256', $token), $expires);
+
+        return $token;
+    }
+
+    /**
+     * Vollstaendigen Onboarding-Link ("Passwort festlegen") fuer einen Nutzer
+     * erzeugen. Nutzt denselben /reset-password/{token}-Flow wie der
+     * Passwort-Reset. Bequemer Wrapper fuer Controller/Import.
+     */
+    public static function createOnboardingLink(int $userId): string
+    {
+        $token = self::createOnboardingToken($userId);
+        return rtrim(\OpenClassbook\Controllers\AuthController::baseUrl(), '/') . '/reset-password/' . $token;
+    }
 }

@@ -42,6 +42,8 @@ $router->get('/forgot-password', [AuthController::class, 'forgotPasswordForm']);
 $router->post('/forgot-password', [AuthController::class, 'forgotPassword'], [CsrfMiddleware::class]);
 $router->get('/reset-password/{token}', [AuthController::class, 'resetPasswordForm']);
 $router->post('/reset-password', [AuthController::class, 'resetPassword'], [CsrfMiddleware::class]);
+// Bestaetigung einer Self-Service-E-Mail-Aenderung (Token authorisiert, kein Login noetig)
+$router->get('/account/email/confirm/{token}', [AuthController::class, 'confirmEmailChange']);
 $router->get('/datenschutz', [AuthController::class, 'privacy']);
 
 // === Zwei-Faktor-Authentifizierung (2FA) ===
@@ -54,6 +56,10 @@ $router->post('/two-factor/resend', [TwoFactorController::class, 'resendCode'], 
 $router->get('/dashboard', [DashboardController::class, 'index'], [AuthMiddleware::class]);
 $router->get('/change-password', [AuthController::class, 'changePasswordForm'], [AuthMiddleware::class]);
 $router->post('/change-password', [AuthController::class, 'changePassword'], [AuthMiddleware::class, CsrfMiddleware::class]);
+
+// Self-Service: eigene E-Mail-Adresse (= Anmeldename) ändern
+$router->get('/account/email', [AuthController::class, 'emailChangeForm'], [AuthMiddleware::class]);
+$router->post('/account/email', [AuthController::class, 'requestEmailChange'], [AuthMiddleware::class, CsrfMiddleware::class]);
 
 // 2FA-Setup und -Verwaltung (Login erforderlich)
 $router->get('/two-factor/setup', [TwoFactorController::class, 'setupForm'], [AuthMiddleware::class]);
@@ -77,6 +83,10 @@ $router->post('/users/{id}/send-temp-password', [UserController::class, 'sendTem
 $router->post('/users/{id}/delete', [UserController::class, 'delete'], [AuthMiddleware::class, AdminMiddleware::class, CsrfMiddleware::class]);
 $router->post('/users/{id}/reset-2fa', [UserController::class, 'resetTwoFactor'], [AuthMiddleware::class, AdminMiddleware::class, CsrfMiddleware::class]);
 $router->get('/users/reset-password-info', [UserController::class, 'resetPasswordInfo'], [AuthMiddleware::class, AdminMiddleware::class]);
+$router->post('/users/{id}/invite', [UserController::class, 'resendInvitation'], [AuthMiddleware::class, AdminMiddleware::class, CsrfMiddleware::class]);
+// Einladungslinks einmalig anzeigen (Fallback bei deaktiviertem Mailversand);
+// fuer Admin (Einzelanlage) und Staff (Import) zugaenglich.
+$router->get('/users/invite-info', [UserController::class, 'inviteInfo'], [AuthMiddleware::class, StaffMiddleware::class]);
 
 // === Klassenverwaltung (Admin / Schulleitung / Sekretariat) ===
 $router->get('/classes', [ClassController::class, 'index'], [AuthMiddleware::class, StaffMiddleware::class]);

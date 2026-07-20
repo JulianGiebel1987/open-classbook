@@ -1,5 +1,9 @@
 /**
- * Rollenabhängige Pflichtfelder im Benutzer-Formular ein-/ausblenden
+ * Rollenabhängige Pflichtfelder im Benutzer-Formular ein-/ausblenden.
+ *
+ * Die E-Mail-Adresse ist bei allen Rollen ausser Schüler:innen der Anmeldename
+ * (Pflichtfeld). Schüler:innen erhalten einen generierten Login; für sie wird
+ * das E-Mail-Feld ausgeblendet (die Eltern-E-Mail steht im Schüler-Bereich).
  */
 (function () {
     var roleSelect = document.getElementById('role');
@@ -11,9 +15,10 @@
     var lastname = document.getElementById('lastname');
     var abbreviation = document.getElementById('abbreviation');
     var classId = document.getElementById('class_id');
-    var usernameField = document.getElementById('username-field');
-    var username = document.getElementById('username');
+    var emailField = document.getElementById('email-field');
     var email = document.getElementById('email');
+    var inviteNote = document.getElementById('invite-note');
+    var studentNote = document.getElementById('student-note');
 
     if (!roleSelect || !profileFields) {
         return; // Nicht auf dieser Seite
@@ -25,6 +30,8 @@
         var isStudent = (role === 'schueler');
         var isAide = (role === 'schulbegleiter');
         var needsProfile = isTeacher || isStudent || isAide;
+        // Alle Rollen ausser Schüler:innen melden sich per E-Mail an.
+        var isEmailLogin = role !== '' && !isStudent;
 
         profileFields.style.display = needsProfile ? '' : 'none';
         teacherFields.style.display = isTeacher ? '' : 'none';
@@ -36,11 +43,14 @@
         if (abbreviation) abbreviation.required = isTeacher;
         if (classId) classId.required = isStudent;
 
-        // Lehrkräfte melden sich mit der E-Mail an -> Benutzername-Feld ausblenden.
-        // Ein verstecktes required-Feld wuerde den Submit blockieren.
-        if (usernameField) usernameField.style.display = isTeacher ? 'none' : '';
-        if (username) username.required = !isTeacher;
-        if (email) email.required = isTeacher;
+        // E-Mail = Anmeldename: für Schüler:innen ausblenden, sonst Pflichtfeld.
+        // Ein verstecktes required-Feld würde den Submit blockieren.
+        if (emailField) emailField.style.display = isStudent ? 'none' : '';
+        if (email) email.required = isEmailLogin;
+
+        // Hinweistexte (nur im Anlage-Formular vorhanden).
+        if (inviteNote) inviteNote.style.display = isStudent ? 'none' : '';
+        if (studentNote) studentNote.style.display = isStudent ? '' : 'none';
     }
 
     roleSelect.addEventListener('change', toggleFields);

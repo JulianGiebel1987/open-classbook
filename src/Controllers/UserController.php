@@ -13,9 +13,24 @@ use OpenClassbook\Middleware\CsrfMiddleware;
 use OpenClassbook\Services\AuthService;
 use OpenClassbook\Services\Logger;
 use OpenClassbook\Services\NotificationService;
+use OpenClassbook\Services\StudentService;
 
 class UserController
 {
+    /** Alle Rollen, bei denen die E-Mail-Adresse der eindeutige Anmeldename ist. */
+    private const EMAIL_LOGIN_ROLES = ['admin', 'schulleitung', 'sekretariat', 'lehrer', 'schulbegleiter'];
+
+    /** Alle gueltigen Rollen. */
+    private const ALL_ROLES = ['admin', 'schulleitung', 'sekretariat', 'lehrer', 'schueler', 'schulbegleiter'];
+
+    /**
+     * True, wenn sich die Rolle per E-Mail anmeldet (alle ausser Schueler:innen).
+     */
+    private function isEmailLoginRole(string $role): bool
+    {
+        return in_array($role, self::EMAIL_LOGIN_ROLES, true);
+    }
+
     /**
      * Defense-in-depth: sicherstellen, dass der aktuelle Nutzer Admin ist.
      * Zusätzlich zur AdminMiddleware auf Route-Ebene.
@@ -28,6 +43,33 @@ class UserController
             return false;
         }
         return true;
+    }
+
+    /**
+     * Einladung ("Passwort festlegen") fuer ein neu angelegtes Konto ausloesen.
+     * Ist der Mailversand aktiv, wird die Einladung per E-Mail gesendet;
+     * andernfalls (oder bei Fehlschlag) wird der Einladungslink zum einmaligen
+     * Anzeigen in der Session gesammelt. Es wird nie ein Klartext-Passwort
+     * erzeugt oder angezeigt.
+     *
+     * @param array<int,array{name:string,email:string,link:string}> $collected
+     */
+    private function inviteUser(int $userId, string $email, string $name, array &$collected): bool
+    {
+        $link = AuthService::createOnboardingLink($userId);
+
+        if (App::config('mail.enabled') && $email !== '') {
+            if (NotificationService::sendInvitationMail($email, $name, $link)) {
+                return true;
+            }
+        }
+
+        $collected[] = [
+            'name' => $name !== '' ? $name : $email,
+            'email' => $email,
+            'link' => $link,
+        ];
+        return false;
     }
 
     public function index(): void
@@ -75,24 +117,21 @@ class UserController
     {
         if (!$this->requireAdmin()) return;
 
+        $role = $_POST['role'] ?? '';
+        // E-Mail ist bei allen Rollen ausser Schueler:innen der Anmeldename.
+        $email = strtolower(trim($_POST['email'] ?? ''));
 
         $data = [
-            'username' => trim($_POST['username'] ?? ''),
-            'email' => trim($_POST['email'] ?? '') ?: null,
-            'role' => $_POST['role'] ?? '',
-            'password' => $_POST['password'] ?? '',
+            'role' => $role,
+            'email' => $this->isEmailLoginRole($role) ? ($email ?: null) : null,
+            'username' => $this->isEmailLoginRole($role) ? $email : '',
         ];
 
-        // Lehrkräfte melden sich mit ihrer E-Mail an -> Anmeldename = E-Mail
-        if ($data['role'] === 'lehrer') {
-            $data['username'] = strtolower(trim($_POST['email'] ?? ''));
-        }
-
-        // Validierung
+        // Validierung (E-Mail/Anmeldename, Rolle, RBAC)
         $errors = $this->validateUser($data);
 
         // Zusätzliche Validierung für Lehrkräfte
-        if ($data['role'] === 'lehrer') {
+        if ($role === 'lehrer') {
             if (empty(trim($_POST['firstname'] ?? ''))) {
                 $errors[] = 'Vorname ist für Lehrkräfte erforderlich.';
             }
@@ -108,7 +147,7 @@ class UserController
         }
 
         // Zusätzliche Validierung für Schüler:innen
-        if ($data['role'] === 'schueler') {
+        if ($role === 'schueler') {
             if (empty(trim($_POST['firstname'] ?? ''))) {
                 $errors[] = 'Vorname ist für Schüler:innen erforderlich.';
             }
@@ -118,10 +157,14 @@ class UserController
             if (empty($_POST['class_id'] ?? '')) {
                 $errors[] = 'Klasse ist für Schüler:innen erforderlich.';
             }
+            $guardianEmail = trim($_POST['guardian_email'] ?? '');
+            if ($guardianEmail !== '' && (!filter_var($guardianEmail, FILTER_VALIDATE_EMAIL) || mb_strlen($guardianEmail) > 255)) {
+                $errors[] = 'Ungültige Erziehungsberechtigten-E-Mail.';
+            }
         }
 
         // Zusätzliche Validierung für Schulbegleiter:innen
-        if ($data['role'] === 'schulbegleiter') {
+        if ($role === 'schulbegleiter') {
             if (empty(trim($_POST['firstname'] ?? ''))) {
                 $errors[] = 'Vorname ist für Schulbegleiter:innen erforderlich.';
             }
@@ -135,7 +178,7 @@ class UserController
             CsrfMiddleware::generateToken();
             View::render('users/create', [
                 'title' => 'Neuer Benutzer',
-                'roles' => ['admin', 'schulleitung', 'sekretariat', 'lehrer', 'schueler', 'schulbegleiter'],
+                'roles' => self::ALL_ROLES,
                 'classes' => SchoolClass::findAll(),
                 'students' => Student::findAll(),
                 'assignedStudentIds' => array_map('intval', (array) ($_POST['student_ids'] ?? [])),
@@ -148,44 +191,155 @@ class UserController
             return;
         }
 
-        $userId = User::create($data);
+        $firstname = trim($_POST['firstname'] ?? '');
+        $lastname = trim($_POST['lastname'] ?? '');
+
+        // Schüler:innen: generierter Anmeldename + Zufallspasswort, Zugangsdaten
+        // werden einmalig angezeigt (identisch zur klassenzentrierten Anlage).
+        if ($role === 'schueler') {
+            $created = StudentService::createStudentWithAccount([
+                'firstname' => $firstname,
+                'lastname' => $lastname,
+                'class_id' => (int) $_POST['class_id'],
+                'birthday' => trim($_POST['birthday'] ?? '') ?: null,
+                'guardian_email' => trim($_POST['guardian_email'] ?? '') ?: null,
+            ]);
+
+            $_SESSION['import_credentials'] = [$created['credentials']];
+            $_SESSION['credentials_back_url'] = '/users';
+            App::setFlash('success', $firstname . ' ' . $lastname
+                . ' wurde angelegt. Zugangsdaten werden angezeigt – bitte notieren!');
+            App::redirect('/students/credentials');
+            return;
+        }
+
+        // E-Mail-Login-Rollen: Konto mit unbrauchbarem Zufallspasswort anlegen;
+        // Aktivierung erfolgt über den Einladungslink ("Passwort festlegen").
+        $userId = User::create([
+            'username' => $data['username'],
+            'email' => $data['email'],
+            'password' => AuthService::generateRandomPassword(),
+            'role' => $role,
+            'must_change_password' => 1,
+        ]);
 
         // Lehrkraft-Profil anlegen
-        if ($data['role'] === 'lehrer') {
+        if ($role === 'lehrer') {
             Teacher::create([
                 'user_id' => $userId,
-                'firstname' => trim($_POST['firstname']),
-                'lastname' => trim($_POST['lastname']),
+                'firstname' => $firstname,
+                'lastname' => $lastname,
                 'abbreviation' => trim($_POST['abbreviation']),
                 'subjects' => trim($_POST['subjects'] ?? '') ?: null,
             ]);
         }
 
-        // Schüler:in-Profil anlegen
-        if ($data['role'] === 'schueler') {
-            Student::create([
-                'user_id' => $userId,
-                'firstname' => trim($_POST['firstname']),
-                'lastname' => trim($_POST['lastname']),
-                'class_id' => (int) $_POST['class_id'],
-                'birthday' => trim($_POST['birthday'] ?? '') ?: null,
-                'guardian_email' => trim($_POST['guardian_email'] ?? '') ?: null,
-            ]);
-        }
-
         // Schulbegleiter:innen-Profil anlegen
-        if ($data['role'] === 'schulbegleiter') {
+        if ($role === 'schulbegleiter') {
             $aideId = SchoolAide::create([
                 'user_id' => $userId,
-                'firstname' => trim($_POST['firstname']),
-                'lastname' => trim($_POST['lastname']),
+                'firstname' => $firstname,
+                'lastname' => $lastname,
                 'comment' => trim($_POST['comment'] ?? '') ?: null,
             ]);
             SchoolAide::setStudents($aideId, array_map('intval', (array) ($_POST['student_ids'] ?? [])));
         }
 
-        App::setFlash('success', 'Benutzer erfolgreich angelegt.');
-        App::redirect('/users');
+        // Einladung senden bzw. Link zum einmaligen Anzeigen sammeln.
+        $collected = [];
+        $name = trim($firstname . ' ' . $lastname);
+        $sent = $this->inviteUser($userId, (string) $data['email'], $name, $collected);
+
+        if ($sent) {
+            App::setFlash('success', 'Benutzer angelegt. Einladung wurde an '
+                . htmlspecialchars((string) $data['email'], ENT_QUOTES, 'UTF-8') . ' gesendet.');
+            App::redirect('/users');
+            return;
+        }
+
+        // Mailversand deaktiviert oder fehlgeschlagen: Link einmalig anzeigen.
+        $_SESSION['invite_links'] = $collected;
+        $_SESSION['invite_back_url'] = '/users';
+        App::setFlash('success', 'Benutzer angelegt. Der Einladungslink wird einmalig angezeigt.');
+        App::redirect('/users/invite-info');
+    }
+
+    /**
+     * Einladungslinks eines gerade angelegten/importierten Kontos einmalig
+     * anzeigen (Fallback bei deaktiviertem Mailversand). Fuer Admin und Staff
+     * (Import) zugaenglich.
+     */
+    public function inviteInfo(): void
+    {
+        $links = $_SESSION['invite_links'] ?? [];
+        $backUrl = $_SESSION['invite_back_url'] ?? '/users';
+        unset($_SESSION['invite_links'], $_SESSION['invite_back_url']);
+
+        if (empty($links)) {
+            App::redirect($backUrl);
+            return;
+        }
+
+        header('Cache-Control: no-store, no-cache, must-revalidate, private');
+        header('Pragma: no-cache');
+
+        View::render('users/invite-info', [
+            'title' => 'Einladungslinks',
+            'links' => $links,
+            'backUrl' => $backUrl,
+            'breadcrumbs' => View::breadcrumbs([
+                ['label' => 'Benutzer', 'url' => '/users'],
+                ['label' => 'Einladungslinks'],
+            ]),
+        ]);
+    }
+
+    /**
+     * Einladung ("Passwort festlegen") fuer ein bestehendes Konto erneut
+     * ausloesen (z. B. bei nicht abgeschlossenem Onboarding).
+     */
+    public function resendInvitation(string $id): void
+    {
+        if (!$this->requireAdmin()) return;
+
+        $userId = (int) $id;
+        $user = User::findById($userId);
+        if (!$user) {
+            App::setFlash('error', 'Benutzer nicht gefunden.');
+            App::redirect('/users');
+            return;
+        }
+
+        if (!$this->isEmailLoginRole($user['role']) || empty($user['email'])) {
+            App::setFlash('error', 'Für diesen Benutzer kann keine E-Mail-Einladung versendet werden.');
+            App::redirect('/users');
+            return;
+        }
+
+        // Neue Sitzung des Nutzers vermeiden: bestehende Sessions invalidieren.
+        User::incrementSessionVersion($userId);
+
+        $collected = [];
+        $sent = $this->inviteUser($userId, (string) $user['email'], (string) $user['username'], $collected);
+
+        Logger::audit(
+            'resend_invitation',
+            $_SESSION['user_id'] ?? null,
+            'User',
+            $userId,
+            'Einladungslink erneut erzeugt für: ' . $user['username']
+        );
+
+        if ($sent) {
+            App::setFlash('success', 'Einladung wurde an '
+                . htmlspecialchars((string) $user['email'], ENT_QUOTES, 'UTF-8') . ' gesendet.');
+            App::redirect('/users');
+            return;
+        }
+
+        $_SESSION['invite_links'] = $collected;
+        $_SESSION['invite_back_url'] = '/users';
+        App::redirect('/users/invite-info');
     }
 
     public function editForm(string $id): void
@@ -244,39 +398,42 @@ class UserController
             return;
         }
 
-        $data = [
-            'username' => trim($_POST['username'] ?? ''),
-            'email' => trim($_POST['email'] ?? '') ?: null,
-            'role' => $_POST['role'] ?? $user['role'],
-        ];
+        $role = $_POST['role'] ?? $user['role'];
+        $email = strtolower(trim($_POST['email'] ?? ''));
 
-        // Lehrkräfte melden sich mit ihrer E-Mail an -> Anmeldename = E-Mail
-        if ($data['role'] === 'lehrer') {
-            $data['username'] = strtolower(trim($_POST['email'] ?? ''));
+        $data = ['role' => $role];
+
+        if ($this->isEmailLoginRole($role)) {
+            // Anmeldename = E-Mail
+            $data['email'] = $email ?: null;
+            $data['username'] = $email;
+        } else {
+            // Schüler:in: Anmeldename bleibt der generierte Benutzername; die
+            // Erziehungsberechtigten-E-Mail wird als Konto-E-Mail gefuehrt.
+            $data['email'] = trim($_POST['guardian_email'] ?? '') ?: null;
         }
 
         $errors = [];
 
         // Selbst-Deprivilegierung/Eskalation nur kontrolliert zulassen
-        if ($userId === (int) $_SESSION['user_id'] && $data['role'] !== $user['role']) {
+        if ($userId === (int) $_SESSION['user_id'] && $role !== $user['role']) {
             $errors[] = 'Sie können Ihre eigene Rolle nicht ändern.';
         }
 
         // Letzten Admin nicht degradieren
-        if ($user['role'] === 'admin' && $data['role'] !== 'admin' && User::countActiveAdmins() <= 1) {
+        if ($user['role'] === 'admin' && $role !== 'admin' && User::countActiveAdmins() <= 1) {
             $errors[] = 'Der letzte aktive Administrator kann nicht degradiert werden.';
         }
 
-        // Username-Duplikat prüfen
-        if ($data['username'] !== $user['username'] && User::usernameExists($data['username'], $userId)) {
-            $errors[] = ($data['role'] === 'lehrer')
-                ? 'Diese E-Mail-Adresse ist bereits als Anmeldename vergeben.'
-                : 'Dieser Benutzername ist bereits vergeben.';
-        }
-
-        // E-Mail-Pflicht für Lehrkräfte
-        if ($data['role'] === 'lehrer' && empty($data['email'])) {
-            $errors[] = 'Für Lehrkräfte-Accounts ist eine E-Mail-Adresse erforderlich.';
+        // E-Mail/Anmeldename der E-Mail-Login-Rollen validieren
+        if ($this->isEmailLoginRole($role)) {
+            if (empty($email)) {
+                $errors[] = 'E-Mail-Adresse ist erforderlich (sie ist der Anmeldename).';
+            } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL) || mb_strlen($email) > 255) {
+                $errors[] = 'Bitte geben Sie eine gültige E-Mail-Adresse ein.';
+            } elseif (User::emailExists($email, $userId) || User::usernameExists($email, $userId)) {
+                $errors[] = 'Diese E-Mail-Adresse ist bereits vergeben.';
+            }
         }
 
         // Validierung Lehrkraft-Profil
@@ -347,6 +504,11 @@ class UserController
         }
 
         User::update($userId, $data);
+
+        // Aenderte sich der Anmeldename (E-Mail), aktive Sessions invalidieren.
+        if (isset($data['username']) && $data['username'] !== $user['username']) {
+            User::incrementSessionVersion($userId);
+        }
 
         // Lehrkraft-Profil erstellen oder aktualisieren
         if ($data['role'] === 'lehrer') {
@@ -678,42 +840,39 @@ class UserController
         App::redirect('/users');
     }
 
+    /**
+     * Validiert die gemeinsamen Kontodaten (E-Mail als Anmeldename, Rolle, RBAC).
+     * Ein manuelles Passwort gibt es nicht mehr – die Aktivierung erfolgt per
+     * Einladungslink. Rollen-spezifische Profilfelder werden im Aufrufer geprueft.
+     */
     private function validateUser(array $data, ?int $excludeId = null): array
     {
         $errors = [];
+        $role = $data['role'] ?? '';
 
-        if (empty($data['username'])) {
-            // Für Lehrkräfte ist der Anmeldename die E-Mail; die fehlende
-            // E-Mail wird weiter unten separat gemeldet.
-            if (($data['role'] ?? '') !== 'lehrer') {
-                $errors[] = 'Benutzername ist erforderlich.';
-            }
-        } elseif (User::usernameExists($data['username'], $excludeId)) {
-            $errors[] = (($data['role'] ?? '') === 'lehrer')
-                ? 'Diese E-Mail-Adresse ist bereits als Anmeldename vergeben.'
-                : 'Dieser Benutzername ist bereits vergeben.';
-        }
-
-        if (!in_array($data['role'], ['admin', 'schulleitung', 'sekretariat', 'lehrer', 'schueler', 'schulbegleiter'])) {
+        if (!in_array($role, self::ALL_ROLES, true)) {
             $errors[] = 'Ungültige Rolle.';
+            return $errors;
         }
 
-        if ($data['role'] === 'lehrer' && empty($data['email'])) {
-            $errors[] = 'Für Lehrkräfte-Accounts ist eine E-Mail-Adresse erforderlich.';
-        }
-
-        if (isset($data['password']) && !empty($data['password'])) {
-            $pwErrors = AuthService::validatePassword($data['password']);
-            $errors = array_merge($errors, $pwErrors);
-        } elseif ($excludeId === null) {
-            $errors[] = 'Passwort ist erforderlich.';
+        // E-Mail-Login-Rollen: E-Mail ist Pflicht, wird formatgeprueft und muss
+        // eindeutig sein (Anmeldename = E-Mail).
+        if ($this->isEmailLoginRole($role)) {
+            $email = $data['email'] ?? '';
+            if (empty($email)) {
+                $errors[] = 'E-Mail-Adresse ist erforderlich (sie ist der Anmeldename).';
+            } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL) || mb_strlen($email) > 255) {
+                $errors[] = 'Bitte geben Sie eine gültige E-Mail-Adresse ein.';
+            } elseif (User::emailExists($email, $excludeId) || User::usernameExists($data['username'] ?? $email, $excludeId)) {
+                $errors[] = 'Diese E-Mail-Adresse ist bereits vergeben.';
+            }
         }
 
         // RBAC: Nur Administratoren dürfen privilegierte Rollen vergeben.
         // Andere Rollen sollten die Benutzerverwaltung ohnehin nicht erreichen
         // (AdminMiddleware + requireAdmin()), dieser Check dient als Defense-in-Depth.
         $currentRole = App::currentUserRole();
-        if ($currentRole !== 'admin' && in_array($data['role'], ['admin', 'schulleitung', 'sekretariat'], true)) {
+        if ($currentRole !== 'admin' && in_array($role, ['admin', 'schulleitung', 'sekretariat'], true)) {
             $errors[] = 'Sie haben keine Berechtigung, diese Rolle zuzuweisen.';
         }
 
